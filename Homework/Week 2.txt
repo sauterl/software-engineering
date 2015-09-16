@@ -1,0 +1,37 @@
+TODO: Präzise Spezifikationen in Englisch
+	Kommandos und Ihre Parameter, Optionen
+	Definition gültiger Parameter & Optionen
+	Art und Format der Ausgabe
+	
+Aufwandeinschätzung pro Kommando.
+	Manuelles Testen
+	Schreiben von Tests
+	Dokumentation
+	
+Aufwandeinschätzung Einarbeitung & Auffrischung
+
+
+Spezifikationen der Kommandos:
+add file directory [description] 
+-> creates metadata about data set (folders and files) and adds metadata & data set to directory
+Metadata consits of ID, Name, Creation Timestamp, [Descripton], Number of Files inside (Folders + data), size
+Output: Success / Fail + overview of added directory
+
+replace newfilepath oldfilepath [description of new file]
+Output: Success / Fail -> overview of newfilepath
+
+delete filepath
+Output: Success / Fail -> overview of directory where the dataset was deleted
+
+get metadata filepath
+Output: Metadata about dataset
+
+search -id=? -name=? etc.
+Output: List of matches
+
+copy from to
+Output: to-Directory
+
+
+Aufwandeinschätzung der Kommandos:
+	
