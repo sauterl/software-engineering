@@ -13,3 +13,4 @@ Modul3: Metadaten
 
 Modul4: Suchmaschine
 	-> Suchen der Metadaten
+	-> FileSystem innerhalb Repo
