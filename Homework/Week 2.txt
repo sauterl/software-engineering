@@ -15,6 +15,7 @@ Spezifikationen der Kommandos:
 add file directory [description] 
 -> creates metadata about data set (folders and files) and adds metadata & data set to directory
 Metadata consits of ID, Name, Creation Timestamp, [Descripton], Number of Files inside (Folders + data), size
+-> if already in a repository, Node is deleted
 Output: Success / Fail + overview of added directory
 
 replace newfilepath oldfilepath [description of new file]
@@ -31,6 +32,12 @@ Output: List of matches
 
 copy from to
 Output: to-Directory
+
+Status
+Output: Tracked Data in this folder
+
+Print
+Output: Print out all JSON files
 
 
 Aufwandeinschätzung der Kommandos:
