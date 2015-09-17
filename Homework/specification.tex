@@ -1,0 +1,57 @@
+%% Allgemeine Definitionen
+\documentclass{article} %% Bestimmt die allgemeine Formatierung der Abgabe.
+\usepackage{a4wide} %% Papierformat: A4.
+\usepackage[utf8]{inputenc} %% Datei wird im UTF-8 Format geschrieben.
+%% Unter Windows werden Dateien je nach Editor nicht in diesem Format
+%% gespeichert und Umlaute werden dann nicht richtig erkannt.
+%% Versucht in diesem Fall "utf8" auf "latin1" (ISO 8859-1) wechseln.
+\usepackage[T1]{fontenc} %% Format der Zeichen im erstellten PDF.
+\usepackage[english]{babel} %% Regeln für automatische Worttrennung.
+\usepackage{fancyhdr} %% Paket um einen Header auf jeder Seite zu erstellen.
+\usepackage{lastpage} %% Wird für "Seite X von Y" im Header benötigt.
+                      %% Damit das funktioniert, muss pdflatex zweimal
+                      %% aufgerufen werden.
+\usepackage{enumerate} %% Hiermit kann der Stil der Aufzählungen
+                       %% verändert werden (siehe unten).
+
+\usepackage{amssymb} %% Definitionen für mathematische Symbole.
+\usepackage{amsmath} %% Definitionen für mathematische Symbole.
+
+\usepackage{wasysym} % %For lightning bolt
+
+\usepackage{tikz}  %% Paket für Grafiken (Graphen, Automaten, etc.)
+\usetikzlibrary{automata} %% Tikz-Bibliothek für Automaten
+\usetikzlibrary{arrows}   %% Tikz-Bibliothek für Pfeilspitzen
+
+
+%% Linke Seite des Headers
+\lhead{\course\\Fall 2015}
+%% Rechte Seite des Headers
+\rhead{\ej, \mg, \ls, \sh\\ Page \thepage\ of \pageref{LastPage}}
+%% Höhe des Headers
+\usepackage[headheight=36pt]{geometry}
+%% Seitenstil, der den Header verwendet.
+\pagestyle{fancy}
+
+\newcommand{\ls}{Loris Sauter}
+\newcommand{\sh}{Silvan Heller}
+\newcommand{\mg}{Max Grüner}
+\newcommand{\ej}{Eddie Joseph}
+\newcommand{\semester}{Herbstsemester 2015}
+\newcommand{\course}{Software Engineering}
+\newcommand{\homeworkNumber}{2}
+
+
+\begin{document}
+\section*{Command specifications}
+	\begin{description}
+		\item[\texttt{add}] To add a data set to the repository.\\
+			Usage: \texttt{add [-v] <dataset> <name> [<description>]}\\
+			\texttt{<dataset>}: The path to the data set to add to the repository\\
+			\texttt{<name>}: User defined name of the data set\\
+			\texttt{<description>}: Optional description of the data set.\\
+			
+			\noindent 
+		\item[\texttt{remove}]
+	\end{description}
+\end{document}
