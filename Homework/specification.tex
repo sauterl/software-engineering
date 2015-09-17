@@ -43,15 +43,229 @@
 
 
 \begin{document}
-\section*{Command specifications}
-	\begin{description}
-		\item[\texttt{add}] To add a data set to the repository.\\
-			Usage: \texttt{add [-v] <dataset> <name> [<description>]}\\
-			\texttt{<dataset>}: The path to the data set to add to the repository\\
-			\texttt{<name>}: User defined name of the data set\\
-			\texttt{<description>}: Optional description of the data set.\\
-			
-			\noindent 
-		\item[\texttt{remove}]
-	\end{description}
+\part*{Command specifications}
+	% % Trying to get a man-pages style (like git)
+	% % specification template:
+%	\section*{COMMAND}
+%	\subsection*{Name}
+%	\texttt{COMMAND} - SHORT
+%	\subsection*{Synopsis}
+%	\texttt{\textbf{COMMAND} OPTIONS PARAMETERS}
+%	\subsection*{Description}
+%	DESCRIPTION OF THE COMMAND\\
+%	
+%	\noindent On success, ...
+%	\subsubsection*{Options}
+%	\begin{description}
+%		\item[\texttt{OPTION}] DESCRIPTION
+%		\item[\texttt{OPTION}] DESCRIPTION
+%	\end{description}
+%	
+%	\subsubsection*{Parameters}
+%	\begin{description}
+%		\item[\texttt{PARAM}] DESCRIPTION
+%		\item[\texttt{PARAM}] DESCRIPTION
+%	\end{description}
+%	\subsubsection*{Exit status}
+%	\begin{tabular}{ll}
+%		0 &  if OK,\\ 
+%		1 &  if command-parameter specific error occurred\\
+%		2 &  if the command could not be executed\\
+%		4 &  if any other error occurred\\
+%	\end{tabular}
+%	\newpage
+	% % END OF TEMPLATE
+		\section*{ADD}
+		\subsection*{Name}
+		\texttt{add} - Add data set to repository
+		\subsection*{Synopsis}
+		\texttt{\textbf{add} [-v] <name> [<description>]}
+		\subsection*{Description}
+		Add the specified \texttt{<dataset>} with optional \texttt{description} to the repository.\\
+		
+		\noindent
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+		\subsubsection*{Parameters}
+		\begin{description}
+			\item[\texttt{<name>}] The name of the data set (includes path)
+			\item[\texttt{<description>}] \textbf{Optional} A description of the data set
+		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+			1 &  if the file/folder under given \texttt{<name>} does not exist\\ 
+			2 &  if the data set could not get added into the repository\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		
+		\newpage
+		\section*{REMOVE}
+		\subsection*{Name}
+		\texttt{remove} - remove data set
+		\subsection*{Synopsis}
+		\texttt{\textbf{remove} [-v] <name>}
+		\subsection*{Description}
+		Remove the data set with given \texttt{<name>}\\
+		
+		\noindent
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+		\subsubsection*{Parameters}
+		\begin{description}
+			\item[\texttt{<name>}] The name of the data set (e.g. the name of the file/folder)
+		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+			1 &  if the data set with specified \texttt{<name>} does not exist\\ 
+			2 &  if the data set could not get removed\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		\newpage
+		\section*{COPY}
+		\subsection*{Name}
+		\texttt{copy} - copies the data set from the repository
+		\subsection*{Synopsis}
+		\texttt{\textbf{copy} [-v] <name> <location>}
+		\subsection*{Description}
+		Copies the data set specified with \texttt{<name>} to the given \texttt{<location}.
+		If the operation succeeded, the data set remains in the repository and the data set is accessible with the original name at the given location.\\
+		
+		\noindent
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+		\subsubsection*{Parameters}
+		\begin{description}
+			\item[\texttt{<name>}] The name of the data set.
+			\item[\texttt{<location>}] The path to the new location of the data set.
+		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+			1 &  if the data set with specified \texttt{<name>} does not exist or the \texttt{<location>} parameter is invalid\\
+			2 &  if the data set could not get copied (e.g. if at the specified location already a file / folder with given name exists)\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		
+		\newpage
+		\section*{REPLACE}
+		\subsection*{Name}
+		\texttt{replace} - replaces the data set with another one
+		\subsection*{Synopsis}
+		\texttt{\textbf{replace} [-v] <name> <path>}
+		\subsection*{Description}
+		Replaces the data set with specified \texttt{name} with the data set located at \texttt{<path>}\\
+		
+		\noindent
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+		\subsubsection*{Parameters}
+		\begin{description}
+			\item[\texttt{<name>}] The name of the data set to replace
+			\item[\texttt{<path>}] The path to the new data set
+		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+			1 &  if command-parameter specific error occurred\\
+			2 &  ifthe data set with specified \texttt{<name>} does not exist or the \texttt{<path>} parameter is invalid\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		\newpage
+		\section*{LIST}
+		\subsection*{Name}
+		\texttt{list} - lists all data set and its meta data
+		\subsection*{Synopsis}
+		\texttt{\textbf{list} [-v]}
+		\subsection*{Description}
+		Lists all data set and its meta data of the repository.\\
+		
+		\noindent On success, a list of all data sets gets printed. Additionally to the name of the data set its description (if one exists), its size and the number of files it contains get printed.
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+%		\subsubsection*{Parameters}
+%		\begin{description}
+%			\item[\texttt{PARAM}] DESCRIPTION
+%			\item[\texttt{PARAM}] DESCRIPTION
+%		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+%			1 &  if the current working directory is not a repository\\
+%			2 &  if the command could not be executed\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		\newpage
+		
+		\section*{INIT}
+		\subsection*{Name}
+		\texttt{init} - initialises the repository in the current working directory
+		\subsection*{Synopsis}
+		\texttt{\textbf{init} [-v]}
+		\subsection*{Description}
+		Initialises the repository in the current working directory.
+		During the initialisation files for storing meta data are generated.\\
+		
+		\noindent On success, a message gets printed.
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+%		\subsubsection*{Parameters}
+%		\begin{description}
+%			\item[\texttt{PARAM}] DESCRIPTION
+%			\item[\texttt{PARAM}] DESCRIPTION
+%		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+%			1 &  if command-parameter specific error occurred\\
+%			2 &  if the command could not be executed\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		\newpage
+		
+		\section*{SEARCH}
+		\subsection*{Name}
+		\texttt{search} - searches for one or more data set
+		\subsection*{Synopsis}
+		\texttt{\textbf{search} [-v] [--name=<pattern>] [--description=<pattern>]}
+		\subsection*{Description}
+		Searches for data sets matching the pattern.\\
+		
+		\noindent
+		\subsubsection*{Options}
+		\begin{description}
+			\item[\texttt{-v}] verbose progress
+		\end{description}
+		
+		\subsubsection*{Parameters}
+		\begin{description}
+			\item[\texttt{<pattern>}] A pattern the data set should match to get found
+		\end{description}
+		\subsubsection*{Exit status}
+		\begin{tabular}{ll}
+			0 &  if OK,\\ 
+			1 &  if command-parameter specific error occurred\\
+			2 &  if the command could not be executed\\
+			4 &  if any other error occurred\\
+		\end{tabular}
+		\newpage
 \end{document}
