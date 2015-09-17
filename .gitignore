@@ -1,0 +1,4 @@
+#catching latex temporary files
+**/*.aux
+**/*.log
+**/*.synctex.gz
