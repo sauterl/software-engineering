@@ -27,7 +27,7 @@
 %% Linke Seite des Headers
 \lhead{\course\\Fall 2015}
 %% Rechte Seite des Headers
-\rhead{\ej, \mg, \ls, \sh\\ Page \thepage\ of \pageref{LastPage}}
+\rhead{\mg, \sh, \ej, \ls\\ Page \thepage\ of \pageref{LastPage}}
 %% Höhe des Headers
 \usepackage[headheight=36pt]{geometry}
 %% Seitenstil, der den Header verwendet.
@@ -135,7 +135,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{copy} [-v] <name> <location>}
 		\subsection*{Description}
-		Copies the data set specified with \texttt{<name>} to the given \texttt{<location}.
+		Copies the data set specified with \texttt{<name>} to the given \texttt{<location>}.
 		If the operation succeeded, the data set remains in the repository and the data set is accessible with the original name at the given location.\\
 		
 		\noindent
@@ -246,19 +246,26 @@
 		\subsection*{Name}
 		\texttt{search} - searches for one or more data set
 		\subsection*{Synopsis}
-		\texttt{\textbf{search} [-v] [--name=<pattern>] [--description=<pattern>]}
+		\texttt{\textbf{search} [-v][-a][-o] [-name=<pattern>] [-description=<pattern>] [-id=<id>] [-timestamp=<time>] [-size=<size>] [-files=<amount>]}
 		\subsection*{Description}
-		Searches for data sets matching the pattern.\\
+		Searches for data sets based on its meta data. Based on the parameter different meta data is considered to look for.\\
 		
 		\noindent
 		\subsubsection*{Options}
 		\begin{description}
 			\item[\texttt{-v}] verbose progress
+			\item[\texttt{-a}] match all given search parameters
+			\item[\texttt{-o}] match one of the given search parameters
 		\end{description}
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<pattern>}] A pattern the data set should match to get found
+			\item[\texttt{-name=<pattern>}] The pattern the name should match
+			\item[\texttt{-description=<pattern>}] The pattern the description should match
+			\item[\texttt{-id=<id>}] An ID of a data set
+			\item[\texttt{-timestamp=<time>}] The time of the data set to be added
+			\item[\texttt{-size=<size>}] The size in Bytes of the data set
+			\item[\texttt{-files=<amount>}] The amount of files the data set contains
 		\end{description}
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
