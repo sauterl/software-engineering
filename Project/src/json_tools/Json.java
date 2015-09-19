@@ -76,6 +76,24 @@ public String getString(String key){
 	}
 }
 
+public Json[] getSet(String key){
+	Json[] value=(Json[])data.get(key);
+	if(value==null){
+		throw new InexistentKeyException();
+	}else{
+			return value;
+	}
+}
+
+public Json getJsonObject(String key){
+	Json value=(Json)data.get(key);
+	if(value==null){
+		throw new InexistentKeyException();
+	}else{
+			return value;
+	}
+}
+
 public Date getDate(String key){
 	return iso8601ToDate((String)data.get(key));
 }

@@ -21,6 +21,8 @@ public class Test {
 			e.printStackTrace();
 		}
 		System.out.println(js.toJson());
+		System.out.println(js.getJsonObject("repository").getString("name"));
+		
 	}
 
 }
