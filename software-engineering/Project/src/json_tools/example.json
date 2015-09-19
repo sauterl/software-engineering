@@ -1,0 +1,39 @@
+{
+"repository" :{
+"version" : 1,
+"name": "first repo",
+"timestamp":"2014-09-18T13:40:18",
+"datasets" :[
+	{
+	"id":1,
+	"name":"big folder",
+	"timestamp":"2014-09-18T13:40:18",
+	"description":"Bla Bla Bla...",
+	"filecount":34,
+	"size":9369436,
+	"filename":"",
+	"filetype":"directory"
+	},
+	{
+	"id":2,
+	"name":"small file",
+	"timestamp":"2014-09-18T13:40:18",
+	"description":"Bli Bla Blu...",
+	"filecount":1,
+	"size":3058,
+	"filename":"",
+	"filetype":"file"
+	},
+	{
+	"id":3,
+	"name":"link",
+	"timestamp":"2014-09-18T13:40:18",
+	"description":"Bli Bla Blu kjaerzflkdsjfsaf...",
+	"filecount":1,
+	"size":1024,
+	"filename":"",
+	"filetype":"link"
+	}
+]
+}
+}
