@@ -81,7 +81,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{add} [-v] <name> [<description>]}
 		\subsection*{Description}
-		Add the specified \texttt{<dataset>} with optional \texttt{description} to the repository.\\
+		Add the specified data set with path \texttt{<name>} with optional \texttt{description} to the repository.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -98,11 +98,13 @@
 		\begin{tabular}{ll}
 			0 &  if OK,\\ 
 			1 &  if the file/folder under given \texttt{<name>} does not exist\\ 
-			2 &  if the data set could not get added into the repository\\
+			2 &  if the data set could not be added into the repository\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 5 hours in working time
+		\subsection*{Time Estimation}
+		15 hours of work, in particular testing Java I/O with large data sets, various operating systems and privilege levels (admin vs non-admin), building methods for creating metadata and creating the structure of the application. \\
+		\noindent Since all of us have recent working experience in java, we add on top of that an estimated 2 hours per person to get our workflow set up
+		
 		
 		\newpage
 		\section*{REMOVE}
@@ -121,7 +123,7 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<name>}] The name of the data set (e.g. the name of the file/folder)
+			\item[\texttt{<name>}] The path of the data set (e.g. the name of the file/folder)
 		\end{description}
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
@@ -130,17 +132,18 @@
 			2 &  if the data set could not get removed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 5 hours in working time
+				\subsection*{Time Estimation}
+				3 hours of work \\
+				\noindent
 		\newpage
 		\section*{COPY}
 		\subsection*{Name}
-		\texttt{copy} - copies the data set from the repository
+		\texttt{copy} - copies the data set from the repository to another location within the repository
 		\subsection*{Synopsis}
 		\texttt{\textbf{copy} [-v] <name> <location>}
 		\subsection*{Description}
 		Copies the data set specified with \texttt{<name>} to the given \texttt{<location>}.
-		If the operation succeeded, the data set remains in the repository and the data set is accessible with the original name at the given location.\\
+		If the operation succeeded, the data set remains in the repository and is accessible with the original name at  \texttt{<location>}.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -150,28 +153,29 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<name>}] The name of the data set.
-			\item[\texttt{<location>}] The path to the new location of the data set.
+			\item[\texttt{<name>}]  Name of the data set.
+			\item[\texttt{<location>}] Path of the new location for the data set.
 		\end{description}
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
 			0 &  if OK,\\ 
 			1 &  if the data set with specified \texttt{<name>} does not exist or the \texttt{<location>} parameter is invalid\\
-			2 &  if the data set could not get copied (e.g. if at the specified location already a file / folder with given name exists)\\
+			2 &  if the data set could not get copied (e.g. if at \texttt{<location>} a file / folder with given name already exists)\\
 			4 &  if any other error occurred\\
 		\end{tabular}
 		
-		\subsection{Estimation of expenses}
-		About 5 hours in working time
+		\subsection*{Time Estimation}
+		2 hours of work if done after the add and remove commands, since they are quite similar in syntax and copy is very similar to the add command\\
+		\noindent
 		
 		\newpage
 		\section*{REPLACE}
 		\subsection*{Name}
-		\texttt{replace} - replaces the data set with another one
+		\texttt{replace} - replaces a data set with another one
 		\subsection*{Synopsis}
 		\texttt{\textbf{replace} [-v] <name> <path>}
 		\subsection*{Description}
-		Replaces the data set with specified \texttt{name} with the data set located at \texttt{<path>}\\
+		Replaces the data set \texttt{name} with the data set located at \texttt{<path>}\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -191,8 +195,9 @@
 			2 &  ifthe data set with specified \texttt{<name>} does not exist or the \texttt{<path>} parameter is invalid\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 3 hours in working time
+				\subsection*{Time Estimation}
+				2 hours of work. Very similar to the copy command\\
+				\noindent
 		\newpage
 		\section*{LIST}
 		\subsection*{Name}
@@ -200,9 +205,9 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{list} [-v]}
 		\subsection*{Description}
-		Lists all data set and its meta data of the repository.\\
+		Lists all data sets and their metadata.\\
 		
-		\noindent On success, a list of all data sets gets printed. Additionally to the name of the data set its description (if one exists), its size and the number of files it contains get printed.
+		\noindent On success, a list of all data sets gets printed. Additionally to the name of the data set, its description (if one exists), size and number of files within get printed.
 		\subsubsection*{Options}
 		\begin{description}
 			\item[\texttt{-v}] verbose progress
@@ -220,20 +225,21 @@
 %			2 &  if the command could not be executed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 3 hours in working time
+				\subsection*{Time Estimation}
+				6 hours of work, mainly for traversing the metadata-storage and testing the behaviour of \texttt{<list>} with various commands \\
+				\noindent
 		\newpage
 		
 		\section*{INIT}
 		\subsection*{Name}
-		\texttt{init} - initialises the repository in the current working directory
+		\texttt{init} - initializes the repository in the current working directory
 		\subsection*{Synopsis}
 		\texttt{\textbf{init} [-v]}
 		\subsection*{Description}
-		Initialises the repository in the current working directory.
-		During the initialisation files for storing meta data are generated.\\
+		Initializes the repository in the current working directory.
+		During the initialization files for storing meta data are generated.\\
 		
-		\noindent On success, a message gets printed.
+		\noindent
 		\subsubsection*{Options}
 		\begin{description}
 			\item[\texttt{-v}] verbose progress
@@ -251,17 +257,18 @@
 %			2 &  if the command could not be executed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 8 hours in working time
+				\subsection*{Time Estimation}
+				3 hours of work since I/O testing on various operating systems and privilege levels should have already been done with the add command \\
+				\noindent
 		\newpage
 		
 		\section*{SEARCH}
 		\subsection*{Name}
-		\texttt{search} - searches for one or more data set
+		\texttt{search} - searches for one or more data sets
 		\subsection*{Synopsis}
-		\texttt{\textbf{search} [-v][-a \| -o] [-name=<pattern>] [-description=<pattern>] [-id=<id>] [-timestamp=<time>] [-size=<size>] [-files=<amount>]}
+		\texttt{\textbf{search} [-v][-a | -o] [-name=<pattern>] [-description=<pattern>] [-id=<id>] [-timestamp=<time>] [-size=<size>] [-files=<amount>]}
 		\subsection*{Description}
-		Searches for data sets based on its meta data. Based on the parameter different meta data is considered to look for. Results are then printed out via the terminal.\\
+		Searches for data sets based on its meta data. Based on the parameters different meta data is considered. Results are then printed out via the terminal.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -275,8 +282,8 @@
 		\begin{description}
 			\item[\texttt{-name=<pattern>}] The pattern the name should match
 			\item[\texttt{-description=<pattern>}] The pattern the description should match
-			\item[\texttt{-id=<id>}] An ID of a data set
-			\item[\texttt{-timestamp=<time>}] The time of the data set to be added
+			\item[\texttt{-id=<id>}] ID of the data set
+			\item[\texttt{-timestamp=<time>}] Timestamp of the data set
 			\item[\texttt{-size=<size>}] The size in Bytes of the data set
 			\item[\texttt{-files=<amount>}] The amount of files the data set contains
 		\end{description}
@@ -287,8 +294,9 @@
 			2 &  if the command could not be executed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
-		\subsection{Estimation of expenses}
-		About 15 hours in working time
+				\subsection*{Time Estimation}
+				6 hours of work, in particular for testing parameters\\
+				\noindent
 		\newpage
 
 \end{document}
