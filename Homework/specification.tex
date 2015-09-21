@@ -77,7 +77,7 @@
 	% % END OF TEMPLATE
 		\section*{ADD}
 		\subsection*{Name}
-		\texttt{add} - Add data set to repository
+		\texttt{add} - Add data set to the repository
 		\subsection*{Synopsis}
 		\texttt{\textbf{add} [-v] <name> [<description>]}
 		\subsection*{Description}
@@ -91,25 +91,30 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<name>}] The name of the data set (includes path)
+			\item[\texttt{<path>}] The path of the data set.
+			\item[\texttt{<name>}] The name the data set will have in the repository
 			\item[\texttt{<description>}] \textbf{Optional} A description of the data set
 		\end{description}
+		
+		\subsection*{Output}
+		The meta data of the data set added, tab separated. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
+		In case of abort a detailed error message
+		
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
-			1 &  if the file/folder under given \texttt{<name>} does not exist\\ 
-			2 &  if the data set could not be added into the repository\\
+			0 &  if successful,\\ 
+			1 &  if the file/folder under the given \texttt{<name>} does not exist\\ 
+			2 &  if the data set could not be added to the repository\\
 			4 &  if any other error occurred\\
 		\end{tabular}
+		
 		\subsection*{Time Estimation}
-		15 hours of work, in particular testing Java I/O with large data sets, various operating systems and privilege levels (admin vs non-admin), building methods for creating metadata and creating the structure of the application. \\
-		\noindent Since all of us have recent working experience in java, we add on top of that an estimated 2 hours per person to get our workflow set up
-		
-		
+		15 hours of work, in particular testing Java I/O with large data sets,testing various operating systems and privilege levels (admin vs non-admin), building methods for creating meta data and creating the structure of the application. \\
+		\noindent Since all of us have recent working experience in java, we add on top of that an estimated 2 hours per person to get our work flow set up.
 		\newpage
 		\section*{REMOVE}
 		\subsection*{Name}
-		\texttt{remove} - remove data set
+		\texttt{remove} - remove a data set
 		\subsection*{Synopsis}
 		\texttt{\textbf{remove} [-v] <name>}
 		\subsection*{Description}
@@ -125,11 +130,13 @@
 		\begin{description}
 			\item[\texttt{<name>}] The path of the data set (e.g. the name of the file/folder)
 		\end{description}
+		\subsection*{Output}
+		No output, if the operation ended successfully. In case of abort e detailed error message.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
-			1 &  if the data set with specified \texttt{<name>} does not exist\\ 
-			2 &  if the data set could not get removed\\
+			0 &  if successful,\\ 
+			1 &  if the data set with the specified \texttt{<name>} does not exist\\ 
+			2 &  if the data set could not be removed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
 				\subsection*{Time Estimation}
@@ -138,7 +145,7 @@
 		\newpage
 		\section*{COPY}
 		\subsection*{Name}
-		\texttt{copy} - copies the data set from the repository to another location within the repository
+		\texttt{copy} - copies a data set from the repository to any location in the file system.
 		\subsection*{Synopsis}
 		\texttt{\textbf{copy} [-v] <name> <location>}
 		\subsection*{Description}
@@ -153,29 +160,31 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<name>}]  Name of the data set.
+			\item[\texttt{<id>}]  id of the data set.
 			\item[\texttt{<location>}] Path of the new location for the data set.
 		\end{description}
+		\subsection*{Output}
+		No output, if the operation ended successfully. In case of abort e detailed error message.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
-			1 &  if the data set with specified \texttt{<name>} does not exist or the \texttt{<location>} parameter is invalid\\
-			2 &  if the data set could not get copied (e.g. if at \texttt{<location>} a file / folder with given name already exists)\\
+			0 &  if successful,\\ 
+			1 &  if the data set with the specified \texttt{<id>} does not exist or the \texttt{<location>} parameter is invalid\\
+			2 &  if the data set could not be copied (e.g. if  a file / folder with given name already exists at \texttt{<location>})\\
 			4 &  if any other error occurred\\
 		\end{tabular}
 		
 		\subsection*{Time Estimation}
-		2 hours of work if done after the add and remove commands, since they are quite similar in syntax and copy is very similar to the add command\\
+		2 hours of work if done after the add and remove commands, since they are quite similar in syntax and copy is very similar to the add command.\\
 		\noindent
 		
 		\newpage
 		\section*{REPLACE}
 		\subsection*{Name}
-		\texttt{replace} - replaces a data set with another one
+		\texttt{replace} - replaces a data set with another one.
 		\subsection*{Synopsis}
 		\texttt{\textbf{replace} [-v] <name> <path>}
 		\subsection*{Description}
-		Replaces the data set \texttt{name} with the data set located at \texttt{<path>}\\
+		Replaces the data set \texttt{id} with the data set located at \texttt{<path>}.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -185,14 +194,17 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<name>}] The name of the data set to replace
+			\item[\texttt{<id>}] The id of the data set that should be replaced.
 			\item[\texttt{<path>}] The path to the new data set
 		\end{description}
+		\subsection*{Output}
+		The new meta data of the data set replaced, tab separated. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
+		In case of abort a detailed error message
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
+			0 &  if successful,\\ 
 			1 &  if command-parameter specific error occurred\\
-			2 &  ifthe data set with specified \texttt{<name>} does not exist or the \texttt{<path>} parameter is invalid\\
+			2 &  if the data set with specified \texttt{<id>} does not exist or the \texttt{<path>} parameter is invalid\\
 			4 &  if any other error occurred\\
 		\end{tabular}
 				\subsection*{Time Estimation}
@@ -201,13 +213,13 @@
 		\newpage
 		\section*{LIST}
 		\subsection*{Name}
-		\texttt{list} - lists all data set and its meta data
+		\texttt{list} - lists all data set in the repository and their meta data
 		\subsection*{Synopsis}
 		\texttt{\textbf{list} [-v]}
 		\subsection*{Description}
-		Lists all data sets and their metadata.\\
+		Lists all data sets and their meta data.\\
 		
-		\noindent On success, a list of all data sets gets printed. Additionally to the name of the data set, its description (if one exists), size and number of files within get printed.
+		%\noindent On success, a list of all data sets gets printed. Additionally to the name of the data set, its description %(if one exists), size and number of files within get printed.
 		\subsubsection*{Options}
 		\begin{description}
 			\item[\texttt{-v}] verbose progress
@@ -218,12 +230,16 @@
 %			\item[\texttt{PARAM}] DESCRIPTION
 %			\item[\texttt{PARAM}] DESCRIPTION
 %		\end{description}
+		\subsection*{Output}
+		A list of all data sets in the repository. Separated with tabs. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size> \textbackslash n \\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
+		Or a detailed error message in case of abort.
+
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
+			0 &  if successful,\\ 
 %			1 &  if the current working directory is not a repository\\
 %			2 &  if the command could not be executed\\
-			4 &  if any other error occurred\\
+			4 &  if any error occurred\\
 		\end{tabular}
 				\subsection*{Time Estimation}
 				6 hours of work, mainly for traversing the metadata-storage and testing the behaviour of \texttt{<list>} with various commands \\
@@ -250,12 +266,14 @@
 %			\item[\texttt{PARAM}] DESCRIPTION
 %			\item[\texttt{PARAM}] DESCRIPTION
 %		\end{description}
+		\subsection*{Output}
+		No output if the operation ended successfully. In case of abort a detailed error message.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
+			0 &  if successful,\\ 
 %			1 &  if command-parameter specific error occurred\\
 %			2 &  if the command could not be executed\\
-			4 &  if any other error occurred\\
+			4 &  if any error occurred\\
 		\end{tabular}
 				\subsection*{Time Estimation}
 				3 hours of work since I/O testing on various operating systems and privilege levels should have already been done with the add command \\
@@ -268,7 +286,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{search} [-v][-a | -o] [-name=<pattern>] [-description=<pattern>] [-id=<id>] [-timestamp=<time>] [-size=<size>] [-files=<amount>]}
 		\subsection*{Description}
-		Searches for data sets based on its meta data. Based on the parameters different meta data is considered. Results are then printed out via the terminal.\\
+		Searches for data sets based on its meta data. Based on the parameters different meta data is considered.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -287,10 +305,14 @@
 			\item[\texttt{-size=<size>}] The size in Bytes of the data set
 			\item[\texttt{-files=<amount>}] The amount of files the data set contains
 		\end{description}
+		\subsection*{output}
+		A list of all data sets in the repository matching the search pattern, Separated with tabs. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size> \textbackslash n \\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
+		No output if none of the data sets matches the pattern.
+		Or a detailed error message in case of abort.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
-			0 &  if OK,\\ 
-			1 &  if command-parameter specific error occurred\\
+			0 &  if successful,\\ 
+			1 &  if a command-parameter specific error occurred\\
 			2 &  if the command could not be executed\\
 			4 &  if any other error occurred\\
 		\end{tabular}
