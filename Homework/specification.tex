@@ -81,7 +81,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{add} [-v] <name> [<description>]}
 		\subsection*{Description}
-		Add the specified data set with path \texttt{<name>} with optional \texttt{description} to the repository.\\
+		Add the specified data set with path \texttt{<name>} and optional \texttt{description} to the repository.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -91,8 +91,7 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<path>}] The path of the data set.
-			\item[\texttt{<name>}] The name the data set will have in the repository
+			\item[\texttt{<name>}] Path of the data set.
 			\item[\texttt{<description>}] \textbf{Optional} A description of the data set
 		\end{description}
 		
@@ -118,7 +117,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{remove} [-v] <name>}
 		\subsection*{Description}
-		Remove the data set with given \texttt{<name>}\\
+		Remove the data set with the path specified by \texttt{<name>}\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -131,7 +130,7 @@
 			\item[\texttt{<name>}] The path of the data set (e.g. the name of the file/folder)
 		\end{description}
 		\subsection*{Output}
-		No output, if the operation ended successfully. In case of abort e detailed error message.
+		No output, if the operation ended successfully. In case of abort a detailed error message.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
 			0 &  if successful,\\ 
@@ -149,7 +148,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{copy} [-v] <name> <location>}
 		\subsection*{Description}
-		Copies the data set specified with \texttt{<name>} to the given \texttt{<location>}.
+		Copies the data set with path \texttt{<name>} to the given \texttt{<location>}.
 		If the operation succeeded, the data set remains in the repository and is accessible with the original name at  \texttt{<location>}.\\
 		
 		\noindent
@@ -160,11 +159,11 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<id>}]  id of the data set.
+			\item[\texttt{<name>}]  Path of the data set.
 			\item[\texttt{<location>}] Path of the new location for the data set.
 		\end{description}
 		\subsection*{Output}
-		No output, if the operation ended successfully. In case of abort e detailed error message.
+		No output, if the operation ended successfully. In case of abort detailed error message.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
 			0 &  if successful,\\ 
@@ -182,9 +181,9 @@
 		\subsection*{Name}
 		\texttt{replace} - replaces a data set with another one.
 		\subsection*{Synopsis}
-		\texttt{\textbf{replace} [-v] <name> <path>}
+		\texttt{\textbf{replace} [-v] <original> <new>}
 		\subsection*{Description}
-		Replaces the data set \texttt{id} with the data set located at \texttt{<path>}.\\
+		Replaces the data set at path \texttt{<original>} with the data set located at \texttt{<new>}.\\
 		
 		\noindent
 		\subsubsection*{Options}
@@ -194,8 +193,8 @@
 		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{<id>}] The id of the data set that should be replaced.
-			\item[\texttt{<path>}] The path to the new data set
+			\item[\texttt{<original>}] The path of the data set that should be replaced.
+			\item[\texttt{<new>}] The path to the data set replacing the original one
 		\end{description}
 		\subsection*{Output}
 		The new meta data of the data set replaced, tab separated. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
@@ -286,8 +285,7 @@
 		\subsection*{Synopsis}
 		\texttt{\textbf{search} [-v][-a | -o] [-name=<pattern>] [-description=<pattern>] [-id=<id>] [-timestamp=<time>] [-size=<size>] [-files=<amount>]}
 		\subsection*{Description}
-		Searches for data sets based on its meta data. Based on the parameters different meta data is considered.\\
-		
+		Searches for data sets based on their meta data.
 		\noindent
 		\subsubsection*{Options}
 		\begin{description}
@@ -295,10 +293,9 @@
 			\item[\texttt{-a}] match all given search parameters
 			\item[\texttt{-o}] match one of the given search parameters
 		\end{description}
-		
 		\subsubsection*{Parameters}
 		\begin{description}
-			\item[\texttt{-name=<pattern>}] The pattern the name should match
+			\item[\texttt{-name=<pattern>}] The pattern the path should match
 			\item[\texttt{-description=<pattern>}] The pattern the description should match
 			\item[\texttt{-id=<id>}] ID of the data set
 			\item[\texttt{-timestamp=<time>}] Timestamp of the data set
@@ -306,9 +303,8 @@
 			\item[\texttt{-files=<amount>}] The amount of files the data set contains
 		\end{description}
 		\subsection*{output}
-		A list of all data sets in the repository matching the search pattern, Separated with tabs. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size> \textbackslash n \\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
-		No output if none of the data sets matches the pattern.
-		Or a detailed error message in case of abort.
+		A list of all data sets in the repository matching the search pattern, separated with tabs. Format:\\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size> \textbackslash n \\<id> \textbackslash t <name> \textbackslash t <timestamp> \textbackslash t <description> \textbackslash t <number of files> \textbackslash t <size>\\
+		No output if none of the data sets matches the pattern, error message in case of abort.
 		\subsubsection*{Exit status}
 		\begin{tabular}{ll}
 			0 &  if successful,\\ 
