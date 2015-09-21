@@ -59,11 +59,14 @@ private int readEntry(int c, String key, String input, Json jsonObj) {
 
 private int readSetEntry(int c, String key, String input, Json jsonObj) {
 	ArrayList<Json> set=new ArrayList<Json>();
-	
+	try{
 	while(input.charAt(c)!=']'){
 		c++;
 		set.add(parseJson(input.substring(c,endOfObjectEntry(input, c))));
 		c=endOfObjectEntry(input, c);
+	}
+	}catch(StringIndexOutOfBoundsException e){
+		throw new InvalidJsonException("Invalid Json. Please check your brackets");
 	}
 	
 	Json[] setArray= set.toArray(new Json[0]);
@@ -104,9 +107,13 @@ private int endOfSingleEntry(String input, int startindex){
 }
 
 private int endOfSingleNumber(String input, int startindex) {
+	try{
 	startindex++;
 	while(input.charAt(startindex)!=','&&input.charAt(startindex)!='}'){
 		startindex++;
+	}
+	} catch (StringIndexOutOfBoundsException e){
+		throw new InvalidJsonException("Invalid Json. Please check your brackents.");
 	}
 	return startindex;
 }
@@ -128,6 +135,7 @@ private int readObjectEntry(int c, String key, String input, Json jsonObj) {
 
 private int endOfObjectEntry(String input,int startindex){
 	int brace=1;
+	try{
 	while(brace!=0){
 		startindex++;
 		if(input.charAt(startindex)=='{'){
@@ -138,11 +146,16 @@ private int endOfObjectEntry(String input,int startindex){
 		}
 	}
 	startindex++;
+	}catch(StringIndexOutOfBoundsException e){
+		throw new InvalidJsonException("Invalid json. Please check your brackets.");
+	}
 	return startindex;
 }
 
 public static String whitespaceRemover(String input){
 	String output="";
+	try{
+	
 	int c=0;
 	while(c<input.length()){
 		if(input.charAt(c)!=' '&&input.charAt(c)!='"'){
@@ -162,6 +175,10 @@ public static String whitespaceRemover(String input){
 				c++;
 			}
 		}
+	}
+		
+	}catch(StringIndexOutOfBoundsException e){
+		throw new InvalidJsonException("wasn't able to parse the json file. Check the file for mistakes with \" ");
 	}
 	output=output.replaceAll("\t", "");
 	output=output.replaceAll("\r", "");

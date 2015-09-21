@@ -1,5 +1,6 @@
 package json_tools;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class Test {
@@ -15,13 +16,21 @@ public class Test {
 		JsonParser jps=new JsonParser();
 		Json js=null;
 		try {
-//			js = jps.parseFile("C:/Users/Eddie/Desktop/example.json");
-			js = jps.parseFile("src/json_tools/example.json");
+			js = jps.parseFile("C:/Users/Eddie/Desktop/mal.json");
+//			js = jps.parseFile("src/json_tools/example.json");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(js.toJson());
-		System.out.println(js.getJsonObject("repository").getString("name"));
+//		System.out.println(js.toJson());
+//		System.out.println(js.getJsonObject("repository").getString("name"));
+		
+		try {
+			FileWriter f=new FileWriter("C:/Users/Eddie/Desktop/out.json");
+			f.write(js.toJson());
+			f.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
