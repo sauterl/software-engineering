@@ -22,7 +22,7 @@ public Json parseFile(String filepath) throws IOException {
 	        stringBuilder.append( line );
 	        stringBuilder.append( ls );
 	    }
-
+	    reader.close();
 	    String jsonString = stringBuilder.toString();
 	
 	return parseJson(jsonString);
