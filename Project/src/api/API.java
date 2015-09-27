@@ -3,6 +3,8 @@ package api;
 import java.io.IOException;
 import java.util.Map;
 
+import api.options.AbstractParameteredOption;
+
 /**
  * The interface as an entry point of the data processing layer.
  * 
@@ -177,10 +179,15 @@ public interface API {
      *             If the {@code dataSetPath} cannot be resolved to a valid
      *             path, no file or folder could be found or a general exception
      *             occurred while copying / moving the data set.
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
      */
-    public void replace(CallbackInterface cb, boolean move, boolean verbose,
+    public boolean replace(CallbackInterface cb, boolean move, boolean verbose,
 	    String repoPath, int dataSetID, String dataSetPath)
-	    throws IOException;
+	    throws IOException, NoRepositoryException;
 
     /**
      * Replaces the data set with given identifier completely with the newly
@@ -242,27 +249,67 @@ public interface API {
      * @throws IllegalArgumentException
      *             If the {@code description} parameter contains ISO control
      *             characters (like TAB, CR or LF).
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
      */
-    public void replace(CallbackInterface cb, String description, boolean move,
-	    boolean verbose, String repoPath, int dataSetID, String dataSetPath)
-	    throws IOException, IllegalArgumentException;
+    public boolean replace(CallbackInterface cb, String description,
+	    boolean move, boolean verbose, String repoPath, int dataSetID,
+	    String dataSetPath) throws IOException, IllegalArgumentException,
+	    NoRepositoryException;
 
     /**
+     * Deletes the data set with given identifier from the specified repository.
+     * 
      * Use this method for delete cases where <data set identifier> or option
-     * --id has been specified
+     * --id has been specified.
+     * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown. If {@code repoPath} does not point to an already existing
+     * repository, a new will be created at the specified location.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param dataSetID
+     *            The identifier for the data set to be deleted. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
      * 
      * @throws UnknownIDException
-     *             no data set with specified identifier exists
+     *             If no data set with the specified {@code dataSetID} exists.
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
      */
-    public void delete(CallbackInterface cb, boolean verbose, String repoPath,
-	    int dataSetID) throws UnknownIDException;
+    public boolean delete(CallbackInterface cb, boolean verbose,
+	    String repoPath, int dataSetID) throws UnknownIDException,
+	    NoRepositoryException;
 
     /**
      * 
      * @return how many data sets have been deleted. It is valid that no data
      *         set is deleted
      */
-    public int delete(CallbackInterface cb, OptionsContainer oc,
+    public int delete(CallbackInterface cb, AbstractParameteredOption<?>[] options,
 	    boolean verbose, String repoPath);
 
     /**
