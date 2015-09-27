@@ -82,15 +82,14 @@ public interface API {
      * 
      * @return A map with dataset identifiers and their names that have been
      *         exported. It is valid that no data set is exported
-     * @throws Exception
+     * @throws DuplicateException
      *             If at least two data sets have the same name. The error
      *             contains the identifiers of all data sets which could not be
      *             exported
      */
     public Map<Integer, String> export(CallbackInterface cb,
 	    OptionsContainer oc, boolean verbose, String repoPath,
-	    String destFolder) throws Exception;
-
+	    String destFolder) throws DuplicateException;
     /**
      * 
      * @return meta data as a TAB-seperated table. In case of an empty or
