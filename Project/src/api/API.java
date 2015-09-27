@@ -1,5 +1,6 @@
 package api;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -19,27 +20,64 @@ public interface API {
      * an {@link NullPointerException} will be thrown. On the other hand, if the flag is set to <code>false</code> any non-<code>null</code>
      * {@link CallbackInterface} will be ignored.
      * 
+     * If either {@code repoPath} or {@code dataSetPath} or both arguments are <code>null</code>, a {@link NullPointerException} will be thrown.
+     * 
+     * In case the given data set is already part of the repository, it will be copied / moved again with a different identifier.
+     * If {@code repoPath} does not point to an already existing repository, a new will be created at the specified location.
+     * 
      * @param cb The {@link CallbackInterface} to receive progress information. This may be <code>null</code> if the {@code vebose} flag is set to <code>false</code>, otherwise this must be a non-<code>null</code> {@link CallbackInterface}.
      * @param move A flag to specify if the given data set will be moved or not: To get the data set moved, set this to <code>true</code> and <code>false</code> otherwise.
      * @param verbose A flag to specify if progress information gets printed or not: To get the progress infos set this to <code>true</code> and <code>false</code> otherwise.
      * @param repoPath The path to the repository. This path may be absolute (and thus in OS-dependent notation) or relative to the current working directory (CWD). In case the CWD points to the root of a repo, this parameter may be a dot ('.').
-     * @param dataSetPath A relative or absolute path to the repository, the data set will be added to. This path must be in the OS-specify notation if absolute or otherwise relative to the path of the current working directory. 
+     * @param dataSetPath A relative or absolute path to the repository, the data set will be added to. This path must be in the OS-specify notation if absolute or otherwise relative to the path of the current working directory.
+     * 
+     * @throws IOException If the {@code dataSetPath} cannot be resolved to a valid path, no file or folder could be found or a general exception occurred while copying / moving the data set.
      */
     public void add(CallbackInterface cb, boolean move, boolean verbose,
-	    String repoPath, String dataSetPath);
+	    String repoPath, String dataSetPath) throws IOException;
 
     /**
-     * @param description
-     *            Maximum length 1000 characters. No ISO characters allowed
-     * @throws Exception
-     *             In case of an Invalid Parameter
+     * Adds a given data set with a description to the specified repository.
+     * There are no ISO control characters like TAB, CR or LF allowed in the description and it is limited to the length of 1000 characters.
+     * 
+     * The data set to be added may or may not be moved (depending on the move flag)
+     * and causes a may or may not verbose process (depending on the verbose flag).
+     * 
+     * If the verbose flag is set <code>true</code> and the {@link CallbackInterface} parameter is set to <code>null</code>
+     * an {@link NullPointerException} will be thrown. On the other hand, if the flag is set to <code>false</code> any non-<code>null</code>
+     * {@link CallbackInterface} will be ignored.
+     * 
+     * If either {@code repoPath} or {@code dataSetPath} or both arguments are <code>null</code>, a {@link NullPointerException} will be thrown.
+     * 
+     * In case the given data set is already part of the repository, it will be copied / moved again with a different identifier.
+     * If {@code repoPath} does not point to an already existing repository, a new will be created at the specified location.
+     * 
+     * @param cb The {@link CallbackInterface} to receive progress information. This may be <code>null</code> if the {@code vebose} flag is set to <code>false</code>, otherwise this must be a non-<code>null</code> {@link CallbackInterface}.
+     * @param description The description of the data set. The length is limited to 1000 characters and any ISO control characters like TAB, CR or LF are not permitted and lead to an exception. If <code>null</code> is used as description a {@link NullPointerException} will be thrown.
+     * @param move A flag to specify if the given data set will be moved or not: To get the data set moved, set this to <code>true</code> and <code>false</code> otherwise.
+     * @param verbose A flag to specify if progress information gets printed or not: To get the progress infos set this to <code>true</code> and <code>false</code> otherwise.
+     * @param repoPath The path to the repository. This path may be absolute (and thus in OS-dependent notation) or relative to the current working directory (CWD). In case the CWD points to the root of a repo, this parameter may be a dot ('.').
+     * @param dataSetPath A relative or absolute path to the repository, the data set will be added to. This path must be in the OS-specify notation if absolute or otherwise relative to the path of the current working directory.
+     * 
+     * @throws IOException If the {@code dataSetPath} cannot be resolved to a valid path, no file or folder could be found or a general exception occurred while copying / moving the data set.
+     * @throws IllegalArgumentException If the {@code description} parameter contains ISO control characters (like TAB, CR or LF).
      */
     public void add(CallbackInterface cb, String description, boolean move,
 	    boolean verbose, String repoPath, String dataSetPath)
-	    throws Exception;
+	    throws IOException, IllegalArgumentException;
 
+    /**
+     * 
+     * @param cb
+     * @param move
+     * @param verbose
+     * @param repoPath
+     * @param dataSetID
+     * @param dataSetPath
+     * @throws IOException
+     */
     public void replace(CallbackInterface cb, boolean move, boolean verbose,
-	    String repoPath, int dataSetID, String dataSetPath);
+	    String repoPath, int dataSetID, String dataSetPath) throws IOException;
 
     /**
      * @param description
