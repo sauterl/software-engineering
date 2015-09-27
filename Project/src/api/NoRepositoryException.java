@@ -10,7 +10,16 @@ package api;
  */
 public class NoRepositoryException extends Exception {
     
-    private static final String defaultMessage = "The given repository path does not point to a valid repository";
+    /**
+     * Universal default message.
+     */
+    private static final String defaultMessage = "The given repository path does not point to a valid repository.";
+    
+    /**
+     * The message ready to get used with {@link String#format(String, Object...)}, where the only passed object is a string
+     * containing the path.
+     */
+    private static final String detailMessage = "The repository path (%s) does not point to a valid repository.";
 
     /**
      * Eclipse auto-generated serialVersionUID.
@@ -25,41 +34,11 @@ public class NoRepositoryException extends Exception {
     }
 
     /**
-     * Constructs a {@link NoRepositoryException} with the specified detail message.
-     * @param message
+     * Constructs a {@link NoRepositoryException} with specified invalid path.
+     * @param path The path which does not point to a repository.
      */
-    public NoRepositoryException(String message) {
-	super(message);
-	// TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param cause
-     */
-    public NoRepositoryException(Throwable cause) {
-	super(cause);
-	// TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param message
-     * @param cause
-     */
-    public NoRepositoryException(String message, Throwable cause) {
-	super(message, cause);
-	// TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param message
-     * @param cause
-     * @param enableSuppression
-     * @param writableStackTrace
-     */
-    public NoRepositoryException(String message, Throwable cause,
-	    boolean enableSuppression, boolean writableStackTrace) {
-	super(message, cause, enableSuppression, writableStackTrace);
-	// TODO Auto-generated constructor stub
+    public NoRepositoryException(String path){
+	super(String.format(detailMessage, path));
     }
 
 }
