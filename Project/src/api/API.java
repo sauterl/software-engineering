@@ -3,6 +3,7 @@ package api;
 import java.io.IOException;
 import java.util.Map;
 
+import sun.security.krb5.internal.APOptions;
 import api.options.AbstractParameteredOption;
 
 /**
@@ -305,12 +306,59 @@ public interface API {
 	    NoRepositoryException;
 
     /**
+     * Deletes data sets matching to all parameter values of the given
+     * {@link AbstractParameteredOption}s. It returns how many data sets have
+     * been deleted.
      * 
-     * @return how many data sets have been deleted. It is valid that no data
-     *         set is deleted
+     * The array of {@link AbstractParameteredOption}s must not be
+     * <code>null</code> and contain valid subclasses, otherwise a
+     * {@link NullPointerException} or {@link IllegalArgumentException} will be
+     * thrown. It must contain one or several of the following
+     * {@link AbstractParameteredOption}: NameOption, TextOption, BeforeOption,
+     * AfterOption.
+     * 
+     * This method deletes all matching data sets, so if no matching sets are
+     * found, none will be deleted.
+     * 
+     * If the {@code repoPath} argument does not point to a repository, a
+     * {@link NoRepositoryException} will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param options
+     *            An array of {@link AbstractParameteredOption}s their
+     *            parameter's values define conditions. Any data set that
+     *            matches to all of these conditions will be deleted. Must not
+     *            be <code>null</code> or contain illegal sublclasses.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * 
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} argument does not point to a
+     *             repository.
+     * @throws NullPointerException
+     *             If the {@code options}-array or the {@code cb} is
+     *             <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If one of the {@code options}-array's fields is of illegal
+     *             type.
+     * @return How many data sets have been deleted. It is valid that no data
+     *         set is deleted. This is likely if no data set matched to all of
+     *         the given conditions.
      */
-    public int delete(CallbackInterface cb, AbstractParameteredOption<?>[] options,
-	    boolean verbose, String repoPath);
+    public int delete(CallbackInterface cb,
+	    AbstractParameteredOption<?>[] options, boolean verbose,
+	    String repoPath) throws NoRepositoryException,
+	    NullPointerException, IllegalArgumentException;
 
     /**
      * 
@@ -321,8 +369,6 @@ public interface API {
 	    String destPath, int dataSetID) throws UnknownIDException;
 
     /**
-     * TODO Define Exception
-     * 
      * @return A map with dataset identifiers and their names that have been
      *         exported. It is valid that no data set is exported
      * @throws DuplicateException
