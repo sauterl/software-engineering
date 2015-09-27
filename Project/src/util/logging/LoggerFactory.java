@@ -3,6 +3,11 @@ package util.logging;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+/**
+ * The {@code LoggerFactory} class creates {@link Logger} instances.
+ * @author Loris
+ *
+ */
 public class LoggerFactory {
     
     private static LoggerFactory instance = null;
@@ -22,7 +27,7 @@ public class LoggerFactory {
     }
     
     public Logger getLoggerForClass(Class<?> clazz){
-	return LogManager.getLogManager().getLogger(clazz.getCanonicalName() );
+	return LogManager.getLogManager().getLogger(clazz.getName() );
     }
 
 }
