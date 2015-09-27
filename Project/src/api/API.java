@@ -11,18 +11,18 @@ public interface API {
 	public void add(CallbackInterface cb, boolean move, boolean verbose, String repoPath, String dataSetPath);
 	
 	/**
-	 * 
 	 * @param description Maximum length 1000 characters. No ISO characters allowed
+	 * @throws Exception In case of an Invalid Parameter
 	 */
-	public void add(CallbackInterface cb, String description, boolean move, boolean verbose, String repoPath, String dataSetPath);
+	public void add(CallbackInterface cb, String description, boolean move, boolean verbose, String repoPath, String dataSetPath) throws Exception;
 	
 	public void replace(CallbackInterface cb, boolean move, boolean verbose, String repoPath, int dataSetID, String dataSetPath);
 	
 	/**
-	 * 
 	 * @param description Maximum length 1000 characters. No ISO characters allowed
+	 * @throws Exception In case of an Invalid Parameter
 	 */
-	public void replace(CallbackInterface cb, String description, boolean move, boolean verbose, String repoPath, int dataSetID, String dataSetPath);
+	public void replace(CallbackInterface cb, String description, boolean move, boolean verbose, String repoPath, int dataSetID, String dataSetPath) throws Exception;
 	
 	/**
 	 * Use this method for delete cases where <data set identifier> or option --id has been specified
@@ -31,10 +31,10 @@ public interface API {
 	public void delete(CallbackInterface cb, boolean verbose, String repoPath, int dataSetID) throws UnknownIDException;
 	
 	/**
-	 * TODO Optional parameters in array?
+	 * 
 	 * @return how many data sets have been deleted. It is valid that no data set is deleted
 	 */
-	public int delete(CallbackInterface cb, boolean verbose, String repoPath);
+	public int delete(CallbackInterface cb, OptionsContainer oc, boolean verbose, String repoPath);
 	
 	/**
 	 * 
@@ -43,11 +43,11 @@ public interface API {
 	public void export(CallbackInterface cb, boolean verbose, String repoPath, String destPath, int dataSetID) throws UnknownIDException;
 	
 	/**
-	 * TODO Define Exception, Optional Parameters?
+	 * TODO Define Exception
 	 * @return A map with dataset identifiers and their names that have been exported. It is valid that no data set is exported
 	 * @throws Exception If at least two data sets have the same name. The error contains the identifiers of all data sets which could not be exported
 	 */
-	public Map<Integer, String> export(CallbackInterface cb, boolean verbose, String repoPath, String destFolder) throws Exception;
+	public Map<Integer, String> export(CallbackInterface cb, OptionsContainer oc, boolean verbose, String repoPath, String destFolder) throws Exception;
 
 	/**
 	 *
@@ -56,20 +56,12 @@ public interface API {
 	public String list(int dataSetID, String repoPath);
 	
 	/**
- 	 * TODO Optional Parameters
+	 * @param oc If oc is empty, all data sets are listed
 	 * @return meta data as a TAB-seperated table.  In case of an empty or non-existing repository only the header line is printed.
 	 */
-	public String list(String[] options, String repoPath);
+	public String list(OptionsContainer oc, String repoPath);
 	
 	/**
-	 * TODO Maybe incorporate this case into the above with empty options?
-	 * data-repository list
-	 * @return meta data as a TAB-seperated table. Lists all data sets.
-	 */
-	public String list(String repoPath);
-	
-	/**
-	 * data-repository [help] [command name]
 	 * @param help
 	 * @param commandName can also be empty
 	 * @return version followed by a list of all commands if the parameter [command name] is empty. For each command the name and a short description is printed. The user is also informed how to get more information for a command.
