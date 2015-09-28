@@ -138,7 +138,7 @@ public interface API {
 
     /**
      * Replaces the data set with given identifier completely with the newly
-     * specified one. If the old data set had a description, it will be kept.
+     * specified one. If the old data set had a description, the new data set will receive the same description.
      * 
      * The data set to replace the old one may or may not be moved (depending on
      * the move flag) and causes a may or may not verbose process (depending on
@@ -152,9 +152,9 @@ public interface API {
      * <code>null</code>, a {@link NullPointerException} will be thrown.
      * 
      * In case the given data set is already part of the repository, it will be
-     * copied / moved again with a different identifier. If {@code repoPath}
-     * does not point to an already existing repository, a new will be created
-     * at the specified location.
+     * copied / moved again with a different identifier.
+     * 
+     * This command will behave like a sequence of a delete and add command.
      * 
      * @param cb
      *            The {@link CallbackInterface} to receive progress
@@ -175,7 +175,9 @@ public interface API {
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
      * @param dataSetID
-     *            The identifier for the data set to replace.
+     *            The identifier for the data set to replace. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
      * @param dataSetPath
      *            A relative or absolute path to the repository, the data set
      *            will be added to. This path must be in the OS-specify notation
@@ -187,13 +189,14 @@ public interface API {
      *             occurred while copying / moving the data set.
      * @throws NoRepositoryException
      *             If the {@code repoPath} does not point to a valid repository.
-     * 
+     * @throws UnknownIDException
+     *             If no data set with the specified {@code dataSetID} exists.
      * @return <code>true</code> if the operation successfully completed or
      *         <code>false</code> if not.
      */
     public boolean replace(CallbackInterface cb, boolean move, boolean verbose,
 	    String repoPath, int dataSetID, String dataSetPath)
-	    throws IOException, NoRepositoryException;
+	    throws IOException, NoRepositoryException, UnknownIDException;
 
     /**
      * Replaces the data set with given identifier completely with the newly
@@ -213,9 +216,9 @@ public interface API {
      * <code>null</code>, a {@link NullPointerException} will be thrown.
      * 
      * In case the given data set is already part of the repository, it will be
-     * copied / moved again with a different identifier. If {@code repoPath}
-     * does not point to an already existing repository, a new will be created
-     * at the specified location.
+     * copied / moved again with a different identifier.
+     * 
+     * This command will behave like a sequence of a delete and add command.
      * 
      * @param cb
      *            The {@link CallbackInterface} to receive progress information.
@@ -241,7 +244,9 @@ public interface API {
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
      * @param dataSetID
-     *            The identifier for the data set to replace.
+     *            The identifier for the data set to replace. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
      * @param dataSetPath
      *            A relative or absolute path to the repository, the data set
      *            will be added to. This path must be in the OS-specify notation
@@ -257,6 +262,8 @@ public interface API {
      *             characters (like TAB, CR or LF).
      * @throws NoRepositoryException
      *             If the {@code repoPath} does not point to a valid repository.
+     * @throws UnknownIDException
+     *             If no data set with the specified {@code dataSetID} exists.
      * 
      * @return <code>true</code> if the operation successfully completed or
      *         <code>false</code> if not.
@@ -264,7 +271,7 @@ public interface API {
     public boolean replace(CallbackInterface cb, String description,
 	    boolean move, boolean verbose, String repoPath, int dataSetID,
 	    String dataSetPath) throws IOException, IllegalArgumentException,
-	    NoRepositoryException;
+	    NoRepositoryException, UnknownIDException;
 
     /**
      * Deletes the data set with given identifier from the specified repository.
@@ -279,8 +286,7 @@ public interface API {
      * {@link NullPointerException} will be thrown.
      * 
      * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown. If {@code repoPath} does not point to an already existing
-     * repository, a new will be created at the specified location.
+     * will be thrown.
      * 
      * @param cb
      *            The {@link CallbackInterface} to receive progress information.
@@ -370,20 +376,92 @@ public interface API {
 	    NullPointerException, IllegalArgumentException;
 
     /**
-     * Copies the data set with the given identifier to a specified path.
-     * The data set will be copied to the given path (absolute or relative notation) and will remain
-     * its name.
+     * Exports the data set with given identifier to the specified destination folder.
      * 
-     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * Use this method for export cases where <data set identifier> or option
+     * --id has been specified.
      * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param destPath
+     *            The path to the target repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param dataSetID
+     *            The identifier for the data set to be exported. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
      * 
      * @throws UnknownIDException
-     *             If no data set with specified identifier exists
+     *             If no data set with the specified {@code dataSetID} exists.
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
      */
     public boolean export(CallbackInterface cb, boolean verbose, String repoPath,
 	    String destPath, int dataSetID) throws UnknownIDException, FileAlreadyExistsException, NoRepositoryException;
 
     /**
+     * Exports the data set with given identifier to the specified destination folder.
+     * 
+     * Use this method for export cases where <data set identifier> or option
+     * --id has been specified.
+     * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * TODO Parameters?
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param destPath
+     *            The path to the target repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     *            
      * @return A map with dataset identifiers and their names that have been
      *         exported. It is valid that no data set is exported
      * @throws DuplicateException
@@ -396,13 +474,15 @@ public interface API {
 	    String destFolder) throws DuplicateException;
 
     /**
-     * 
+     * TODO 
      * @return meta data as a TAB-seperated table. In case of an empty or
      *         non-existing repository only the header line is printed.
      */
     public String list(int dataSetID, String repoPath);
 
     /**
+     * TODO
+     * 
      * @param oc
      *            If oc is empty, all data sets are listed
      * @return meta data as a TAB-seperated table. In case of an empty or
@@ -411,6 +491,8 @@ public interface API {
     public String list(OptionsContainer oc, String repoPath);
 
     /**
+     * Returns version of the software and information about commands and/or parameters.
+     * The user is also informed how to get more information for a command
      * @param help
      * @param commandName
      *            can also be empty
