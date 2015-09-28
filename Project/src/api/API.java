@@ -172,7 +172,7 @@ public interface API {
      *            A variable list of {@link AbstractParameteredOption}s their
      *            parameter's values define conditions. Any data set that
      *            matches to all of these conditions will be deleted. Must not 
-     *            contain illegal sublclasses of {@link AbstractParameteredOption}.
+     *            contain illegal subclasses of {@link AbstractParameteredOption}.
      * 
      * @throws NoRepositoryException
      *             If the {@code repoPath} argument does not point to a
@@ -356,12 +356,34 @@ public interface API {
      * 
      * The meta data is a TAB-separated table using the newline character to
      * separate rows and the TAB-character to separate columns.
+     * <ul>
+     * <li>The first row contains always the following header names:
+     * <ul><code>
+     * <li>ID</li>
+     * <li>Name</li>
+     * <li>Timestamp</li>
+     * <li>Number of Files</li>
+     * <li>Size</li>
+     * <li>Description</li>
+     * </code></ul>
+     * </li>
+     * <li>The name is the original file/folder name.</li>
+     * <li>The table is sorted in accordance to the timestamp.</li>
+     * <li>If no description has been specified in the add command an empty string is printed.</li>
+     * <li>The number of files also includes directories.</li>
+     * <li>The size is the sum of the sizes of all files in bytes.</li>
+     * <li>The timestamp is defined by the date and time of adding/replacing the data set. It is shown in the following format: <code>YYYY-MM-DD HH:MM:SS</code></li>
+     * <li>In case of an empty or non-existing repository only the header line is printed.</li>
+     * </ul>
      * 
-     * 
-     * @return meta data as a TAB-seperated table. In case of an empty or
+     * @param dataSetID The identifier of the data set from which the meta data gets printed. If the given identifier does not point to a data set, a {@link UnknownIDException} will be thrown.
+     * @param repoPath The path pointing to a repository. If there is no repository at the given location, a {@link NoRepositoryException}.
+     * @return meta data as a TAB-separated table. In case of an empty or
      *         non-existing repository only the header line is printed.
+     * @throws UnknownIDException If the given identifier does not point to a data set.
+     * @throws NoRepositoryException If the given {@code repoPath} does not point to a repository.
      */
-    public String list(int dataSetID, String repoPath);
+    public String list(int dataSetID, String repoPath) throws UnknownIDException, NoRepositoryException;
 
     /**
      * TODO
