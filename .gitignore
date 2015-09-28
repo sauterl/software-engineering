@@ -1,7 +1,22 @@
-#catching latex temporary files
+####################
+#    .gitignore    #
+####################
+
+
+# Latex Temporary Files
+####################
 **/*.aux
 **/*.log
 **/*.synctex.gz
 
-#catching default javadoc location
+# Default javadoc location
+###################
 Project/doc/
+
+# Packed Archives
+###################
+**/*.zip
+**/*.7z
+**/*.tar
+**/*.gz
+**/*.jar
