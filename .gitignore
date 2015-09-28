@@ -4,4 +4,4 @@
 **/*.synctex.gz
 
 #catching default javadoc location
-./Project/doc/
+Project/doc/
