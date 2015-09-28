@@ -6,6 +6,10 @@ import java.util.Map;
 
 import sun.security.krb5.internal.APOptions;
 import api.options.AbstractParameteredOption;
+import api.options.AfterOption;
+import api.options.BeforeOption;
+import api.options.NameOption;
+import api.options.TextOption;
 
 /**
  * The interface as an entry point of the data processing layer.
@@ -317,8 +321,8 @@ public interface API {
      * <code>null</code> and contain valid subclasses, otherwise a
      * {@link NullPointerException} or {@link IllegalArgumentException} will be
      * thrown. It must contain one or several of the following
-     * {@link AbstractParameteredOption}: NameOption, TextOption, BeforeOption,
-     * AfterOption.
+     * {@link AbstractParameteredOption}: {@link NameOption}, {@link TextOption}, {@link BeforeOption},
+     * {@link AfterOption}.
      * 
      * This method deletes all matching data sets, so if no matching sets are
      * found, none will be deleted.
