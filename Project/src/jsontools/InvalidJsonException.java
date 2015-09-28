@@ -1,4 +1,4 @@
-package json_tools;
+package jsontools;
 
 public class InvalidJsonException extends RuntimeException {
 public InvalidJsonException(String msg){
