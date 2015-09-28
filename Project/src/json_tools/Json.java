@@ -9,9 +9,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Json {
+	private static int datasetEntryCount=8;
+	private static float resizeFactor=0.2f;
 private Map data;
 public Json(){
-	this.data=new HashMap(10,0.5f);
+	this.data=new HashMap(datasetEntryCount,resizeFactor);
 }
 
 public void addEntry(String key, String value){
