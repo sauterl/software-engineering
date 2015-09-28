@@ -65,7 +65,7 @@ public class BeforeOption extends AbstractParameteredOption<Long> {
 
     /**
      * Returns this {@link BeforeOption}'s timestamp. This method behaves
-     * exactly the same as {@link BefreOption#get()}.
+     * exactly the same as {@link BeforeOption#get()}.
      * 
      * @return This option's timestamp.
      * @see BeforeOption#get()

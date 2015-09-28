@@ -6,7 +6,6 @@ import java.util.Map;
 
 import api.options.AbstractParameteredOption;
 import api.options.BeforeOption;
-import api.options.BeforeOption;
 import api.options.NameOption;
 import api.options.TextOption;
 
@@ -197,8 +196,8 @@ public interface API {
     /**
      * Deletes the data set with given identifier from the specified repository.
      * 
-     * Use this method for delete cases where <data set identifier> or option
-     * --id has been specified.
+     * Use this method for delete cases where {@code <data set identifier>} or
+     * option --id has been specified.
      * 
      * This operation may or may not be a verbose process, depending on the
      * corresponding flag.
@@ -244,8 +243,8 @@ public interface API {
      * Exports the data set with given identifier to the specified destination
      * folder.
      * 
-     * Use this method for export cases where <data set identifier> or option
-     * --id has been specified.
+     * Use this method for export cases where {@code <data set identifier>} or
+     * option --id has been specified.
      * 
      * If the verbose flag is set <code>true</code> and the
      * {@link CallbackInterface} parameter is set to <code>null</code> an
@@ -270,7 +269,7 @@ public interface API {
      *            thus in OS-dependent notation) or relative to the current
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
-     * @param destPath
+     * @param destFolder
      *            The path to the target repository. This path may be absolute
      *            (and thus in OS-dependent notation) or relative to the current
      *            working directory (CWD). In case the CWD points to the root of
@@ -297,8 +296,8 @@ public interface API {
      * Exports the data set with given identifier to the specified destination
      * folder.
      * 
-     * Use this method for export cases where <data set identifier> or option
-     * --id has been specified.
+     * Use this method for export cases where {@code <data set identifier>} or
+     * option --id has been specified.
      * 
      * If the verbose flag is set <code>true</code> and the
      * {@link CallbackInterface} parameter is set to <code>null</code> an
@@ -337,6 +336,9 @@ public interface API {
      *             If no data set with the specified {@code dataSetID} exists.
      * @throws NoRepositoryException
      *             If the {@code repoPath} does not point to a valid repository.
+     * @throws FileAlreadyExistsException
+     *             If the {@code destPath} argument points to a location where
+     *             the data set already exists.
      * 
      * @return <code>true</code> if the operation successfully completed or
      *         <code>false</code> if not.
@@ -351,7 +353,6 @@ public interface API {
      * parameters. The user is also informed how to get more information for a
      * command
      * 
-     * @param help
      * @param commandName
      *            can also be empty
      * @return version followed by a list of all commands if the parameter
@@ -361,7 +362,7 @@ public interface API {
      *         complete synopsis and brief description of the command. If help
      *         is also false, the short help information will also be printed.
      */
-    public String info(boolean help, String commandName);
+    public String info(String commandName);
 
     /**
      * Returns the meta data of the data set with given identifier.
@@ -371,23 +372,26 @@ public interface API {
      * <ul>
      * <li>The first row contains always the following header names:
      * <ul>
-     * <code>
-     * <li>ID</li>
-     * <li>Name</li>
-     * <li>Timestamp</li>
-     * <li>Number of Files</li>
-     * <li>Size</li>
-     * <li>Description</li>
-     * </code>
+     * <li>{@code ID}</li>
+     * <li>{@code Name}</li>
+     * <li>{@code Timestamp}</li>
+     * <li>{@code Number of Files}</li>
+     * <li>{@code Size}</li>
+     * <li>{@code Description}</li>
      * </ul>
-     * </li> <li>The name is the original file/folder name.</li> <li>The table
-     * is sorted in accordance to the timestamp.</li> <li>If no description has
-     * been specified in the add command an empty string is printed.</li> <li>
-     * The number of files also includes directories.</li> <li>The size is the
-     * sum of the sizes of all files in bytes.</li> <li>The timestamp is defined
-     * by the date and time of adding/replacing the data set. It is shown in the
-     * following format: <code>YYYY-MM-DD HH:MM:SS</code></li> <li>In case of an
-     * empty or non-existing repository only the header line is printed.</li>
+     * </li>
+     * <li>The name is the original file/folder name.</li>
+     * <li>The table is sorted in accordance to the timestamp.</li>
+     * <li>If no description has been specified in the add command an empty
+     * string is printed.</li>
+     * <li>
+     * The number of files also includes directories.</li>
+     * <li>The size is the sum of the sizes of all files in bytes.</li>
+     * <li>The timestamp is defined by the date and time of adding/replacing the
+     * data set. It is shown in the following format:
+     * <code>YYYY-MM-DD HH:MM:SS</code></li>
+     * <li>In case of an empty or non-existing repository only the header line
+     * is printed.</li>
      * </ul>
      * 
      * <p>
@@ -418,26 +422,30 @@ public interface API {
      * 
      * The meta data is a TAB-separated table using the newline character to
      * separate rows and the TAB-character to separate columns.
+     * 
      * <ul>
      * <li>The first row contains always the following header names:
      * <ul>
-     * <code>
-     * <li>ID</li>
-     * <li>Name</li>
-     * <li>Timestamp</li>
-     * <li>Number of Files</li>
-     * <li>Size</li>
-     * <li>Description</li>
-     * </code>
+     * <li>{@code ID}</li>
+     * <li>{@code Name}</li>
+     * <li>{@code Timestamp}</li>
+     * <li>{@code Number of Files}</li>
+     * <li>{@code Size}</li>
+     * <li>{@code Description}</li>
      * </ul>
-     * </li> <li>The name is the original file/folder name.</li> <li>The table
-     * is sorted in accordance to the timestamp.</li> <li>If no description has
-     * been specified in the add command an empty string is printed.</li> <li>
-     * The number of files also includes directories.</li> <li>The size is the
-     * sum of the sizes of all files in bytes.</li> <li>The timestamp is defined
-     * by the date and time of adding/replacing the data set. It is shown in the
-     * following format: <code>YYYY-MM-DD HH:MM:SS</code></li> <li>In case of an
-     * empty or non-existing repository only the header line is printed.</li>
+     * </li>
+     * <li>The name is the original file/folder name.</li>
+     * <li>The table is sorted in accordance to the timestamp.</li>
+     * <li>If no description has been specified in the add command an empty
+     * string is printed.</li>
+     * <li>
+     * The number of files also includes directories.</li>
+     * <li>The size is the sum of the sizes of all files in bytes.</li>
+     * <li>The timestamp is defined by the date and time of adding/replacing the
+     * data set. It is shown in the following format:
+     * <code>YYYY-MM-DD HH:MM:SS</code></li>
+     * <li>In case of an empty or non-existing repository only the header line
+     * is printed.</li>
      * <li>The result will be filtered by the provided options:
      * <ul>
      * <li>A {@link NameOption}'s name leads to a result with data sets only
@@ -449,8 +457,10 @@ public interface API {
      * <li>A {@link BeforeOption}'s timestamp lead to a result with data sets
      * with a timestamp after the specified one.</li>
      * </ul>
-     * </li> <li>Each option restricts the result. That is, only data sets
-     * fulfilling all options are shown.</li> </ul>
+     * </li>
+     * <li>Each option restricts the result. That is, only data sets fulfilling
+     * all options are shown.</li>
+     * </ul>
      * 
      * <p>
      * This method in particular does return a two rowed table: the first row
@@ -473,7 +483,8 @@ public interface API {
      * @throws NoRepositoryException
      *             If the given {@code repoPath} does not point to a repository.
      */
-    public String list(String repoPath, AbstractParameteredOption<?>... options);
+    public String list(String repoPath, AbstractParameteredOption<?>... options)
+	    throws NoRepositoryException;
 
     /**
      * Replaces the data set with given identifier completely with the newly
