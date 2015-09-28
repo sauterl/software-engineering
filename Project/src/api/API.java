@@ -5,7 +5,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.Map;
 
 import api.options.AbstractParameteredOption;
-import api.options.AfterOption;
+import api.options.BeforeOption;
 import api.options.BeforeOption;
 import api.options.NameOption;
 import api.options.TextOption;
@@ -144,13 +144,14 @@ public interface API {
      * <code>null</code> and contain valid subclasses, otherwise a
      * {@link NullPointerException} or {@link IllegalArgumentException} will be
      * thrown. It must contain one or several of the following
-     * {@link AbstractParameteredOption}: {@link NameOption}, {@link TextOption}, {@link BeforeOption},
-     * {@link AfterOption}.
+     * {@link AbstractParameteredOption}: {@link NameOption}, {@link TextOption}
+     * , {@link BeforeOption}, {@link BeforeOption}.
      * 
      * This method deletes all matching data sets, so if no matching sets are
      * found, none will be deleted.
      * 
-     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * This operation may or may not be a verbose process, depending on the
+     * corresponding flag.
      * 
      * If the {@code repoPath} argument does not point to a repository, a
      * {@link NoRepositoryException} will be thrown.
@@ -171,8 +172,9 @@ public interface API {
      * @param options
      *            A variable list of {@link AbstractParameteredOption}s their
      *            parameter's values define conditions. Any data set that
-     *            matches to all of these conditions will be deleted. Must not 
-     *            contain illegal subclasses of {@link AbstractParameteredOption}.
+     *            matches to all of these conditions will be deleted. Must not
+     *            contain illegal subclasses of
+     *            {@link AbstractParameteredOption}.
      * 
      * @throws NoRepositoryException
      *             If the {@code repoPath} argument does not point to a
@@ -187,9 +189,10 @@ public interface API {
      *         set is deleted. This is likely if no data set matched to all of
      *         the given conditions.
      */
-    public int delete(CallbackInterface cb, boolean verbose,
-	    String repoPath, AbstractParameteredOption<?>... options) throws NoRepositoryException,
-	    NullPointerException, IllegalArgumentException;
+    public int delete(CallbackInterface cb, boolean verbose, String repoPath,
+	    AbstractParameteredOption<?>... options)
+	    throws NoRepositoryException, NullPointerException,
+	    IllegalArgumentException;
 
     /**
      * Deletes the data set with given identifier from the specified repository.
@@ -197,7 +200,8 @@ public interface API {
      * Use this method for delete cases where <data set identifier> or option
      * --id has been specified.
      * 
-     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * This operation may or may not be a verbose process, depending on the
+     * corresponding flag.
      * 
      * If the verbose flag is set <code>true</code> and the
      * {@link CallbackInterface} parameter is set to <code>null</code> an
@@ -237,7 +241,8 @@ public interface API {
 	    NoRepositoryException;
 
     /**
-     * Exports the data set with given identifier to the specified destination folder.
+     * Exports the data set with given identifier to the specified destination
+     * folder.
      * 
      * Use this method for export cases where <data set identifier> or option
      * --id has been specified.
@@ -266,16 +271,17 @@ public interface API {
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
      * @param destPath
-     *            The path to the target repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
+     *            The path to the target repository. This path may be absolute
+     *            (and thus in OS-dependent notation) or relative to the current
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
-     *            @param options
+     * @param options
      *            A variable list of {@link AbstractParameteredOption}s their
      *            parameter's values define conditions. Any data set that
-     *            matches to all of these conditions will be deleted. Must not 
-     *            contain illegal sublclasses of {@link AbstractParameteredOption}.
-     *            
+     *            matches to all of these conditions will be deleted. Must not
+     *            contain illegal sublclasses of
+     *            {@link AbstractParameteredOption}.
+     * 
      * @return A map with dataset identifiers and their names that have been
      *         exported. It is valid that no data set is exported
      * @throws DuplicateException
@@ -283,11 +289,13 @@ public interface API {
      *             contains the identifiers of all data sets which could not be
      *             exported
      */
-    public Map<Integer, String> export(CallbackInterface cb, boolean verbose, String repoPath,
-	    String destFolder, AbstractParameteredOption<?>... options) throws DuplicateException;
+    public Map<Integer, String> export(CallbackInterface cb, boolean verbose,
+	    String repoPath, String destFolder,
+	    AbstractParameteredOption<?>... options) throws DuplicateException;
 
     /**
-     * Exports the data set with given identifier to the specified destination folder.
+     * Exports the data set with given identifier to the specified destination
+     * folder.
      * 
      * Use this method for export cases where <data set identifier> or option
      * --id has been specified.
@@ -316,8 +324,8 @@ public interface API {
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
      * @param destPath
-     *            The path to the target repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
+     *            The path to the target repository. This path may be absolute
+     *            (and thus in OS-dependent notation) or relative to the current
      *            working directory (CWD). In case the CWD points to the root of
      *            a repo, this parameter may be a dot ('.').
      * @param dataSetID
@@ -333,12 +341,16 @@ public interface API {
      * @return <code>true</code> if the operation successfully completed or
      *         <code>false</code> if not.
      */
-    public boolean export(CallbackInterface cb, boolean verbose, String repoPath,
-	    String destPath, int dataSetID) throws UnknownIDException, FileAlreadyExistsException, NoRepositoryException;
+    public boolean export(CallbackInterface cb, boolean verbose,
+	    String repoPath, String destPath, int dataSetID)
+	    throws UnknownIDException, FileAlreadyExistsException,
+	    NoRepositoryException;
 
     /**
-     * Returns version of the software and information about commands and/or parameters.
-     * The user is also informed how to get more information for a command
+     * Returns version of the software and information about commands and/or
+     * parameters. The user is also informed how to get more information for a
+     * command
+     * 
      * @param help
      * @param commandName
      *            can also be empty
@@ -358,46 +370,115 @@ public interface API {
      * separate rows and the TAB-character to separate columns.
      * <ul>
      * <li>The first row contains always the following header names:
-     * <ul><code>
+     * <ul>
+     * <code>
      * <li>ID</li>
      * <li>Name</li>
      * <li>Timestamp</li>
      * <li>Number of Files</li>
      * <li>Size</li>
      * <li>Description</li>
-     * </code></ul>
-     * </li>
-     * <li>The name is the original file/folder name.</li>
-     * <li>The table is sorted in accordance to the timestamp.</li>
-     * <li>If no description has been specified in the add command an empty string is printed.</li>
-     * <li>The number of files also includes directories.</li>
-     * <li>The size is the sum of the sizes of all files in bytes.</li>
-     * <li>The timestamp is defined by the date and time of adding/replacing the data set. It is shown in the following format: <code>YYYY-MM-DD HH:MM:SS</code></li>
-     * <li>In case of an empty or non-existing repository only the header line is printed.</li>
+     * </code>
+     * </ul>
+     * </li> <li>The name is the original file/folder name.</li> <li>The table
+     * is sorted in accordance to the timestamp.</li> <li>If no description has
+     * been specified in the add command an empty string is printed.</li> <li>
+     * The number of files also includes directories.</li> <li>The size is the
+     * sum of the sizes of all files in bytes.</li> <li>The timestamp is defined
+     * by the date and time of adding/replacing the data set. It is shown in the
+     * following format: <code>YYYY-MM-DD HH:MM:SS</code></li> <li>In case of an
+     * empty or non-existing repository only the header line is printed.</li>
      * </ul>
      * 
-     * @param dataSetID The identifier of the data set from which the meta data gets printed. If the given identifier does not point to a data set, a {@link UnknownIDException} will be thrown.
-     * @param repoPath The path pointing to a repository. If there is no repository at the given location, a {@link NoRepositoryException}.
+     * <p>
+     * This method in particular does return a two rowed table: the first row
+     * being the headers and the second one being the data row with the values
+     * of the data set addressed with the given identifier.
+     * </p>
+     * 
+     * @param dataSetID
+     *            The identifier of the data set from which the meta data gets
+     *            printed. If the given identifier does not point to a data set,
+     *            a {@link UnknownIDException} will be thrown.
+     * @param repoPath
+     *            The path pointing to a repository. If there is no repository
+     *            at the given location, a {@link NoRepositoryException}.
      * @return meta data as a TAB-separated table. In case of an empty or
      *         non-existing repository only the header line is printed.
-     * @throws UnknownIDException If the given identifier does not point to a data set.
-     * @throws NoRepositoryException If the given {@code repoPath} does not point to a repository.
+     * @throws UnknownIDException
+     *             If the given identifier does not point to a data set.
+     * @throws NoRepositoryException
+     *             If the given {@code repoPath} does not point to a repository.
      */
-    public String list(int dataSetID, String repoPath) throws UnknownIDException, NoRepositoryException;
+    public String list(int dataSetID, String repoPath)
+	    throws UnknownIDException, NoRepositoryException;
 
     /**
-     * TODO
+     * Returns the meta data of the data set with given identifier.
      * 
-     * @param oc
-     *            If oc is empty, all data sets are listed
-     * @return meta data as a TAB-seperated table. In case of an empty or
+     * The meta data is a TAB-separated table using the newline character to
+     * separate rows and the TAB-character to separate columns.
+     * <ul>
+     * <li>The first row contains always the following header names:
+     * <ul>
+     * <code>
+     * <li>ID</li>
+     * <li>Name</li>
+     * <li>Timestamp</li>
+     * <li>Number of Files</li>
+     * <li>Size</li>
+     * <li>Description</li>
+     * </code>
+     * </ul>
+     * </li> <li>The name is the original file/folder name.</li> <li>The table
+     * is sorted in accordance to the timestamp.</li> <li>If no description has
+     * been specified in the add command an empty string is printed.</li> <li>
+     * The number of files also includes directories.</li> <li>The size is the
+     * sum of the sizes of all files in bytes.</li> <li>The timestamp is defined
+     * by the date and time of adding/replacing the data set. It is shown in the
+     * following format: <code>YYYY-MM-DD HH:MM:SS</code></li> <li>In case of an
+     * empty or non-existing repository only the header line is printed.</li>
+     * <li>The result will be filtered by the provided options:
+     * <ul>
+     * <li>A {@link NameOption}'s name leads to a result with data sets only
+     * containing the specified name.</li>
+     * <li>A {@link TextOption}'s text leads to a result with data sets where
+     * the name or the description contains the specified text snippet.</li>
+     * <li>A {@link BeforeOption}'s timestamp lead to a result with data sets
+     * with a timestamp before the specified one.</li>
+     * <li>A {@link BeforeOption}'s timestamp lead to a result with data sets
+     * with a timestamp after the specified one.</li>
+     * </ul>
+     * </li> <li>Each option restricts the result. That is, only data sets
+     * fulfilling all options are shown.</li> </ul>
+     * 
+     * <p>
+     * This method in particular does return a two rowed table: the first row
+     * being the headers and the second one being the data row with the values
+     * of the data set addressed with the given identifier.
+     * </p>
+     * 
+     * @param repoPath
+     *            The path pointing to a repository. If there is no repository
+     *            at the given location, a {@link NoRepositoryException}.
+     * @param options
+     *            A vararg list of restricting options of type
+     *            {@link BeforeOption}, {@link BeforeOption}, {@link NameOption}
+     *            or {@link TextOption} as described in the method description.
+     *            If that list is empty, a table with meta data of all data sets
+     *            of the given repository is returned.
+     * 
+     * @return meta data as a TAB-separated table. In case of an empty or
      *         non-existing repository only the header line is printed.
+     * @throws NoRepositoryException
+     *             If the given {@code repoPath} does not point to a repository.
      */
     public String list(String repoPath, AbstractParameteredOption<?>... options);
 
     /**
      * Replaces the data set with given identifier completely with the newly
-     * specified one. If the old data set had a description, the new data set will receive the same description.
+     * specified one. If the old data set had a description, the new data set
+     * will receive the same description.
      * 
      * The data set to replace the old one may or may not be moved (depending on
      * the move flag) and causes a may or may not verbose process (depending on

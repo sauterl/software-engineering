@@ -7,6 +7,9 @@ package api.options;
  * The {@link NameOption} class represents the name option several commands
  * have.
  * 
+ * Whenever the word <i>parameter</i> is used within the documentation of this
+ * option, the option's parameter is referred to, not the method's one.
+ * 
  * @author Loris
  * 
  */
@@ -17,7 +20,7 @@ public class NameOption extends AbstractParameteredOption<String> {
     private String param;
 
     /**
-     * Creates a new NameOption.
+     * Creates a new NameOption without a paramter set.
      */
     protected NameOption() {
 	super("name");
@@ -69,14 +72,15 @@ public class NameOption extends AbstractParameteredOption<String> {
     public String get() {
 	return param;
     }
-    
+
     /**
-     * Returns the {@link NameOption}'s name, so it's value.
-     * This method behaves exactly the same as the {@link NameOption#get()} method.
+     * Returns the {@link NameOption}'s name, so it's value. This method behaves
+     * exactly the same as the {@link NameOption#get()} method.
+     * 
      * @return The {@link NameOption}'s name, thus it's value.
      * @see NameOption#get()
      */
-    public String getName(){
+    public String getName() {
 	return get();
     }
 
