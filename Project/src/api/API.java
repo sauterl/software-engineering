@@ -1,6 +1,7 @@
 package api;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Map;
 
 import sun.security.krb5.internal.APOptions;
@@ -267,6 +268,8 @@ public interface API {
      * Use this method for delete cases where <data set identifier> or option
      * --id has been specified.
      * 
+     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * 
      * If the verbose flag is set <code>true</code> and the
      * {@link CallbackInterface} parameter is set to <code>null</code> an
      * {@link NullPointerException} will be thrown.
@@ -320,6 +323,8 @@ public interface API {
      * This method deletes all matching data sets, so if no matching sets are
      * found, none will be deleted.
      * 
+     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * 
      * If the {@code repoPath} argument does not point to a repository, a
      * {@link NoRepositoryException} will be thrown.
      * 
@@ -361,12 +366,18 @@ public interface API {
 	    NullPointerException, IllegalArgumentException;
 
     /**
+     * Copies the data set with the given identifier to a specified path.
+     * The data set will be copied to the given path (absolute or relative notation) and will remain
+     * its name.
+     * 
+     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * 
      * 
      * @throws UnknownIDException
      *             If no data set with specified identifier exists
      */
-    public void export(CallbackInterface cb, boolean verbose, String repoPath,
-	    String destPath, int dataSetID) throws UnknownIDException;
+    public boolean export(CallbackInterface cb, boolean verbose, String repoPath,
+	    String destPath, int dataSetID) throws UnknownIDException, FileAlreadyExistsException, NoRepositoryException;
 
     /**
      * @return A map with dataset identifiers and their names that have been
