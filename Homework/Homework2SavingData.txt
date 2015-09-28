@@ -1,0 +1,11 @@
+Homework
+Howto: Save data and metadata in our repository
+	In general we've spotted the following problem areas:
+		- What to do when dealing with two folders/files which have the same name
+		- Howto effienctly remove datasets
+		- Howto search the Metadata efficiently
+		- Howto maintain a structure while constantly copying and replacing data
+	We came up with this structure:
+	For every add we create a folder in our repository which will be constructed according to DataSet_<ID>. This folder will contain the data added with this command. That way we don't have a problem when dealing with folders which have the same name and can delete them separatly without having to search for them for too long. To search the metadata efficiently we came up with idea of using one .json file which will include all metadata for this repository.Of course we'll write the .json part of our programm ourselves.
+	We calcuated the estimate size of one Metadataset to be approximatly 100 bytes. So the .json file can roughly hold up to 2e7 entries (given a RAM of 2GB). Since we  don't have to copy the metadata around when replacing data we also satisfied the third problem area this way. 
+
