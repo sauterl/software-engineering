@@ -1,4 +1,4 @@
-package jsontools;
+package util.jsontools;
 
 import java.io.BufferedReader;
 import java.io.File;

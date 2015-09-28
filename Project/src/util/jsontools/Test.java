@@ -1,4 +1,4 @@
-package jsontools;
+package util.jsontools;
 
 import java.io.FileWriter;
 import java.io.IOException;

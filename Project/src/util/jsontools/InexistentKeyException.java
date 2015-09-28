@@ -1,4 +1,4 @@
-package jsontools;
+package util.jsontools;
 
 public class InexistentKeyException extends RuntimeException {
 public InexistentKeyException(){
