@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Map;
 
-import sun.security.krb5.internal.APOptions;
 import api.options.AbstractParameteredOption;
 import api.options.AfterOption;
 import api.options.BeforeOption;
@@ -135,6 +134,244 @@ public interface API {
     public int add(CallbackInterface cb, String description, boolean move,
 	    boolean verbose, String repoPath, String dataSetPath)
 	    throws IOException, IllegalArgumentException;
+
+    /**
+     * Deletes data sets matching to all parameter values of the given
+     * {@link AbstractParameteredOption}s. It returns how many data sets have
+     * been deleted.
+     * 
+     * The array of {@link AbstractParameteredOption}s must not be
+     * <code>null</code> and contain valid subclasses, otherwise a
+     * {@link NullPointerException} or {@link IllegalArgumentException} will be
+     * thrown. It must contain one or several of the following
+     * {@link AbstractParameteredOption}: {@link NameOption}, {@link TextOption}, {@link BeforeOption},
+     * {@link AfterOption}.
+     * 
+     * This method deletes all matching data sets, so if no matching sets are
+     * found, none will be deleted.
+     * 
+     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * 
+     * If the {@code repoPath} argument does not point to a repository, a
+     * {@link NoRepositoryException} will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param options
+     *            A variable list of {@link AbstractParameteredOption}s their
+     *            parameter's values define conditions. Any data set that
+     *            matches to all of these conditions will be deleted. Must not 
+     *            contain illegal sublclasses of {@link AbstractParameteredOption}.
+     * 
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} argument does not point to a
+     *             repository.
+     * @throws NullPointerException
+     *             If the {@code options}-array or the {@code cb} is
+     *             <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If one of the {@code options}-array's fields is of illegal
+     *             type.
+     * @return How many data sets have been deleted. It is valid that no data
+     *         set is deleted. This is likely if no data set matched to all of
+     *         the given conditions.
+     */
+    public int delete(CallbackInterface cb, boolean verbose,
+	    String repoPath, AbstractParameteredOption<?>... options) throws NoRepositoryException,
+	    NullPointerException, IllegalArgumentException;
+
+    /**
+     * Deletes the data set with given identifier from the specified repository.
+     * 
+     * Use this method for delete cases where <data set identifier> or option
+     * --id has been specified.
+     * 
+     * This operation may or may not be a verbose process, depending on the corresponding flag.
+     * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param dataSetID
+     *            The identifier for the data set to be deleted. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
+     * 
+     * @throws UnknownIDException
+     *             If no data set with the specified {@code dataSetID} exists.
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
+     */
+    public boolean delete(CallbackInterface cb, boolean verbose,
+	    String repoPath, int dataSetID) throws UnknownIDException,
+	    NoRepositoryException;
+
+    /**
+     * Exports the data set with given identifier to the specified destination folder.
+     * 
+     * Use this method for export cases where <data set identifier> or option
+     * --id has been specified.
+     * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param destPath
+     *            The path to the target repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     *            @param options
+     *            A variable list of {@link AbstractParameteredOption}s their
+     *            parameter's values define conditions. Any data set that
+     *            matches to all of these conditions will be deleted. Must not 
+     *            contain illegal sublclasses of {@link AbstractParameteredOption}.
+     *            
+     * @return A map with dataset identifiers and their names that have been
+     *         exported. It is valid that no data set is exported
+     * @throws DuplicateException
+     *             If at least two data sets have the same name. The error
+     *             contains the identifiers of all data sets which could not be
+     *             exported
+     */
+    public Map<Integer, String> export(CallbackInterface cb, boolean verbose, String repoPath,
+	    String destFolder, AbstractParameteredOption<?>... options) throws DuplicateException;
+
+    /**
+     * Exports the data set with given identifier to the specified destination folder.
+     * 
+     * Use this method for export cases where <data set identifier> or option
+     * --id has been specified.
+     * 
+     * If the verbose flag is set <code>true</code> and the
+     * {@link CallbackInterface} parameter is set to <code>null</code> an
+     * {@link NullPointerException} will be thrown.
+     * 
+     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
+     * will be thrown.
+     * 
+     * @param cb
+     *            The {@link CallbackInterface} to receive progress information.
+     *            This must be a non-<code>null</code> {@link CallbackInterface}
+     *            , otherwise an {@link NullPointerException} will be thrown.
+     * @param verbose
+     *            A flag to specify if progress information gets printed or not:
+     *            To get the progress infos set this to <code>true</code> and
+     *            <code>false</code> otherwise.
+     * @param repoPath
+     *            The path to the repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param destPath
+     *            The path to the target repository. This path may be absolute (and
+     *            thus in OS-dependent notation) or relative to the current
+     *            working directory (CWD). In case the CWD points to the root of
+     *            a repo, this parameter may be a dot ('.').
+     * @param dataSetID
+     *            The identifier for the data set to be exported. If no data set
+     *            with such an identifier exists, a {@link UnknownIDException}
+     *            will be thrown.
+     * 
+     * @throws UnknownIDException
+     *             If no data set with the specified {@code dataSetID} exists.
+     * @throws NoRepositoryException
+     *             If the {@code repoPath} does not point to a valid repository.
+     * 
+     * @return <code>true</code> if the operation successfully completed or
+     *         <code>false</code> if not.
+     */
+    public boolean export(CallbackInterface cb, boolean verbose, String repoPath,
+	    String destPath, int dataSetID) throws UnknownIDException, FileAlreadyExistsException, NoRepositoryException;
+
+    /**
+     * Returns version of the software and information about commands and/or parameters.
+     * The user is also informed how to get more information for a command
+     * @param help
+     * @param commandName
+     *            can also be empty
+     * @return version followed by a list of all commands if the parameter
+     *         [command name] is empty. For each command the name and a short
+     *         description is printed. The user is also informed how to get more
+     *         information for a command. If the command name is specified a
+     *         complete synopsis and brief description of the command. If help
+     *         is also false, the short help information will also be printed.
+     */
+    public String info(boolean help, String commandName);
+
+    /**
+     * Returns the meta data of the data set with given identifier.
+     * 
+     * The meta data is a TAB-separated table using the newline character to
+     * separate rows and the TAB-character to separate columns.
+     * 
+     * 
+     * @return meta data as a TAB-seperated table. In case of an empty or
+     *         non-existing repository only the header line is printed.
+     */
+    public String list(int dataSetID, String repoPath);
+
+    /**
+     * TODO
+     * 
+     * @param oc
+     *            If oc is empty, all data sets are listed
+     * @return meta data as a TAB-seperated table. In case of an empty or
+     *         non-existing repository only the header line is printed.
+     */
+    public String list(String repoPath, AbstractParameteredOption<?>... options);
 
     /**
      * Replaces the data set with given identifier completely with the newly
@@ -272,236 +509,4 @@ public interface API {
 	    boolean move, boolean verbose, String repoPath, int dataSetID,
 	    String dataSetPath) throws IOException, IllegalArgumentException,
 	    NoRepositoryException, UnknownIDException;
-
-    /**
-     * Deletes the data set with given identifier from the specified repository.
-     * 
-     * Use this method for delete cases where <data set identifier> or option
-     * --id has been specified.
-     * 
-     * This operation may or may not be a verbose process, depending on the corresponding flag.
-     * 
-     * If the verbose flag is set <code>true</code> and the
-     * {@link CallbackInterface} parameter is set to <code>null</code> an
-     * {@link NullPointerException} will be thrown.
-     * 
-     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown.
-     * 
-     * @param cb
-     *            The {@link CallbackInterface} to receive progress information.
-     *            This must be a non-<code>null</code> {@link CallbackInterface}
-     *            , otherwise an {@link NullPointerException} will be thrown.
-     * @param verbose
-     *            A flag to specify if progress information gets printed or not:
-     *            To get the progress infos set this to <code>true</code> and
-     *            <code>false</code> otherwise.
-     * @param repoPath
-     *            The path to the repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     * @param dataSetID
-     *            The identifier for the data set to be deleted. If no data set
-     *            with such an identifier exists, a {@link UnknownIDException}
-     *            will be thrown.
-     * 
-     * @throws UnknownIDException
-     *             If no data set with the specified {@code dataSetID} exists.
-     * @throws NoRepositoryException
-     *             If the {@code repoPath} does not point to a valid repository.
-     * 
-     * @return <code>true</code> if the operation successfully completed or
-     *         <code>false</code> if not.
-     */
-    public boolean delete(CallbackInterface cb, boolean verbose,
-	    String repoPath, int dataSetID) throws UnknownIDException,
-	    NoRepositoryException;
-
-    /**
-     * Deletes data sets matching to all parameter values of the given
-     * {@link AbstractParameteredOption}s. It returns how many data sets have
-     * been deleted.
-     * 
-     * The array of {@link AbstractParameteredOption}s must not be
-     * <code>null</code> and contain valid subclasses, otherwise a
-     * {@link NullPointerException} or {@link IllegalArgumentException} will be
-     * thrown. It must contain one or several of the following
-     * {@link AbstractParameteredOption}: {@link NameOption}, {@link TextOption}, {@link BeforeOption},
-     * {@link AfterOption}.
-     * 
-     * This method deletes all matching data sets, so if no matching sets are
-     * found, none will be deleted.
-     * 
-     * This operation may or may not be a verbose process, depending on the corresponding flag.
-     * 
-     * If the {@code repoPath} argument does not point to a repository, a
-     * {@link NoRepositoryException} will be thrown.
-     * 
-     * @param cb
-     *            The {@link CallbackInterface} to receive progress information.
-     *            This must be a non-<code>null</code> {@link CallbackInterface}
-     *            , otherwise an {@link NullPointerException} will be thrown.
-     * @param options
-     *            An array of {@link AbstractParameteredOption}s their
-     *            parameter's values define conditions. Any data set that
-     *            matches to all of these conditions will be deleted. Must not
-     *            be <code>null</code> or contain illegal sublclasses.
-     * @param verbose
-     *            A flag to specify if progress information gets printed or not:
-     *            To get the progress infos set this to <code>true</code> and
-     *            <code>false</code> otherwise.
-     * @param repoPath
-     *            The path to the repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     * 
-     * @throws NoRepositoryException
-     *             If the {@code repoPath} argument does not point to a
-     *             repository.
-     * @throws NullPointerException
-     *             If the {@code options}-array or the {@code cb} is
-     *             <code>null</code>.
-     * @throws IllegalArgumentException
-     *             If one of the {@code options}-array's fields is of illegal
-     *             type.
-     * @return How many data sets have been deleted. It is valid that no data
-     *         set is deleted. This is likely if no data set matched to all of
-     *         the given conditions.
-     */
-    public int delete(CallbackInterface cb,
-	    AbstractParameteredOption<?>[] options, boolean verbose,
-	    String repoPath) throws NoRepositoryException,
-	    NullPointerException, IllegalArgumentException;
-
-    /**
-     * Exports the data set with given identifier to the specified destination folder.
-     * 
-     * Use this method for export cases where <data set identifier> or option
-     * --id has been specified.
-     * 
-     * If the verbose flag is set <code>true</code> and the
-     * {@link CallbackInterface} parameter is set to <code>null</code> an
-     * {@link NullPointerException} will be thrown.
-     * 
-     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown.
-     * 
-     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown.
-     * 
-     * @param cb
-     *            The {@link CallbackInterface} to receive progress information.
-     *            This must be a non-<code>null</code> {@link CallbackInterface}
-     *            , otherwise an {@link NullPointerException} will be thrown.
-     * @param verbose
-     *            A flag to specify if progress information gets printed or not:
-     *            To get the progress infos set this to <code>true</code> and
-     *            <code>false</code> otherwise.
-     * @param repoPath
-     *            The path to the repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     * @param destPath
-     *            The path to the target repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     * @param dataSetID
-     *            The identifier for the data set to be exported. If no data set
-     *            with such an identifier exists, a {@link UnknownIDException}
-     *            will be thrown.
-     * 
-     * @throws UnknownIDException
-     *             If no data set with the specified {@code dataSetID} exists.
-     * @throws NoRepositoryException
-     *             If the {@code repoPath} does not point to a valid repository.
-     * 
-     * @return <code>true</code> if the operation successfully completed or
-     *         <code>false</code> if not.
-     */
-    public boolean export(CallbackInterface cb, boolean verbose, String repoPath,
-	    String destPath, int dataSetID) throws UnknownIDException, FileAlreadyExistsException, NoRepositoryException;
-
-    /**
-     * Exports the data set with given identifier to the specified destination folder.
-     * 
-     * Use this method for export cases where <data set identifier> or option
-     * --id has been specified.
-     * 
-     * If the verbose flag is set <code>true</code> and the
-     * {@link CallbackInterface} parameter is set to <code>null</code> an
-     * {@link NullPointerException} will be thrown.
-     * 
-     * If {@code repoPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown.
-     * 
-     * If {@code destPath} is <code>null</code>, a {@link NullPointerException}
-     * will be thrown.
-     * 
-     * TODO Parameters?
-     * 
-     * @param cb
-     *            The {@link CallbackInterface} to receive progress information.
-     *            This must be a non-<code>null</code> {@link CallbackInterface}
-     *            , otherwise an {@link NullPointerException} will be thrown.
-     * @param verbose
-     *            A flag to specify if progress information gets printed or not:
-     *            To get the progress infos set this to <code>true</code> and
-     *            <code>false</code> otherwise.
-     * @param repoPath
-     *            The path to the repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     * @param destPath
-     *            The path to the target repository. This path may be absolute (and
-     *            thus in OS-dependent notation) or relative to the current
-     *            working directory (CWD). In case the CWD points to the root of
-     *            a repo, this parameter may be a dot ('.').
-     *            
-     * @return A map with dataset identifiers and their names that have been
-     *         exported. It is valid that no data set is exported
-     * @throws DuplicateException
-     *             If at least two data sets have the same name. The error
-     *             contains the identifiers of all data sets which could not be
-     *             exported
-     */
-    public Map<Integer, String> export(CallbackInterface cb,
-	    OptionsContainer oc, boolean verbose, String repoPath,
-	    String destFolder) throws DuplicateException;
-
-    /**
-     * TODO 
-     * @return meta data as a TAB-seperated table. In case of an empty or
-     *         non-existing repository only the header line is printed.
-     */
-    public String list(int dataSetID, String repoPath);
-
-    /**
-     * TODO
-     * 
-     * @param oc
-     *            If oc is empty, all data sets are listed
-     * @return meta data as a TAB-seperated table. In case of an empty or
-     *         non-existing repository only the header line is printed.
-     */
-    public String list(OptionsContainer oc, String repoPath);
-
-    /**
-     * Returns version of the software and information about commands and/or parameters.
-     * The user is also informed how to get more information for a command
-     * @param help
-     * @param commandName
-     *            can also be empty
-     * @return version followed by a list of all commands if the parameter
-     *         [command name] is empty. For each command the name and a short
-     *         description is printed. The user is also informed how to get more
-     *         information for a command. If the command name is specified a
-     *         complete synopsis and brief description of the command. If help
-     *         is also false, the short help information will also be printed.
-     */
-    public String info(boolean help, String commandName);
 }
