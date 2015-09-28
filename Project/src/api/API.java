@@ -370,9 +370,8 @@ public interface API {
      *         set is deleted. This is likely if no data set matched to all of
      *         the given conditions.
      */
-    public int delete(CallbackInterface cb,
-	    AbstractParameteredOption<?>[] options, boolean verbose,
-	    String repoPath) throws NoRepositoryException,
+    public int delete(CallbackInterface cb, boolean verbose,
+	    String repoPath, AbstractParameteredOption<?>... options) throws NoRepositoryException,
 	    NullPointerException, IllegalArgumentException;
 
     /**
@@ -469,9 +468,8 @@ public interface API {
      *             contains the identifiers of all data sets which could not be
      *             exported
      */
-    public Map<Integer, String> export(CallbackInterface cb,
-	    OptionsContainer oc, boolean verbose, String repoPath,
-	    String destFolder) throws DuplicateException;
+    public Map<Integer, String> export(CallbackInterface cb, boolean verbose, String repoPath,
+	    String destFolder, AbstractParameteredOption<?>... options) throws DuplicateException;
 
     /**
      * TODO 
@@ -488,7 +486,7 @@ public interface API {
      * @return meta data as a TAB-seperated table. In case of an empty or
      *         non-existing repository only the header line is printed.
      */
-    public String list(OptionsContainer oc, String repoPath);
+    public String list(String repoPath, AbstractParameteredOption<?>... options);
 
     /**
      * Returns version of the software and information about commands and/or parameters.
