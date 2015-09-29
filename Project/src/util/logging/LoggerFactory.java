@@ -27,7 +27,7 @@ public class LoggerFactory {
     }
     
     public Logger getLoggerForClass(Class<?> clazz){
-	return LogManager.getLogManager().getLogger(clazz.getName() );
+	return Logger.getLogger(clazz.getName() );
     }
 
 }
