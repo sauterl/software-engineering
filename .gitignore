@@ -20,3 +20,7 @@ Project/doc/
 **/*.tar
 **/*.gz
 **/*.jar
+
+# Eclipse Settings
+###################
+Project/.project
