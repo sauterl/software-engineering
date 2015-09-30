@@ -93,8 +93,12 @@ public class LoggerConfiguration {
     /**
      * @return the formatters
      */
-    public Formatter getFormatters() {
+    public Formatter getFormatter() {
         return formatter;
+    }
+    
+    public boolean hasSingleHandler(){
+	return singleHandler; 
     }
 
 }

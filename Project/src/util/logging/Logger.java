@@ -96,11 +96,11 @@ public class Logger extends AbstractLogger {
 	return logger.getFilter();
     }
     
-    public static Logger getLogger(Class<?> clazz){
+    public static AbstractLogger getLogger(Class<?> clazz){
 	return new Logger(java.util.logging.Logger.getLogger(clazz.getName()));
     }
     
-    public static Logger getLogger(String name){
+    public static AbstractLogger getLogger(String name){
 	return new Logger(java.util.logging.Logger.getLogger(name));
     }
 }
