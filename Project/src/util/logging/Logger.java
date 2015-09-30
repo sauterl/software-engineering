@@ -23,7 +23,7 @@ public class Logger extends AbstractLogger {
 
     @Override
     public void error(String msg) {
-	this.logger.severe(msg);
+	log(LevelX.ERROR, msg);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class Logger extends AbstractLogger {
 
     @Override
     public void warn(String msg) {
-	this.logger.warning(msg);
+	log(LevelX.WARN, msg);
     }
 
     @Override
@@ -102,5 +102,16 @@ public class Logger extends AbstractLogger {
     
     public static AbstractLogger getLogger(String name){
 	return new Logger(java.util.logging.Logger.getLogger(name));
+    }
+
+    @Override
+    public void info(String msg) {
+	log(Level.INFO, msg);
+	
+    }
+
+    @Override
+    public void config(String msg) {
+	log(Level.CONFIG, msg);
     }
 }

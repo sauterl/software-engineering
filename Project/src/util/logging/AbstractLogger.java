@@ -33,6 +33,12 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractLogger {
 
+    /*
+     * TODO Write all log methods
+     * TODO Write javadoc for methods
+     */
+    
+    
     protected final Logger logger;
     
     protected AbstractLogger(Logger log){
@@ -46,6 +52,10 @@ public abstract class AbstractLogger {
     public abstract void warn(String msg);
 
     public abstract void warn(String msg, Throwable thrown);
+    
+    public abstract void info(String msg);
+    
+    public abstract void config(String msg);
     
     public abstract void debug(String msg);
     

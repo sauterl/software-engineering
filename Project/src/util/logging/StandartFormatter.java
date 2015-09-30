@@ -3,6 +3,8 @@
  */
 package util.logging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,6 +82,17 @@ public class StandartFormatter extends Formatter {
 	}
 	sb.append(record.getMessage());
 	sb.append("\n");
+	Throwable thrown = record.getThrown();
+	if(thrown != null){
+	    //record has throwable
+	    StringWriter strWtr = new StringWriter();
+	    PrintWriter pWtr = new PrintWriter(strWtr);
+	    pWtr.println();
+	    thrown.printStackTrace(pWtr);
+	    pWtr.flush();
+	    pWtr.close();
+	    sb.append(strWtr.toString());
+	}
 	return sb.toString();
     }
 
