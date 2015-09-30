@@ -10,6 +10,10 @@ import java.util.logging.Logger;
  */
 public class LoggerFactory {
     
+    /*
+     * TODO Rewrite this class to only be a factory method for some pre-configured loggers
+     */
+    
     private static LoggerFactory instance = null;
     
     /**
