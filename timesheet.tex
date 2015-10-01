@@ -1,0 +1,75 @@
+%% Allgemeine Definitionen
+\documentclass{article} %% Bestimmt die allgemeine Formatierung der Abgabe.
+\usepackage{a4wide} %% Papierformat: A4.
+\usepackage[utf8]{inputenc} %% Datei wird im UTF-8 Format geschrieben.
+%% Unter Windows werden Dateien je nach Editor nicht in diesem Format
+%% gespeichert und Umlaute werden dann nicht richtig erkannt.
+%% Versucht in diesem Fall "utf8" auf "latin1" (ISO 8859-1) wechseln.
+\usepackage[T1]{fontenc} %% Format der Zeichen im erstellten PDF.
+\usepackage[english]{babel} %% Regeln für automatische Worttrennung.
+\usepackage{fancyhdr} %% Paket um einen Header auf jeder Seite zu erstellen.
+\usepackage{lastpage} %% Wird für "Seite X von Y" im Header benötigt.
+                      %% Damit das funktioniert, muss pdflatex zweimal
+                      %% aufgerufen werden.
+\usepackage{enumerate} %% Hiermit kann der Stil der Aufzählungen
+                       %% verändert werden (siehe unten).
+
+
+\usepackage{listings}
+
+\usepackage{amssymb} %% Definitionen für mathematische Symbole.
+\usepackage{amsmath} %% Definitionen für mathematische Symbole.
+
+\usepackage{wasysym} % %For lightning bolt
+
+\usepackage{tikz}  %% Paket für Grafiken (Graphen, Automaten, etc.)
+\usetikzlibrary{automata} %% Tikz-Bibliothek für Automaten
+\usetikzlibrary{arrows}   %% Tikz-Bibliothek für Pfeilspitzen
+
+
+%% Linke Seite des Headers
+\lhead{\course\\Fall 2015}
+%% Rechte Seite des Headers
+\rhead{\mg, \sh, \ej, \ls\\ Page \thepage\ of \pageref{LastPage}}
+%% Höhe des Headers
+\usepackage[headheight=36pt]{geometry}
+%% Seitenstil, der den Header verwendet.
+\pagestyle{fancy}
+
+\newcommand{\ls}{Loris Sauter}
+\newcommand{\sh}{Silvan Heller}
+\newcommand{\mg}{Max Grüner}
+\newcommand{\ej}{Eddie Joseph}
+\newcommand{\semester}{Herbstsemester 2015}
+\newcommand{\course}{Software Engineering}
+\newcommand{\homeworkNumber}{2}
+
+
+\begin{document}
+\part{Time Sheet}
+\section{Planning}
+For the API planning we had a meeting which lasted three hours.
+\section{Coding}
+The coding time of the API methods (package \texttt{api} and sub-packages) took around 1 hour.
+\section{Documentation}
+The documentation of the API methods took about 5 hours.
+\section{Review}
+\subsection{Code}
+Each team member spent 0.5 hours reviewing the code structure and classes.
+\subsection{Documentation}
+The review of the documentation was split into an individual and a team review and discussion during a meeting. All in all each member spent an hour reviewing the documentation and we had a one hour meeting to review the documentation.
+\section{Total}
+The delivered API (package \texttt{api} and sub-packages) the working time is build up as followed:
+\begin{center}
+	\begin{tabular}{|l|c|}
+	\hline  Task & Time (in hours) \\ 
+	\hline  Planning &  3\\ 
+	\hline  Coding &  1\\ 
+	\hline  Documentation & 5 \\ 
+	\hline  Review - Code&  0.5\\ 
+	\hline  Review - Doc &  2\\ 
+	\hline\hline   Total &  11.5\\ 
+	\hline 
+\end{tabular} 
+\end{center}
+\end{document}

@@ -4,20 +4,23 @@
 package api;
 
 /**
- * An {@link NoRepositoryException} is thrown if a path, which has to point to a repository, does not point to a valid repo.
+ * An {@link NoRepositoryException} is thrown if a path, which has to point to a
+ * repository, does not point to a valid repo.
+ * 
  * @author Loris
- *
+ * 
  */
 public class NoRepositoryException extends Exception {
-    
+
     /**
      * Universal default message.
      */
     private static final String defaultMessage = "The given repository path does not point to a valid repository.";
-    
+
     /**
-     * The message ready to get used with {@link String#format(String, Object...)}, where the only passed object is a string
-     * containing the path.
+     * The message ready to get used with
+     * {@link String#format(String, Object...)}, where the only passed object is
+     * a string containing the path.
      */
     private static final String detailMessage = "The repository path (%s) does not point to a valid repository.";
 
@@ -35,9 +38,11 @@ public class NoRepositoryException extends Exception {
 
     /**
      * Constructs a {@link NoRepositoryException} with specified invalid path.
-     * @param path The path which does not point to a repository.
+     * 
+     * @param path
+     *            The path which does not point to a repository.
      */
-    public NoRepositoryException(String path){
+    public NoRepositoryException(String path) {
 	super(String.format(detailMessage, path));
     }
 
