@@ -60,7 +60,8 @@ private int readEntry(int c, String key, String input, Json jsonObj) {
 private int readSetEntry(int c, String key, String input, Json jsonObj) {
 	ArrayList<Json> set=new ArrayList<Json>();
 	try{
-	while(input.charAt(c)!=']'){
+	while(input.charAt(c)!=']'&input.charAt(c+1)!=']'){
+//		System.out.println(input.charAt(c));
 		c++;
 		set.add(parseJson(input.substring(c,endOfObjectEntry(input, c))));
 		c=endOfObjectEntry(input, c);

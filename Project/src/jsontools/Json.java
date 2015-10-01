@@ -184,6 +184,14 @@ public static String jsonEscape(String input){
 	
 	return input;
 }
+
+public HashMap getMap(){
+	return (HashMap)data;
+}
+
+public String toString(){
+	return toJson();
+}
 	
 
 

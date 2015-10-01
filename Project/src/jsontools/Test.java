@@ -4,34 +4,101 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class Test {
-
+	static final int MAXITER=1000;
+	static long st=0;
 	public static void main(String[] args) {
-//		String input="{\"repository\" :\"Hallo\", \n\"version\" : 1,\n\"name\": \"first repo\"}";
-//		input="{\"repository\" :{\"version\" : 1,\"name\": \"first repo\",\"timestamp\":\"\",\"datasets\" :[{\"id\":1,\"name\":\"big folder\",\"timestamp\":\"\",\"description\":\"Bla Bla Bla...\",\"filecount\":34,\"size\":9369436,\"filename\":\"\",\"filetype\":\"directory\"},{\"id\":2,\"name\":\"small file\",\"timestamp\":\"\",\"description\":\"Bli Bla Blu...\",\"filecount\":1,\"size\":3058,\"filename\":\"\",\"filetype\":\"file\"}]}}";
-//		input="{\"timestamp\" :\"2014-09-18-13-40-18\", \n\"version\" : 1,\n\"name\": \"first \\\" repo\"}";
-//		System.out.println(JsonParser.whitespaceRemover(input));
-//		JsonParser jps=new JsonParser();
-//		Json js=jps.parseJson(input);
-		
-		JsonParser jps=new JsonParser();
-		Json js=null;
+		FileWriter stat=null;
 		try {
-			js = jps.parseFile("C:/Users/Eddie/Desktop/mal.json");
-//			js = jps.parseFile("src/json_tools/example.json");
+			stat=new FileWriter("C:/Users/Eddie/Desktop/stat.csv");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		System.out.println(js.toJson());
-//		System.out.println(js.getJsonObject("repository").getString("name"));
+		try {
+			stat.write("Iteration;Opentime;inserttime;closetime;totaltime\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		JsonParser jps=new JsonParser();
+		timeElapsed();
+		
+		
+		
+//		Json js = open(jps);
+//		System.out.println(js);
+//		insert(js,jps);
+//		System.out.println(js);
+//		close(js);
+		
+		
+		for (int iteration = 0; iteration < MAXITER; iteration++) {
+			Json js = open(jps);
+			long ot = timeElapsed();
+			js=insert(js, jps);
+			long it = timeElapsed();
+			close(js);
+			long ct = timeElapsed();
+
+			try {
+				stat.write(iteration + ";" + ot + ";" + it + ";" + ct + ";" + (ot + it + ct) + "\n");
+				System.out.println("Iteration "+iteration+" finished.");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		try {
-			FileWriter f=new FileWriter("C:/Users/Eddie/Desktop/out.json");
+			stat.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static long timeElapsed(){
+		if(st==0){
+			st=System.currentTimeMillis();
+			return 0;
+		}
+		long stl=st;
+		st=System.currentTimeMillis();
+		return st-stl;
+	}
+	
+	
+	public static Json open(JsonParser jps){
+		Json js=null;
+		try {
+			js = jps.parseFile("C:/Users/Eddie/Desktop/example2.json");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return js;
+	}
+	
+	public static Json insert(Json js, JsonParser jps){
+		Json[] ds = js.getJsonObject("repository").getSet("datasets");
+		Json[] dsn=new Json[ds.length+1];
+		for(int index=0;index<ds.length;index++){
+			dsn[index]=ds[index];
+		}
+		
+		try {
+			dsn[dsn.length-1]=jps.parseFile("C:/Users/Eddie/Desktop/entry.json");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		js.getJsonObject("repository").addEntry("datasets", dsn);
+		return js;
+	}
+
+	public static void close(Json js){
+		try {
+			FileWriter f=new FileWriter("C:/Users/Eddie/Desktop/example2.json");
 			f.write(js.toJson());
+			f.flush();
 			f.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 }
