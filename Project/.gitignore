@@ -1,1 +1,6 @@
 /bin/
+
+# Ignore Sandbox
+##################
+# since sandbox contains some experimental source code
+/sandbox/
