@@ -37,7 +37,7 @@ public class StandartFormatter extends Formatter {
      * Flag to indicate whether the method name is part of the formatted message
      * or not
      */
-    private boolean methodNameEnabled = false;
+    private volatile boolean methodNameEnabled = false; //not used yet
 
     /**
      * Constructs a new default {@link StandartFormatter}.
@@ -45,7 +45,7 @@ public class StandartFormatter extends Formatter {
     public StandartFormatter() {
 	/* empty */
     }
-
+    
     /**
      * Formats the given {@link LogRecord}.
      * 
@@ -66,6 +66,7 @@ public class StandartFormatter extends Formatter {
 	StringBuffer sb = new StringBuffer(256);
 	sb.append(dateFormat.format(new Date(record.getMillis())));
 	sb.append(" ");
+	// adding thread name+number somewhere?
 	sb.append("[");
 	sb.append(record.getLevel().getName());
 	sb.append("]");
@@ -95,5 +96,5 @@ public class StandartFormatter extends Formatter {
 	}
 	return sb.toString();
     }
-
+    
 }

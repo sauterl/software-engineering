@@ -41,7 +41,6 @@ public class LoggingAPITest {
 	    log.error("Some null encountered", ex);
 	}
 	
-
     }
 
 }

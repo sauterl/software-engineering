@@ -1,6 +1,6 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.api;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
