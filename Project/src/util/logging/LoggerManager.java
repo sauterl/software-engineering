@@ -1,6 +1,7 @@
 package util.logging;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class LoggerManager {
     
@@ -29,6 +30,24 @@ public class LoggerManager {
 	    nameLoggerMap.put(logger.getName(), logger);
 	    return logger;
 	}
+    }
+    
+    /**
+     * Returns the names of all registered Loggers.
+     * 
+     * @return Returns the names of all registered and Loggers. If this method gets invoked before a single logger has been registered, it returns a zero-lengthed string array.
+     */
+    public String[] getLoggerNames(){
+	if(nameLoggerMap.size() == 0){
+	    return new String[0];
+	}
+	String[] names = new String[nameLoggerMap.size() ];
+	Iterator<String> keysIt = nameLoggerMap.keySet().iterator();
+	int i=0;
+	while(keysIt.hasNext() ){
+	    names[i++] = keysIt.next();
+	}
+	return names;
     }
     
     
