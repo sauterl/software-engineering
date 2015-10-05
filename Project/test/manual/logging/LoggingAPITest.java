@@ -11,6 +11,9 @@ public class LoggingAPITest {
 
     public static void main(String[] args) {
 	AbstractLogger log = Logger.getLogger(LoggingAPITest.class);
+	AbstractLogger log2 = Logger.getLogger(LoggingAPITest.class);
+	System.out.println(log);
+	System.out.println(log2);
 	Handler[] hs = log.getHandlers();
 	for(Handler h : hs){
 	    log.removeHandler(h);
