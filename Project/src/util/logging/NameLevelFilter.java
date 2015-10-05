@@ -11,7 +11,7 @@ import java.util.logging.LogRecord;
  * A {@link Filter} which filters log messages by its level for a specified logger.
  * 
  * <p>
- * In other words, this filter acts if the given 
+ * In other words, this filter restricts log messages of the logger with the specified name below the given level.
  * </p>
  * @author Loris
  *
@@ -34,7 +34,9 @@ public class NameLevelFilter implements Filter {
      */
     @Override
     public boolean isLoggable(LogRecord record) {
-	// TODO Auto-generated method stub
+	if(record.getLoggerName().equals(name) && record.getLevel().intValue() >= level.intValue()){
+	    return true;
+	}
 	return false;
     }
 

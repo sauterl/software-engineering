@@ -66,6 +66,7 @@ public class StandartFormatter extends Formatter {
 	StringBuffer sb = new StringBuffer(256);
 	sb.append(dateFormat.format(new Date(record.getMillis())));
 	sb.append(" ");
+	// adding thread name+number somewhere?
 	sb.append("[");
 	sb.append(record.getLevel().getName());
 	sb.append("]");
