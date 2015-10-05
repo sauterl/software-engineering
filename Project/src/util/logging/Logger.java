@@ -13,6 +13,8 @@ import java.util.logging.LogRecord;
  *
  */
 public class Logger extends AbstractLogger {
+    
+    private static final LoggerManager manager = LoggerManager.getManager();
 
     /**
      * @param log
@@ -97,11 +99,12 @@ public class Logger extends AbstractLogger {
     }
     
     public static AbstractLogger getLogger(Class<?> clazz){
-	return new Logger(java.util.logging.Logger.getLogger(clazz.getName()));
+	return getLogger(clazz.getName() );
     }
     
     public static AbstractLogger getLogger(String name){
-	return new Logger(java.util.logging.Logger.getLogger(name));
+	AbstractLogger logger = new Logger(java.util.logging.Logger.getLogger(name));
+	return manager.registerLogger(logger);
     }
 
     @Override

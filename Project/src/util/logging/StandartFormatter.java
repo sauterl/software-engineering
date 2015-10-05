@@ -62,7 +62,7 @@ public class StandartFormatter extends Formatter {
      * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
      */
     @Override
-    public String format(LogRecord record) {
+    public synchronized String format(LogRecord record) {
 	StringBuffer sb = new StringBuffer(256);
 	sb.append(dateFormat.format(new Date(record.getMillis())));
 	sb.append(" ");

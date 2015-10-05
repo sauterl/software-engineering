@@ -45,6 +45,17 @@ public abstract class AbstractLogger {
 	this.logger = log;
     }
     
+    /**
+     * Returns the name of the internal java.util.logging.Logger name.
+     * This method gets forwarded to {@link Logger#getName()} and returns the method's
+     * return value.
+     * @see Logger#getName()
+     * @return The name of the logger.
+     */
+    public String getName(){
+	return this.logger.getName();
+    }
+    
     public abstract void error(String msg);
     
     public abstract void error(String msg, Throwable thrown);
