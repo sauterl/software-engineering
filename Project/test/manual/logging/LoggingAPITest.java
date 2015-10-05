@@ -5,7 +5,6 @@ import java.util.logging.Handler;
 import util.logging.AbstractLogger;
 import util.logging.LevelX;
 import util.logging.Logger;
-import util.logging.NameLevelFilter;
 import util.logging.StandartConsoleHandler;
 
 public class LoggingAPITest {

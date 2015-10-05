@@ -1,10 +1,8 @@
 package manual.logging;
 
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import util.logging.LoggerFactory;
 import util.logging.StandartFormatter;
 
 public class LoggerTests {
