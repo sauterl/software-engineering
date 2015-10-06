@@ -29,21 +29,110 @@ public Json parseFile(String filepath) throws IOException {
 }
 
 public Json parseJson(String input){
-	int c=0;
-	Json jsonObj = new Json();
-	input=whitespaceRemover(input);
-	while(c<input.length()&&input.indexOf('"', c)!=-1){
-		
-		do{
-		c=input.indexOf('"', c);
-		}while(input.indexOf(c-1)=='\\');
-		
-		String key = input.substring(c+1,input.indexOf('"',c+1));
-		c=input.indexOf(':',c+1)+1;
-		c=readEntry(c,key,input,jsonObj);
+	JsonReader read =new JsonReader(input);
+	Json parsedJson = new Json();
+	if(read.getHead()!='{'){
+		if(read.getNext()!='{'){
+			throw new InvalidJsonException("The opening brackets are missing");
+		}
 	}
-	return jsonObj;
+	while(read.getHead()!='}'&&!read.reachedEnd()){
+	readEntry(read,parsedJson);
+//	System.out.println(read.getHead());
+	findNext(read);
+	}
+	return parsedJson;
 }
+
+private void findNext(JsonReader read) {
+	if(read.getHead()=='"'){
+		read.getNext();
+	}
+	
+}
+
+private void readEntry(JsonReader read, Json parsedJson){
+	String name = readName(read);
+	char firstChar=read.getNext();
+	if(firstChar=='"'){
+		String value = readString(read);
+		parsedJson.addEntry(name, value);
+	}else if(firstChar=='{'){
+		Json value=readObject(read);
+		parsedJson.addEntry(name, value);
+	}else if(firstChar=='['){
+		Json[] value=readSet(read);
+		parsedJson.addEntry(name, value);
+	}else{
+		String value=readNumber(read);
+		parsedJson.addEntry(name, value);
+	}
+//	System.out.println(read.getRest());
+}
+
+private Json[] readSet(JsonReader read) {
+	ArrayList<Json> jsar= new ArrayList<Json>();
+	read.getNext();
+	while(read.getHead()!=']'){
+		if(read.getHead()=='{'){
+//			System.out.println(read.getRest());
+			jsar.add(readObject(read));
+//			System.out.println(read.getRest());
+		}else if(read.getHead()=='['){
+			throw new InvalidJsonException("Multi dimentional Arrays arent supported!");	
+		}else{
+			throw new InvalidJsonException("Please check your json lists.");
+		}
+	}
+	read.jumpTo(',');
+	
+	return jsar.toArray(new Json[0]);
+}
+
+private Json readObject(JsonReader read) {
+	String obj=read.readToClosing();
+	read.jumpTo(',');
+	return parseJson(obj);
+}
+
+private String readNumber(JsonReader read) {
+	String ret="";
+	char next=read.getHead();
+	while(next!=' '&&next!=','&&next!='}'){
+		ret+=next;
+		next=read.getNext();
+	}
+	if(read.getHead()!='}'){
+		read.jumpTo(',');
+	}
+	return ret;
+}
+
+private String readString(JsonReader read) {
+//	System.out.println(read.getHead());
+//	read.getNext();
+	String ret=read.readToNotEscaped('"');
+	read.jumpTo(',');
+	return ret;
+}
+
+private String readName(JsonReader read){
+	if(read.getNext()!='"'){
+		throw new InvalidJsonException("Starting phrences are missing");	
+	}
+	String name = read.readToNotEscaped('"');
+	read.jumpTo(':');
+	return name;
+}
+
+
+
+
+
+
+
+
+
 
 private int readEntry(int c, String key, String input, Json jsonObj) {
 	if(input.charAt(c)=='{'){

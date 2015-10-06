@@ -20,6 +20,10 @@ public void addEntry(String key, String value){
 	data.put(key, value);
 }
 
+public void addEntry(String key, double value){
+	data.put(key, Double.toString(value));
+}
+
 public void addEntry(String key, Json[] value){
 	data.put(key, value);
 }
@@ -170,7 +174,7 @@ private String objectEntryToJson(Object value) {
 }
 
 private String stringEntryToJson(String value) {
-	if(value.matches("^\\d+(\\.)?\\d*$")){
+	if(value.matches("^\\d+(\\.)?\\d*((E|e)-?\\d\\d?\\d?)?$")){//"^\\d+(\\.)?\\d*$"
 		return value;
 	}else{
 		return "\""+jsonEscape(value)+"\"";
