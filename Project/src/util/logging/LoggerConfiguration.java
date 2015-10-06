@@ -12,93 +12,36 @@ import java.util.logging.Level;
  */
 public class LoggerConfiguration {
     
-    private Level loggerLevel;
-    private Level handlerLevel;
+    private String name;
+    private String handlerRef;
+    private Level level;
     
-    private Filter loggerFilter;
-    
-    @Deprecated
-    private Filter handlerFilter;
-    
-    private Handler[] handlers;
-    private volatile boolean singleHandler = false;//volatile to be ensure correct value
-    private Formatter formatter;
-
-    public LoggerConfiguration() {
-	
-    }
-    
-    public LoggerConfiguration(Level level, Filter filter, Formatter formatter, Handler...handlers){
-	if(level == null){
-	    level = Level.INFO;
-	}
-	loggerLevel = level;
-	handlerLevel = level;
-	
-	loggerFilter = filter;
-	
-	if(formatter == null){
-	    formatter = new StandartFormatter();
-	}
-	this.formatter = formatter;
-	
-	if(handlers.length > 1){
-	    this.handlers = new Handler[handlers.length];
-	    for(int i=0; i<handlers.length; i++){
-		this.handlers[i] = handlers[i];
-	    }
-	}else{
-	    singleHandler = true;
-	    this.handlers = new Handler[1];
-	    this.handlers[0] = handlers[0];
-	}
+    public LoggerConfiguration(String handlerRef, Level level){
+	this.handlerRef = handlerRef;
+	this.level = level;
     }
 
     /**
-     * @return the loggerLevel
+     * @return the name
      */
-    public Level getLoggerLevel() {
-        return loggerLevel;
+    public String getName() {
+        return name;
     }
 
     /**
-     * @return the handlerLevel
+     * @return the handlerRef
      */
-    public Level getHandlerLevel() {
-        return handlerLevel;
+    public String getHandlerRef() {
+        return handlerRef;
     }
 
     /**
-     * @return the loggerFilter
+     * @return the level
      */
-    public Filter getLoggerFilter() {
-        return loggerFilter;
-    }
-
-    /**
-     * @return the handlerFilter
-     */
-    @Deprecated
-    public Filter getHandlerFilter() {
-        return handlerFilter;
-    }
-
-    /**
-     * @return the handlers
-     */
-    public Handler[] getHandlers() {
-        return handlers;
-    }
-
-    /**
-     * @return the formatters
-     */
-    public Formatter getFormatter() {
-        return formatter;
+    public Level getLevel() {
+        return level;
     }
     
-    public boolean hasSingleHandler(){
-	return singleHandler; 
-    }
-
+    
+    
 }

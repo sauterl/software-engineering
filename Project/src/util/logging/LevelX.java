@@ -18,5 +18,31 @@ public class LevelX extends Level {
     protected LevelX(String name, int value) {
 	super(name, value);
     }
+    
+    public static Level parse(String name){
+	if(name == null || name.length() == 0){
+	    throw new IllegalArgumentException();
+	}
+	// TODO integer parsing
+	if(name.equalsIgnoreCase(ERROR.getName())){
+	    return ERROR;
+	}
+	if(name.equalsIgnoreCase(WARN.getName() )){
+	    return WARN;
+	}
+	if(name.equalsIgnoreCase(DEBUG.getName() )){
+	    return DEBUG;
+	}
+	if(name.equalsIgnoreCase(INFO.getName())){
+	    return INFO;
+	}
+	if(name.equalsIgnoreCase(CONFIG.getName() )){
+	    return CONFIG;
+	}
+	if(name.equalsIgnoreCase(OFF.getName() )){
+	    return OFF;
+	}
+	throw new IllegalArgumentException();
+    }
 
 }

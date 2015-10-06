@@ -1,0 +1,17 @@
+{
+	"version":"dev 0.1",
+	"handlers":[
+		{
+			"ref":"console",
+			"name":"util.logging.StandartConsoleHandler",
+			"level":"DEBUG"
+		}
+	],
+	"loggers":[
+		{
+			"name":"logging.LoggingConfigTest",
+			"handler":"console",
+			"level":"DEBUG"
+		}
+	]
+}

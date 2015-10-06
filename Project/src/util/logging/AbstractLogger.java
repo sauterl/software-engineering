@@ -89,5 +89,11 @@ public abstract class AbstractLogger {
     public abstract void setFilter(Filter filter);
     
     public abstract Filter getFilter();
+
+    public void resetHandlers() {
+	for(Handler handler : logger.getHandlers()){
+	    logger.removeHandler(handler);
+	}
+    }
     
 }

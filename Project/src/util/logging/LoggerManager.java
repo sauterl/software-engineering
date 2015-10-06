@@ -1,5 +1,8 @@
 package util.logging;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -8,10 +11,19 @@ public class LoggerManager {
     private static LoggerManager instance = null;
     
     private HashMap<String, AbstractLogger> nameLoggerMap;
+    private ConfigurationManager configManager = ConfigurationManager.getConfigManager();
     
     private LoggerManager() {
 	// TODO fix capacity
 	nameLoggerMap = new HashMap<>(10);
+	try {
+	    // TODO change to pre-defined chain of places to look for.
+	    URL uri = getClass().getClassLoader().getResource("util/logging/logging.json");
+	    configManager.loadConfigFile(uri.getPath() );
+	} catch (IOException e) {
+	    System.err.println("no file found");
+	    e.printStackTrace();
+	}
     }
     
     AbstractLogger registerLogger(AbstractLogger logger){
@@ -27,8 +39,19 @@ public class LoggerManager {
 	    return nameLoggerMap.get(logger.getName() );
 	}else{
 	    //register the new Logger
+	    // look if there is a config for the logger
+	    // if none, go with default
+	    // else go with created
+	    configManager.applyConfig(logger);
 	    nameLoggerMap.put(logger.getName(), logger);
 	    return logger;
+	}
+    }
+    
+    public void resetHandlers(String loggerName){
+	AbstractLogger log = nameLoggerMap.get(loggerName);
+	if(log != null){
+	    log.resetHandlers();
 	}
     }
     
