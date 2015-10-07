@@ -37,21 +37,27 @@ public class JsonParser {
 			}
 		}
 		while (read.getHead() != '}' && !read.reachedEnd()) {
+//			System.out.println();
+//			System.out.println(read.getRest());
+			
 			readEntry(read, parsedJson);
-			// System.out.println(read.getHead());
+			 
 			findNext(read);
 		}
 		return parsedJson;
 	}
 
 	private void findNext(JsonReader read) {
-		if (read.getHead() == '"') {
+//		System.out.println(read.getRest());
+//		System.out.println(read.getPrevious()+"\n");
+		if (read.getHead() == '"'&&read.getPrevious()!=',') {
 			read.getNext();
 		}
 
 	}
 
 	private void readEntry(JsonReader read, Json parsedJson) {
+//		System.out.println(read.getRest()+"\n");
 		String name = readName(read);
 		char firstChar = read.getNext();
 		if (firstChar == '"') {
@@ -71,25 +77,39 @@ public class JsonParser {
 
 	private Json[] readSet(JsonReader read) {
 		ArrayList<Json> jsar = new ArrayList<Json>();
-		read.getNext();
+//		System.out.println(read.getRest());
 		while (read.getHead() != ']') {
+//			System.out.println(read.getRest()+"\n");
 			if (read.getHead() == '{' || read.getNext() == '{') {
 				jsar.add(readObject(read));
-				System.out.println(read.getRest());
+//				System.out.println(read.getRest());
 			} else if (read.getHead() == '[') {
 				throw new InvalidJsonException("Multi dimentional Arrays arent supported!");
-			} else {
+			} else if(read.getHead() == ']'){
+				read.getNext();
+				break;
+			}else{
+//				System.out.println(read.getRest());
 				throw new InvalidJsonException("Please check your json lists.");
 			}
 		}
+//		System.out.println("left");
 		read.jumpTo(',');
-
+//		if(read.getHead()==']'){
+//			read.getNext();
+//		}
+		
+		
+//		System.out.println(read.getRest()+"\n");
 		return jsar.toArray(new Json[0]);
 	}
 
 	private Json readObject(JsonReader read) {
 		String obj = read.readToClosing();
-		read.jumpTo(',');
+//		read.jumpTo(',');
+		
+		read.getNext();
+		
 		return parseJson(obj);
 	}
 
@@ -100,8 +120,8 @@ public class JsonParser {
 			ret += next;
 			next = read.getNext();
 		}
-		if (read.getHead() != '}') {
-			read.jumpTo(',');
+		if (read.getHead() == ' ') {
+			read.getNext();
 		}
 		return ret;
 	}
@@ -109,13 +129,22 @@ public class JsonParser {
 	private String readString(JsonReader read) {
 		String ret = read.readToNotEscaped('"');
 		read.jumpTo(',');
-		return ret;
+		return unescape(ret);
+	}
+	
+	private String unescape(String input){
+		return input.replace("\\\"", "\"");
 	}
 
 	private String readName(JsonReader read) {
+//		System.out.println(read.getRest());
+		if(read.getHead()!='"'){
 		if (read.getNext() != '"') {
+//			System.out.println(read.getRest());
 			throw new InvalidJsonException("Starting phrences are missing");
 		}
+		}
+		
 		String name = read.readToNotEscaped('"');
 		read.jumpTo(':');
 		return name;

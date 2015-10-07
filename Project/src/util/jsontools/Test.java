@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class Test {
-	static final int MAXITER = 1;
+	static final int MAXITER = 1000;
 	static long st = 0;
 
 	public static void main(String[] args) {
@@ -25,6 +25,7 @@ public class Test {
 		for (int iteration = 0; iteration < MAXITER; iteration++) {
 			Json js = open(jps);
 			long ot = timeElapsed();
+			insert(js,jps);
 			long it = timeElapsed();
 			close(js);
 			long ct = timeElapsed();
@@ -82,7 +83,7 @@ public class Test {
 
 	public static void close(Json js) {
 		try {
-			FileWriter f = new FileWriter("C:/Users/Eddie/Desktop/out.json");
+			FileWriter f = new FileWriter("C:/Users/Eddie/Desktop/example2.json");
 			f.write(js.toJson());
 			f.flush();
 			f.close();

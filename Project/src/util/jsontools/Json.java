@@ -136,13 +136,16 @@ public String toJson(){
 private String entryToJson(String key, Object value){
 	String json="\""+key+"\" : ";
 	if(value instanceof String){
-		json+=stringEntryToJson((String)value);
+		json=json.concat(stringEntryToJson((String)value));
+//		json+=stringEntryToJson((String)value);
 	}else{
 		if(value instanceof Json){
-			json+=objectEntryToJson(value);
+			json=json.concat(objectEntryToJson(value));
+//			json+=objectEntryToJson(value);
 		}else{
 			if(value instanceof Json[]){
-			json+=setEntryToJson((Json [])value);
+			json=json.concat(setEntryToJson((Json [])value));
+//			json+=setEntryToJson((Json [])value);
 			}else{
 //				if(value instanceof Date){
 //					json+=dateToISO8601((Date)value);
@@ -160,9 +163,11 @@ private String entryToJson(String key, Object value){
 private String setEntryToJson(Json[] value) {
 	String jsonString="[";
 	for(int count=0;count<value.length;count++){
-			jsonString+="\n"+objectEntryToJson(value[count]);
+			jsonString=jsonString.concat("\n").concat(objectEntryToJson(value[count]));
+//			jsonString+="\n"+objectEntryToJson(value[count]);
 		if(count < value.length-1){
-			jsonString+=",";
+			jsonString=jsonString.concat(",");
+//			jsonString+=",";
 		}
 	}
 	jsonString+="\n]";
