@@ -106,6 +106,15 @@ public class Logger extends AbstractLogger {
 	AbstractLogger logger = new Logger(java.util.logging.Logger.getLogger(name));
 	return manager.registerLogger(logger);
     }
+    
+    static Logger getLoggingLogger(Class<?> clazz){
+	// TODO may pass responsibility to loggermanager.
+	Logger l = new Logger(java.util.logging.Logger.getLogger(clazz.getName()));
+	l.resetHandlers();
+	l.addHandler( new StandartConsoleHandler(LevelX.DEBUG));
+	l.setLevel(LevelX.DEBUG);
+	return l;
+    }
 
     @Override
     public void info(String msg) {
