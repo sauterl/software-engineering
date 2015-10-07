@@ -109,9 +109,9 @@ public class Logger extends AbstractLogger {
     
     static Logger getLoggingLogger(Class<?> clazz){
 	// TODO may pass responsibility to loggermanager.
-	Logger l = new Logger(java.util.logging.Logger.getLogger(clazz.getName()));
+	Logger l = new Logger(java.util.logging.Logger.getLogger(clazz.getSimpleName()));
 	l.resetHandlers();
-	l.addHandler( new StandartConsoleHandler(LevelX.DEBUG));
+	l.addHandler( new VerboseHandler(LevelX.DEBUG));
 	l.setLevel(LevelX.DEBUG);
 	return l;
     }
