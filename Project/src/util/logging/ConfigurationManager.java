@@ -12,7 +12,7 @@ import util.jsontools.JsonParser;
 
 public class ConfigurationManager {
 
-    private static final Logger log = Logger.getLoggingLogger(ConfigurationManager.class);
+    private static final Logger log = LoggerManager.getLoggingLogger(ConfigurationManager.class);
     
     private static final String VERSION_KEY = "version";
     private static final String VERSION = "dev 0.1";
@@ -52,8 +52,10 @@ public class ConfigurationManager {
     }
 
     private Json readConfigFile(String filename) throws IOException {
+	log.debug("Going to read "+filename);
 	JsonParser parser = new JsonParser();
 	Json config = parser.parseFile(filename);
+	log.debug("Loaded config file to vm");
 	return config;
     }
     
@@ -102,7 +104,7 @@ public class ConfigurationManager {
     }
 
     public void loadConfigFile(String file) throws IOException {
-	log.debug("Loading from config: "+file);
+	log.config("Config file: "+file);
 	Json jsonFile = readConfigFile(file);
 //	log.debug("Parsed config: \n"+jsonFile.toJson() );
 	log.debug("Successfully parsed config file");
@@ -112,6 +114,7 @@ public class ConfigurationManager {
 	log.debug("Validated config file");
 	parseHandlers(jsonFile);
 	parseLoggers(jsonFile);
+	log.info("Config loaded");
     }
     
     private void parseHandlers(Json config){

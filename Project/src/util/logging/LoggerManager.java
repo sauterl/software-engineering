@@ -1,14 +1,19 @@
 package util.logging;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 
 public class LoggerManager {
     
     private static LoggerManager instance = null;
+    
+    private static Level internalLevel;
+    private final static String verboseLevelKey = "lsjl.verbose.level";
+    private final static String verboseEnabledKey = "lsjl.verbose.enabled";
+    
     
     private HashMap<String, AbstractLogger> nameLoggerMap;
     private ConfigurationManager configManager = ConfigurationManager.getConfigManager();
@@ -81,4 +86,24 @@ public class LoggerManager {
 	return instance;
     }
 
+    static Logger getLoggingLogger(Class<?> clazz){
+	Logger l = new Logger(java.util.logging.Logger.getLogger(clazz.getSimpleName()));
+	l.resetHandlers();
+	l.addHandler( new VerboseHandler(internalLevel));
+	l.setLevel(LevelX.DEBUG);
+	return l;
+    }
+    
+    static{
+	// verbose preparation
+	if(Boolean.parseBoolean(System.getProperty(verboseEnabledKey)) ){
+	   try{
+	       internalLevel = LevelX.parse(System.getProperty(verboseLevelKey));
+	   }catch(IllegalArgumentException ex){
+	       internalLevel = LevelX.INFO;
+	   }
+	}else{
+	    internalLevel = LevelX.OFF;
+	}
+    }
 }
