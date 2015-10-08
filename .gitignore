@@ -24,3 +24,7 @@ Project/doc/
 # Eclipse Settings
 ###################
 Project/.project
+
+# Unit Tests
+###################
+Project/test-working-dir
