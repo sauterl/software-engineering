@@ -18,18 +18,18 @@ class DataRepositoryImpl implements DataRepository {
 	/**
 	 * get new ID via assignID()
 	 */
-	private int idcounter = 0;	//TODO
-	
+	private int idcounter = 0; // TODO
+
 	protected DataRepositoryImpl(File repositoryFolder) {
 		this.repositoryFolder = repositoryFolder;
 		repositoryFolder.mkdirs();
-		//TODO Parse current ID counter
+		// TODO Parse current ID counter
 	}
 
 	@Override
 	public MetaData add(File file, String description, boolean move,
 			ProgressListener progressListener) {
-		//Verification
+		// Verification
 		verifyExistence(file);
 		verifyNotRepoPath(file);
 		verifyNotWithinRepo(file);
@@ -37,20 +37,21 @@ class DataRepositoryImpl implements DataRepository {
 		verifyDescription(description);
 
 		verifyProgressListener(progressListener);
-		
-		//Move File
+
+		// Create Folder with ID
 		int newID = assignID();
-		Path IDFolder = Paths.get(repositoryFolder.getAbsolutePath(), String.valueOf(newID));
+		Path IDFolder = Paths.get(repositoryFolder.getAbsolutePath(),
+				String.valueOf(newID));
 		IDFolder.toFile().mkdir();
-		
-		
-		Path joinedPath = Paths.get(repositoryFolder.getAbsolutePath(), String.valueOf(newID), file.getName());
-		
+
+		// add File
+		Path joinedPath = Paths.get(repositoryFolder.getAbsolutePath(),
+				String.valueOf(newID));
 		try {
 			if (move) {
-				Files.move(file.getAbsoluteFile().toPath(), joinedPath);
+				move(file.getAbsoluteFile().toPath(), joinedPath);
 			} else {
-				Files.copy(file.getAbsoluteFile().toPath(), joinedPath);
+				copyRecursively(file.getAbsoluteFile().toPath(), joinedPath);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -58,20 +59,56 @@ class DataRepositoryImpl implements DataRepository {
 		}
 
 		// TODO Generate ID
-		MetaData _ret = new MetaData(String.valueOf(newID), file.getName(), description,
-				getFileCount(joinedPath.toFile()), getFileSize(joinedPath.toFile()), new Date());
+		MetaData _ret = new MetaData(String.valueOf(newID), file.getName(),
+				description, getFileCount(joinedPath.toFile()),
+				getFileSize(joinedPath.toFile()), new Date());
 		return _ret;
 	}
 
 	/**
-	 * If the file is a directory: Iterates recursively over the given dir and counts number of files and dirs inside the file
-	 * If the file is a file: Return 1 
+	 * Example usage: Copy mydata to /1/
+	 * @param source mydata
+	 * @param target /1/
+	 * @throws IOException
+	 */
+	private void copyRecursively(Path source, Path target) throws IOException {
+		Path nameTarget = Paths.get(target.toString(), source.getFileName().toString());
+		
+		if(source.toFile().isFile()){
+			Files.copy(source, nameTarget);
+			return;
+		}
+		Files.copy(source, nameTarget);
+		
+		for(File file : source.toFile().listFiles()){
+			Path filepath = Paths.get(nameTarget.toString(), file.getName());
+			if(file.isFile()){
+				Files.copy(file.toPath(), filepath);
+				continue;
+			}
+			copyRecursively(file.toPath(), nameTarget);
+		}
+	}
+
+	/**
+	 * Utilizes renameTo for maximum efficiency
+	 */
+	private void move(Path source, Path target) throws IOException {
+		Path newTarget = Paths.get(target.toString(), source.getFileName().toString());
+		boolean success = source.toFile().renameTo(newTarget.toFile());
+	}
+
+	/**
+	 * If the file is a directory: Iterates recursively over the given dir and
+	 * counts number of files and dirs inside the file; If the file is a file:
+	 * Return 1
+	 * 
 	 * @param file
-	 * @return 1 if it's a file, else no. of folders and files inside given directory
+	 * @return 1 if it's a file, else no. of folders and files inside given
+	 *         directory
 	 */
 	private int getFileCount(File file) {
-		if(file.isFile()){
-			System.out.println(file.getAbsolutePath()+" has 1 element");
+		if (file.isFile()) {
 			return 1;
 		}
 		int count = 0;
@@ -79,23 +116,47 @@ class DataRepositoryImpl implements DataRepository {
 
 		if (subfiles != null) {
 			for (int i = 0; i < subfiles.length; i++) {
-				count++;
-				System.out.println(count);
 				File newfile = subfiles[i];
-				if (file.isDirectory()) {
-					count += getFileCount(newfile);
+				if (newfile.isFile()) {
+					count++;
+					continue;
 				}
+				count++;
+				count += getFileCount(newfile);
 			}
 		}
-		System.out.println(file.getAbsolutePath()+" has "+count+" elements");
 		return count;
 	}
 
-	private long getFileSize(File file) {
-		return file.length();
+	/**
+	 * Traverses the directory to give total size. If the file is a simple file,
+	 * returns length
+	 * 
+	 * @return file size in bytes
+	 */
+	private long getFileSize(File directory) {
+		if (directory.isFile()) {
+			return directory.length();
+		}
+		long length = 0;
+		for (File file : directory.listFiles()) {
+			if (file.isFile()) {
+				length += file.length();
+				continue;
+			}
+			length += getFileSize(file);
+		}
+		return length;
 	}
 
-	private void verifyDescription(String description) {
+	/**
+	 * CHecks for null, length>1000 and whether the String contains an ISO
+	 * Control Character
+	 * 
+	 * @throws IllegalArgumentException
+	 */
+	private void verifyDescription(String description)
+			throws IllegalArgumentException {
 		if (description == null) {
 			return;
 		}
@@ -119,21 +180,29 @@ class DataRepositoryImpl implements DataRepository {
 		}
 	}
 
-	private void verifyNotWithinRepo(File file) {
+	private void verifyNotWithinRepo(File file) throws IllegalArgumentException {
 		if (file.getAbsolutePath().contains(repositoryFolder.getAbsolutePath())) {
 			throw new IllegalArgumentException(
 					"The given path points to a folder or file within the repository folder");
 		}
 	}
 
-	private void verifyNotRepoPath(File file) {
+	/**
+	 * Compares Repo Path to File path
+	 */
+	private void verifyNotRepoPath(File file) throws IllegalArgumentException {
 		if (file.getAbsolutePath().equals(repositoryFolder.getAbsolutePath())) {
 			throw new IllegalArgumentException(
 					"The given path points to the repository folder");
 		}
 	}
 
-	private void verifyExistence(File file) {
+	/**
+	 * Checks for null and whether a the file exists
+	 * 
+	 * @throws IllegalArgumentException
+	 */
+	private void verifyExistence(File file) throws IllegalArgumentException {
 		if (file == null) {
 			throw new IllegalArgumentException("The repository folder is null");
 		}
@@ -168,8 +237,8 @@ class DataRepositoryImpl implements DataRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	private synchronized int assignID(){
+
+	private synchronized int assignID() {
 		idcounter++;
 		return idcounter;
 	}
