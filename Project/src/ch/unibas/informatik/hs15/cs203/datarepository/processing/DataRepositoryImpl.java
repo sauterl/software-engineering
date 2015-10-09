@@ -95,6 +95,7 @@ class DataRepositoryImpl implements DataRepository {
 	 */
 	private void move(Path source, Path target) throws IOException {
 		Path newTarget = Paths.get(target.toString(), source.getFileName().toString());
+		source.toFile().renameTo(newTarget.toFile());
 	}
 
 	/**
