@@ -2,6 +2,12 @@ package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
 import util.jsontools.Json;
@@ -14,6 +20,8 @@ public class MetaDataManager {
     
     private Json metaDataFile;
     private String fileName;
+    private String repoPath;
+    private FileLock lock;
     
     private static final String lastIdKey = "lastId";
     private static final String repositoryKey = "repository";
@@ -26,6 +34,9 @@ public class MetaDataManager {
     private static final String filecountKey = "filecount";
     private static final String sizeKey ="size";
     private static final String filetypeKey="filetype";
+    
+    private static final String tmpLabel = "tmp";
+    private static final String lockFile = ".lock";
     
     //TODO before read for manipulation, create lock file. if lock is present, do not read
     /*
@@ -49,15 +60,17 @@ public class MetaDataManager {
      * }
      */
     
-    public static MetaDataManager getMetaDataManager(String file) throws IOException{
+    public static MetaDataManager getMetaDataManager(String file, String repoPath) throws IOException{
 	if(instance == null){
-	    instance = new MetaDataManager(file);
+	    instance = new MetaDataManager(file, repoPath);
 	}
 	return instance;
     }
     
-    private MetaDataManager(String file) throws IOException{
+    private MetaDataManager(String file, String repoPath) throws IOException{
 	this.fileName = file;
+	this.repoPath = repoPath;
+	tryLockMetaDataFile();
 	metaDataFile = readMetaDataFile(file);
     }
     
@@ -70,6 +83,12 @@ public class MetaDataManager {
 	prependElement(metaDataFile.getSet(datasetsKey), entry);
     }
     
+    /**
+     * TODO This is json utils stuff!
+     * @param set
+     * @param element
+     * @return
+     */
     private Json[] prependElement(Json[] set, Json element){
 	Json[] out = new Json[set.length+1];
 	out[0] = element;
@@ -97,16 +116,40 @@ public class MetaDataManager {
 	return parser.parseFile(file);
     }
     
-    public String generateRandomUUID(){
+    public synchronized final String generateRandomUUID(){
 	return UUID.randomUUID().toString();
     }
     
     public void writeMetaDataFile() throws IOException{
+	//TODO rewrite to atomic
 	FileWriter fw = new FileWriter(fileName);
 	fw.write(metaDataFile.toJson());
 	fw.flush();
 	fw.close();
+	releaseLock();
     }
-
     
+    private boolean tryLockMetaDataFile(){
+	Path lockFilePath = Paths.get(repoPath, lockFile);
+	try {
+	    FileChannel channel = FileChannel.open(lockFilePath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+	    try{
+		lock = channel.tryLock();
+		return true;
+	    }catch(OverlappingFileLockException ex){
+		return false;
+	    }
+	} catch (IOException e) {
+	    return false;
+	}
+    }
+    
+    private boolean releaseLock(){
+	try {
+	    lock.release();
+	    return true;
+	} catch (IOException e) {
+	    return false;
+	}
+    }
 }
