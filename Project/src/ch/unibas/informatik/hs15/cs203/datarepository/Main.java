@@ -3,8 +3,7 @@
  */
 package ch.unibas.informatik.hs15.cs203.datarepository;
 
-import java.util.LinkedList;
-
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.CommandInterpreter;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.CommandParser;
 
 /**
@@ -18,7 +17,8 @@ public class Main {
      */
     public static void main(String[] args) {
 	try{
-	    LinkedList<String> tokens = CommandParser.lex(args);
+	    CommandInterpreter interpreter = new CommandInterpreter();
+	    interpreter.execute(args);
 	    System.exit(0);
 	}catch(Throwable t){
 	    System.err.println(t.getMessage() != null ? t.getMessage() : "Unkown error");
