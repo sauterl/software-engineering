@@ -21,7 +21,9 @@ public class Main {
 	    interpreter.execute(args);
 	    System.exit(0);
 	}catch(Throwable t){
-	    System.err.println(t.getMessage() != null ? t.getMessage() : "Unkown error");
+	    System.err.print("[ERROR]: ");
+	    System.err.print(t.getMessage() != null ? t.getMessage() : "Unkown error");
+	    System.err.println();
 	    System.exit(1);
 	}
 

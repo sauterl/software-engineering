@@ -39,7 +39,7 @@ public class CommandInterpreter {
     private void executeAdd(LinkedList<String> arguments) {
 	String desc="", repoLoc=null, file=null;
 	boolean move=false;
-	ProgressListener listener=null;
+	ProgressListener listener=new DummyProgressListener();
 	String curr;
 	int originSize = arguments.size();
 	for(int i=0; i<originSize;i++){
@@ -49,7 +49,7 @@ public class CommandInterpreter {
 	    }else if(curr.startsWith(Option.MOVE.name() )){
 		move = true;
 	    }else if(curr.startsWith(Option.VERBOSE.name() )){
-		listener = new DummyProgressListener();
+//		listener = new ConsoleProgressListener();
 	    }else{
 		if(i==originSize-2){
 		    repoLoc = curr;
