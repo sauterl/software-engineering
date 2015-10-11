@@ -2,15 +2,18 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.util.LinkedList;
 
-public final class CommandParser {
+final class CommandParser {
 
     public static final String OPTION_SEPARATOR = "=";
 
-    public CommandParser() {
+    /**
+     * This class is not to be instantiated.
+     */
+    private CommandParser() {
 
     }
 
-    public static LinkedList<String> lex(String[] args) {
+    public final static LinkedList<String> lex(String[] args) {
 	// TODO Replace illegal argument with more accurate exceptions
 	if (args == null) {
 	    throw new IllegalArgumentException(
