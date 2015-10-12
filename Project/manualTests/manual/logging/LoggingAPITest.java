@@ -7,7 +7,7 @@ import util.logging.LevelX;
 import util.logging.Logger;
 import util.logging.LoggerFactory;
 import util.logging.LoggerManager;
-import util.logging.StandartConsoleHandler;
+import util.logging.StandardConsoleHandler;
 
 public class LoggingAPITest {
 
@@ -27,9 +27,9 @@ public class LoggingAPITest {
 	for(Handler h : hs){
 	    log.removeHandler(h);
 	}
-	log.addHandler(new StandartConsoleHandler());//handler 1
-	log.addHandler(new StandartConsoleHandler(LevelX.DEBUG));//handler 2
-	log3.addHandler(new StandartConsoleHandler() );//handler 3
+	log.addHandler(new StandardConsoleHandler());//handler 1
+	log.addHandler(new StandardConsoleHandler(LevelX.DEBUG));//handler 2
+	log3.addHandler(new StandardConsoleHandler() );//handler 3
 	log.setLevel(LevelX.DEBUG);
 	
 	//should get printed twice (both handlers)

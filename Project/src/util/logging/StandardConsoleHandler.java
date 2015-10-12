@@ -8,25 +8,25 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 
 /**
- * The {@link StandartConsoleHandler} is a {@link ConsoleHandler} which logs to
+ * The {@link StandardConsoleHandler} is a {@link ConsoleHandler} which logs to
  * {@link System#out}.
  * 
- * The logs get formatted using the {@link StandartFormatter} and the default
+ * The logs get formatted using the {@link StandardFormatter} and the default
  * object has no {@link Filter} set.
  * 
  * @author Loris
  * 
  */
-public class StandartConsoleHandler extends ConsoleHandler {
+public class StandardConsoleHandler extends ConsoleHandler {
 
     /**
-     * Creates a new {@link StandartConsoleHandler} with default settings.
-     * Forwarded logs are formatted using the {@link StandartFormatter}, the log
+     * Creates a new {@link StandardConsoleHandler} with default settings.
+     * Forwarded logs are formatted using the {@link StandardFormatter}, the log
      * level {@link Level#INFO} is set and no {@link Filter} is installed.
      * 
      * @see Handler
      */
-    public StandartConsoleHandler() {
+    public StandardConsoleHandler() {
 	config(null, null, null, null);
     }
 
@@ -39,7 +39,7 @@ public class StandartConsoleHandler extends ConsoleHandler {
      *            {@link System#out}.
      * @param formatter
      *            The formatter to use to format logs. Defaults to
-     *            {@link StandartFormatter}.
+     *            {@link StandardFormatter}.
      * @param level
      *            The minimal log level, log messages below this level are
      *            ignored. Default is {@link Level#INFO}.
@@ -53,7 +53,7 @@ public class StandartConsoleHandler extends ConsoleHandler {
 	    outStream = System.out;
 	}
 	if (formatter == null) {
-	    formatter = new StandartFormatter();
+	    formatter = new StandardFormatter();
 	}
 	if (level == null) {
 	    level = Level.INFO;
@@ -68,13 +68,13 @@ public class StandartConsoleHandler extends ConsoleHandler {
     }
 
     /**
-     * Creates a {@link StandartConsoleHandler} with specified log level and
+     * Creates a {@link StandardConsoleHandler} with specified log level and
      * otherwise default configuration.
      * 
      * @param level
      *            The new value for the log level
      */
-    public StandartConsoleHandler(Level level) {
+    public StandardConsoleHandler(Level level) {
 	config(null, null, level, null);
     }
 }

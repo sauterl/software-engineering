@@ -12,7 +12,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * The {@link StandartFormatter} formats {@link LogRecord}s in a human-readable
+ * The {@link StandardFormatter} formats {@link LogRecord}s in a human-readable
  * way. It has a clean and simple layout.
  * 
  * <p>
@@ -28,7 +28,7 @@ import java.util.logging.LogRecord;
  * @author Loris
  * 
  */
-public class StandartFormatter extends Formatter {
+public class StandardFormatter extends Formatter {
 
     private final DateFormat dateFormat = new SimpleDateFormat(
 	    "dd-MM-yyyy HH:mm:ss");
@@ -40,9 +40,9 @@ public class StandartFormatter extends Formatter {
     private volatile boolean methodNameEnabled = false; //not used yet
 
     /**
-     * Constructs a new default {@link StandartFormatter}.
+     * Constructs a new default {@link StandardFormatter}.
      */
-    public StandartFormatter() {
+    public StandardFormatter() {
 	/* empty */
     }
     

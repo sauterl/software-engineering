@@ -3,7 +3,7 @@ package manual.logging;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
-import util.logging.StandartFormatter;
+import util.logging.StandardFormatter;
 
 public class LoggerTests {
 
@@ -13,7 +13,7 @@ public class LoggerTests {
 	l.info("Hello World");
 	
 	ConsoleHandler ch = new ConsoleHandler();
-	ch.setFormatter(new StandartFormatter());
+	ch.setFormatter(new StandardFormatter());
 	
 	l.addHandler(ch);
 	

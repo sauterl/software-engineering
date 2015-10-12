@@ -3,7 +3,7 @@
 	"handlers":[
 		{
 			"ref":"console",
-			"name":"util.logging.StandartConsoleHandler",
+			"name":"util.logging.StandardConsoleHandler",
 			"level":"DEBUG"
 		}
 	],

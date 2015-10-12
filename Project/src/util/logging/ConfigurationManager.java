@@ -28,7 +28,7 @@ public class ConfigurationManager {
     private HashMap<String, Handler> refHandlerMap;
     private HashMap<String, LoggerConfiguration> nameConfigMap;
 
-    private static final StandartConsoleHandler defaultHandler = new StandartConsoleHandler();
+    private static final StandardConsoleHandler defaultHandler = new StandardConsoleHandler();
     
     /**
      * Creates the configmanager
