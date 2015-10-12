@@ -76,7 +76,7 @@ public class CommandInterpreter {
 			curr = arguments.poll();
 			if (curr.startsWith(Option.DESCRIPTION.name())) {
 				desc = curr.substring(curr
-						.indexOf(CommandParser.OPTION_SEPARATOR));
+						.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			} else if (curr.startsWith(Option.MOVE.name())) {
 				move = true;
 			} else if (curr.startsWith(Option.VERBOSE.name())) {

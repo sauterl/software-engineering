@@ -56,23 +56,17 @@ final class CommandParser {
      */
     public final static LinkedList<String> lex(String[] args) {
 	// TODO Replace illegal argument with more accurate exceptions
-	if (args == null) {
-	    throw new IllegalArgumentException(
-		    "Null is not a valid string array to tokenize.");
-	}
-	LinkedList<String> tokens = new LinkedList<String>();
+	checkNullParam(args);
 	if (args.length < 1) {
-	    tokens.add(Command.HELP.name());
-	    return tokens;
+	    return createDefaultTokens();
 	}
 	// assert(args.length >= 1);
+	LinkedList<String> tokens = new LinkedList<String>();
 	Command cmd = parseCommand(args[0]);
 	tokens.add(cmd.name());
 	for (int i = 1; i < args.length; i++) {
-	    String s = args[i];
-	    if (s.startsWith(Option.OPTION_MARKER)) {// test for option
-		Option opt = parseOption(s.substring(Option.OPTION_MARKER
-			.length()));
+	    if (Option.isStringOption(args[i]) ) {// test for option
+		Option opt = parseOption(args[i]);
 		if (opt.isFlag()) {// has option a argument
 		    tokens.add(opt.name());
 		} else {
@@ -90,15 +84,28 @@ final class CommandParser {
 		    }// parameterized-option parsed
 		}// flag-option parsed
 	    } else {// current token is likely not an option
-		if (s == null || s.length() == 0) {
+		if (args[i] == null || args[i].length() == 0) {
 		    throw new IllegalArgumentException("Argument is null.");
 		} else {
-		    tokens.add(s);
+		    tokens.add(args[i]);
 		}
 	    }// end test for option / regular argument
 	}
 
 	return tokens;
+    }
+    
+    private static LinkedList<String> createDefaultTokens(){
+	LinkedList<String> out = new LinkedList<String>();
+	out.add(Command.HELP.name() );
+	return out;
+    }
+    
+    private static void checkNullParam(String[] args){
+	if(args == null){
+	    throw new IllegalArgumentException(
+		    "Null is not a valid string array to tokenize.");
+	}
     }
 
     private static String parseOptionsArgument(Option opt, String arg) {

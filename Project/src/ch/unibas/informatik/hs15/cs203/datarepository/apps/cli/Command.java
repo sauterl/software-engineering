@@ -12,19 +12,37 @@ public enum Command {
      * The ADD command. Appropriate {@link Option}s are:
      * {@link Option#DESCRIPTION}, {@link Option#MOVE} and
      * {@link Option#VERBOSE}
+     * Mandatory argument count: 2
      */
-    ADD(Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
+    ADD(2, Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
 
     REPLACE, DELETE, EXPORT, LIST, HELP;
 
     private final Option[] appropriateOptions;
+    private final int mandatoryArgsCount;
+
+    private Command(int mandatoryArgsCount, Option... appropriateOptions) {
+	this.appropriateOptions = appropriateOptions;
+	this.mandatoryArgsCount = mandatoryArgsCount;
+    }
 
     private Command(Option... appropriateOptions) {
-	this.appropriateOptions = appropriateOptions;
+	this(Integer.MIN_VALUE, appropriateOptions);
     }
 
     private Command() {
-	appropriateOptions = null;
+	this(Integer.MIN_VALUE, null);
+    }
+
+    /**
+     * Returns the amount of mandatory arguments for this command. If no
+     * arguments are mandatory, then {@link Integer#MIN_VALUE} is returned.
+     * 
+     * @return The amount of mandatory arguments this command has or
+     *         {@link Integer#MIN_VALUE} if no argument is mandatory.
+     */
+    public int getMandatoryArgsCount() {
+	return mandatoryArgsCount;
     }
 
     /**

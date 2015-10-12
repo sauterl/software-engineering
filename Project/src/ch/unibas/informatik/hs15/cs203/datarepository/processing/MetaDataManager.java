@@ -12,15 +12,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.UUID;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
+/**
+ * The {@link MetaDataManager} class manages meta data.
+ * This includes reading of meta data file, manipulating meta data
+ * during runtime and finally writing meta data to file.
+ * 
+ * The design of this class and the processing package does <b>not</b> allow
+ * two or more processes manipulating the same repository at the same time.
+ * Thus this class will fail initialize when the meta data file of the specified repository is locked.
+ * 
+ * 
+ * @author Loris
+ *
+ */
 public class MetaDataManager implements Closeable {
 
     private static MetaDataManager instance = null;
@@ -28,6 +40,7 @@ public class MetaDataManager implements Closeable {
     private Json metaDataFile;
     private String repoPath;
     private FileLock lock;
+    private HashMap<String, Json> idMetaMap;
 
     private static final String repositoryKey = "repository";
     private static final String versionKey = "version";
@@ -78,6 +91,7 @@ public class MetaDataManager implements Closeable {
 
     private MetaDataManager(String repoPath) throws IOException {
 	this.repoPath = repoPath;
+	this.idMetaMap = new HashMap<String, Json>();
 	if (!tryLockMetaDataFile()) {
 	    throw new RuntimeException(
 		    "Could not apply a lock to the metadata. Assuming another data repository accesses it.");
@@ -86,6 +100,14 @@ public class MetaDataManager implements Closeable {
 	    metaDataFile = parseMetaDataFile(metaDataFileName);
 	} catch (FileNotFoundException ex) {
 	    metaDataFile = createNewMetaDataFile();
+	}
+	fillMap();
+    }
+    
+    private void fillMap(){
+	Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
+	for(Json dataset: repoJSON.getSet(datasetsKey) ){
+	    idMetaMap.put(dataset.getString(idKey), dataset);
 	}
     }
 
@@ -100,7 +122,7 @@ public class MetaDataManager implements Closeable {
 	    throw new NullPointerException("MetaData to add is null.");
 	}
 	// assert(data != null);
-	Json entry = createDataSetEntry(data);
+	Json entry = createJsonMetaEntry(data);
 	prependElement(
 		metaDataFile.getJsonObject(repositoryKey).getSet(datasetsKey),
 		entry);
@@ -122,7 +144,7 @@ public class MetaDataManager implements Closeable {
 	return out;
     }
 
-    private Json createDataSetEntry(MetaData data) {
+    private Json createJsonMetaEntry(MetaData data) {
 	Json json = new Json();
 	json.addEntry(idKey, data.getId());
 	json.addEntry(nameKey, data.getName());
@@ -148,6 +170,7 @@ public class MetaDataManager implements Closeable {
     public void writeTemporaryMetaDataFile() throws IOException {
 	FileWriter fw = new FileWriter(Paths.get(repoPath,
 		tmpLabel + metaDataFileName).toFile());
+	addMapToJson();
 	fw.write(metaDataFile.toJson());
 	fw.flush();
 	fw.close();
@@ -184,5 +207,15 @@ public class MetaDataManager implements Closeable {
     public void close() throws IOException {
 	releaseLock();
 	Files.move(Paths.get(repoPath, tmpLabel+metaDataFileName), Paths.get(repoPath, metaDataFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    }
+    
+    private void updateMetaData(String id, MetaData meta){
+	Json entry = createJsonMetaEntry(meta);
+	idMetaMap.put(id, entry);
+    }
+    
+    private void addMapToJson(){
+	metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
+	metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey, idMetaMap.values().toArray(new Json[0]));
     }
 }
