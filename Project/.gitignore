@@ -4,3 +4,8 @@
 ##################
 # since sandbox contains some experimental source code
 /sandbox/
+/test-working-dir/
+
+# Ignore ant classes
+###################
+/ant-classes/**

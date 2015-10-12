@@ -1,0 +1,64 @@
+<project name="drt" default="build" basedir=".">
+	<property name="src" location="src" />
+	<property name="srcTest" location="srcTest" />
+	<property name="classes" location="ant-classes" />
+	<property name="dist" location="dist" />
+	<property name="jar.file" value="data-repository.jar" />
+	<!-- Added property to main package -->
+	<property name="main.package" value="ch.unibas.informatik.hs15.cs203.datarepository" />
+	<property name="main.class" value="${main.package}.apps.cli.Main" />
+	<property name="dist.file" value="data-repository.zip" />
+	<path id="junitLib">
+		<pathelement location="lib/junit-4.12.jar" />
+		<pathelement location="lib/hamcrest-core-1.3.jar" />
+	</path>
+
+	<target name="init" description="Init">
+		<delete dir="${classes}" />
+		<mkdir dir="${classes}" />
+		<mkdir dir="${dist}" />
+	</target>
+
+	<target name="compile" depends="init" description="Compile sources">
+		<javac srcdir="${src}" destdir="${classes}" debug="true" debuglevel="lines" includeAntRuntime="false" />
+	</target>
+
+	<target name="compile-test" depends="compile" description="Compile test sources.">
+		<javac compiler="javac1.7" srcdir="${srcTest}" destdir="${classes}" classpathref="junitLib" source="1.7" target="1.7" />
+	</target>
+
+	<target name="test" depends="compile-test" description="Run all tests">
+		<junit haltonfailure="true">
+			<classpath refid="junitLib" />
+			<classpath path="${classes}" />
+			<formatter type="brief" usefile="false" />
+			<batchtest>
+				<fileset dir="${srcTest}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="jar" depends="compile" description="Generate JAR">
+		<jar jarfile="${jar.file}" basedir="${classes}" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="dist" depends="jar" description="Generate distribution">
+		<delete file="${dist.file}" />
+		<zip destfile="${dist.file}">
+			<fileset dir=".">
+				<include name="${jar.file}" />
+			</fileset>
+			<fileset dir="resources"/>
+			<zipfileset file="resources/data-repository" filemode="777"/>
+		</zip>
+	</target>
+
+	<target name="build" depends="dist, test" />
+
+</project>

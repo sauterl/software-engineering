@@ -110,7 +110,7 @@ class Utils
                 deleteRecursively(childFile);
             }
         }
-        if (file.delete() == false)
+        if (file.exists() && file.delete() == false)
         {
             throw new IllegalStateException("Couldn't delete " + file + ".");
         }
