@@ -6,7 +6,7 @@
 	<property name="jar.file" value="data-repository.jar" />
 	<!-- Added property to main package -->
 	<property name="main.package" value="ch.unibas.informatik.hs15.cs203.datarepository" />
-	<property name="main.class" value="${main.package}.Main" />
+	<property name="main.class" value="${main.package}.apps.cli.Main" />
 	<property name="dist.file" value="data-repository.zip" />
 	<path id="junitLib">
 		<pathelement location="lib/junit-4.12.jar" />
@@ -24,7 +24,7 @@
 	</target>
 
 	<target name="compile-test" depends="compile" description="Compile test sources.">
-		<javac compiler="javac1.8" srcdir="${srcTest}" destdir="${classes}" classpathref="junitLib" source="1.7" target="1.7" />
+		<javac compiler="javac1.7" srcdir="${srcTest}" destdir="${classes}" classpathref="junitLib" source="1.7" target="1.7" />
 	</target>
 
 	<target name="test" depends="compile-test" description="Run all tests">
