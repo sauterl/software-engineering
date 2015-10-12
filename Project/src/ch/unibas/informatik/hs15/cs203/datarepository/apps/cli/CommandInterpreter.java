@@ -46,10 +46,13 @@ public class CommandInterpreter {
 		// already done in lex
 		switch (cmd) {
 		case ADD:
+			// Note how the list command already has add removed from the poll
+			// above
 			executeAdd(command);
 			break;
 		default:
-			throw new UnsupportedOperationException("Command "+cmd+" Not implemented yet");
+			throw new UnsupportedOperationException("Command " + cmd
+					+ " Not implemented yet");
 		}
 	}
 
@@ -77,7 +80,7 @@ public class CommandInterpreter {
 			} else if (curr.startsWith(Option.MOVE.name())) {
 				move = true;
 			} else if (curr.startsWith(Option.VERBOSE.name())) {
-				// listener = new ConsoleProgressListener();
+				// TODO listener = new ConsoleProgressListener();
 			} else {
 				if (i == originSize - 2) {
 					repoLoc = curr;
