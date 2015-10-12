@@ -12,7 +12,7 @@ import util.jsontools.JsonParser;
 
 public class ConfigurationManager {
 
-    private static final Logger log = LoggerManager.getLoggingLogger(ConfigurationManager.class);
+    private static final Logger LOGGER = LoggerManager.getLoggingLogger(ConfigurationManager.class);
     
     private static final String VERSION_KEY = "version";
     private static final String VERSION = "dev 0.1";
@@ -37,7 +37,7 @@ public class ConfigurationManager {
 	// singleton
 	refHandlerMap = new HashMap<String, Handler>();
 	nameConfigMap = new HashMap<String, LoggerConfiguration>();
-	log.debug("Initialization complete.");
+	LOGGER.debug("Initialization complete.");
     }
 
     /**
@@ -52,10 +52,10 @@ public class ConfigurationManager {
     }
 
     private Json readConfigFile(String filename) throws IOException {
-	log.debug("Going to read "+filename);
+	LOGGER.debug("Going to read "+filename);
 	JsonParser parser = new JsonParser();
 	Json config = parser.parseFile(filename);
-	log.debug("Loaded config file to vm");
+	LOGGER.debug("Loaded config file to vm");
 	return config;
     }
     
@@ -69,7 +69,7 @@ public class ConfigurationManager {
      */
     public void applyConfig(AbstractLogger log){
 	if(nameConfigMap.containsKey(log.getName())){
-	    log.debug(String.format("Found config for logger %s", log.getName()));
+	    LOGGER.debug(String.format("Found config for logger %s", log.getName()));
 	    LoggerConfiguration config = nameConfigMap.get(log.getName() );
 	    Handler h = refHandlerMap.get(config.getHandlerRef());
 	    if(h != null){
@@ -79,10 +79,10 @@ public class ConfigurationManager {
 	    if(config.getLevel() != null){
 		log.setLevel(config.getLevel());
 	    }
-	    log.debug(String.format("For logger (%s), added handler with ref (%s) and set level to (%s)", log.getName(), config.getHandlerRef(), config.getLevel()));
+	    LOGGER.config(String.format("For logger (%s), added handler with ref (%s) and set level to (%s)", log.getName(), config.getHandlerRef(), config.getLevel()));
 	}else{
 	    //apply default config
-	    log.debug(String.format("No config for logger %s found, loading default config.", log.getName() ));
+	    LOGGER.debug(String.format("No config for logger %s found, loading default config.", log.getName() ));
 	    applyDefaultConfig(log);
 	}
     }
@@ -99,25 +99,31 @@ public class ConfigurationManager {
 	log.setLevel(LevelX.INFO);
     }
     
+    /**
+     * Returns the {@link Handler} with the given reference signature.
+     * @param ref The reference signature of the handler.
+     * @return The handler object or null if none was found.
+     */
     public Handler getHandlerForRef(String ref){
 	return refHandlerMap.get(ref);
     }
 
     public void loadConfigFile(String file) throws IOException {
-	log.config("Config file: "+file);
+	LOGGER.config("Config file: "+file);
 	Json jsonFile = readConfigFile(file);
 //	log.debug("Parsed config: \n"+jsonFile.toJson() );
-	log.debug("Successfully parsed config file");
+	LOGGER.debug("Successfully parsed config file");
 	if (!validateStructure(jsonFile)) {
 	    throw new IllegalArgumentException("no valid config");
 	}
-	log.debug("Validated config file");
+	LOGGER.debug("Validated config file");
 	parseHandlers(jsonFile);
 	parseLoggers(jsonFile);
-	log.info("Config loaded");
+	LOGGER.info("Config loaded");
     }
     
     private void parseHandlers(Json config){
+	LOGGER.debug("Parsing handler json objects");
 	for (Json hndlr : config.getSet(HANDLERS_KEY)) {
 	    try {
 		registerHandler(hndlr.getString(REF_KEY), parseHandlerObject(hndlr));
@@ -125,19 +131,27 @@ public class ConfigurationManager {
 		    | SecurityException | InstantiationException
 		    | IllegalAccessException | IllegalArgumentException
 		    | InvocationTargetException e) {
-		// TODO Effective exception handling
-		e.printStackTrace();
+		LOGGER.warn("Could not parse handler: \n"+hndlr.toJson());
+		LOGGER.log(LevelX.DEBUG, "Caught exception", e);
 	    }
 	}//end iterate over handlers
     }
     
     private void parseLoggers(Json config){
+	LOGGER.debug("Parsing logger json objects");
 	for(Json lggr : config.getSet(LOGGERS_KEY)){
 	    nameConfigMap.put(lggr.getString(NAME_KEY), parseLoggerObject(lggr));
 	}
     }
     
+    /**
+     * Register the given {@link Handler} object with the associated reference.
+     * This method is designed to register handlers from another class.
+     * @param ref The reference the handler is identified with, must be not null, not empty and unique.
+     * @param handler The handler to register with the given refernece.
+     */
     public void registerHandler(String ref, Handler handler){
+	LOGGER.debug(String.format("Registration of %s for reference %s", (handler != null ? handler.getClass().getName() : "null"), ref ) );
 	if(ref == null || ref.length() == 0){
 	    throw new IllegalArgumentException("Cannot register handler for reference null or empty");
 	}
@@ -155,14 +169,14 @@ public class ConfigurationManager {
 	    SecurityException, InstantiationException, IllegalAccessException,
 	    IllegalArgumentException, InvocationTargetException {
 	String name = handlerObj.getString(NAME_KEY);
-	log.debug(String.format("Parsing handler configuration for %s", name));
+	LOGGER.debug(String.format("Parsing handler configuration for %s", name));
 	Class<?> handlerClass = Class.forName(name);
-	log.debug(String.format("Loaded class %s", handlerClass.getName() ));
+	LOGGER.debug(String.format("Loaded class %s", handlerClass.getName() ));
 	Constructor<?> hcConstr = handlerClass.getConstructor(null);
-	log.debug("Found constructor for handler with signature: "+hcConstr.getName() );
+	LOGGER.debug("Found constructor for handler with signature: "+hcConstr.getName() );
 	Object hndlrObj = hcConstr.newInstance((Object[])null);
 	if (hndlrObj instanceof Handler) {
-	    log.debug(String.format("Loaded and instantiated successfully handler class (%s)", handlerClass.getName()));
+	    LOGGER.debug(String.format("Loaded and instantiated successfully handler class (%s)", handlerClass.getName()));
 	    Handler h = (Handler) hndlrObj;
 	    if(handlerObj.containsEntry(LEVEL_KEY)){
 		Level lvl = LevelX.parse(handlerObj.getString(LEVEL_KEY));
@@ -172,13 +186,15 @@ public class ConfigurationManager {
 	    }
 	    return h;
 	}
-	log.debug(String.format("Could not instantiate handler %s", name));
+	LOGGER.debug(String.format("Could not instantiate handler %s", name));
 	return null;
     }
     
     private LoggerConfiguration parseLoggerObject(Json loggerObj){
+	LOGGER.debug("Parsing logger object");
 	String handler = loggerObj.getString(HANDLER_KEY);
 	Level lvl = LevelX.parse(loggerObj.getString(LEVEL_KEY) );
+	LOGGER.debug(String.format("Parsed logger object has handler %s and level %s", handler, lvl.toString() ) );
 	return new LoggerConfiguration(handler, lvl);
     }
 
