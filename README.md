@@ -1,29 +1,14 @@
-# README #
+# README
+==========
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository is used to manage the development of a project at universtiy of basel, fall 2015.
 
-### What is this repository for? ###
+## Project
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+The development of a data repository command line tool, entirely written in Java 1.7 without third party libraries, is a requirement to pass computer science course
+*Software Engineering*. The course's [website](http://http://informatik.unibas.ch/hs2015/software-engineering/) provides further information in German language.
 
-### How do I get set up? ###
+Some shortcuts to important documentation:
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* [Project introduction](http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/SoftwareProjekt.pdf) (in German language)
+* [specifications](http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/specifications.pdf) (in English language)
