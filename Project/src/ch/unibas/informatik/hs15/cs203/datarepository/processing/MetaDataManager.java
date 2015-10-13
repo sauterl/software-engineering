@@ -21,17 +21,18 @@ import util.jsontools.JsonParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
- * The {@link MetaDataManager} class manages meta data.
- * This includes reading of meta data file, manipulating meta data
- * during runtime and finally writing meta data to file.
+ * The {@link MetaDataManager} class manages meta data. This includes reading of
+ * meta data file, manipulating meta data during runtime and finally writing
+ * meta data to file.
  * 
- * The design of this class and the processing package does <b>not</b> allow
- * two or more processes manipulating the same repository at the same time.
- * Thus this class will fail initialize when the meta data file of the specified repository is locked.
+ * The design of this class and the processing package does <b>not</b> allow two
+ * or more processes manipulating the same repository at the same time. Thus
+ * this class will fail initialize when the meta data file of the specified
+ * repository is locked.
  * 
  * 
  * @author Loris
- *
+ * 
  */
 public class MetaDataManager implements Closeable {
 
@@ -60,8 +61,6 @@ public class MetaDataManager implements Closeable {
 
     public static final String VERSION = "0.0.1";
 
-    // TODO before read for manipulation, create lock file. if lock is present,
-    // do not read
     /*
      * metadata file structure: { "repository":{ "version":"1.0",
      * "timestamp":"2014-09-18T13:40:18", "datasets":[ {
@@ -103,10 +102,10 @@ public class MetaDataManager implements Closeable {
 	}
 	fillMap();
     }
-    
-    private void fillMap(){
+
+    private void fillMap() {
 	Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
-	for(Json dataset: repoJSON.getSet(datasetsKey) ){
+	for (Json dataset : repoJSON.getSet(datasetsKey)) {
 	    idMetaMap.put(dataset.getString(idKey), dataset);
 	}
     }
@@ -123,11 +122,13 @@ public class MetaDataManager implements Closeable {
 	}
 	// assert(data != null);
 	Json entry = createJsonMetaEntry(data);
-	prependElement(
-		metaDataFile.getJsonObject(repositoryKey).getSet(datasetsKey),
-		entry);
+	idMetaMap.put(data.getId(), entry);
+	Json[] datasets = metaDataFile.getJsonObject(repositoryKey).getSet(
+		datasetsKey);
+	datasets = prependElement(datasets, entry);
+	
     }
-
+    
     /**
      * TODO This is json utils stuff!
      * 
@@ -197,8 +198,10 @@ public class MetaDataManager implements Closeable {
 
     private boolean releaseLock() throws IOException {
 	lock.release();
-//	Files.setPosixFilePermissions(Paths.get(repoPath, lockFile), EnumSet.allOf(PosixFilePermission.class));
-//	Files.delete(Paths.get(repoPath, lockFile));//throws securityexception?!
+	// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
+	// EnumSet.allOf(PosixFilePermission.class));
+	// Files.delete(Paths.get(repoPath, lockFile));//throws
+	// securityexception?!
 	Paths.get(repoPath, lockFile).toFile().delete();
 	return true;
     }
@@ -206,16 +209,20 @@ public class MetaDataManager implements Closeable {
     @Override
     public void close() throws IOException {
 	releaseLock();
-	Files.move(Paths.get(repoPath, tmpLabel+metaDataFileName), Paths.get(repoPath, metaDataFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+	Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
+		Paths.get(repoPath, metaDataFileName),
+		StandardCopyOption.REPLACE_EXISTING,
+		StandardCopyOption.ATOMIC_MOVE);
     }
-    
-    private void updateMetaData(String id, MetaData meta){
+
+    private void updateMetaData(String id, MetaData meta) {
 	Json entry = createJsonMetaEntry(meta);
 	idMetaMap.put(id, entry);
     }
-    
-    private void addMapToJson(){
+
+    private void addMapToJson() {
 	metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
-	metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey, idMetaMap.values().toArray(new Json[0]));
+	metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
+		idMetaMap.values().toArray(new Json[0]));
     }
 }
