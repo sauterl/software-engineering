@@ -65,7 +65,7 @@ final class CommandParser {
 	Command cmd = parseCommand(args[0]);
 	tokens.add(cmd.name());
 	for (int i = 1; i < args.length; i++) {
-	    if (Option.isStringOption(args[i]) ) {// test for option
+	    if (Option.isLikelyOption(args[i]) ) {// test for option
 		Option opt = parseOption(args[i]);
 		if (opt.isFlag()) {// has option a argument
 		    tokens.add(opt.name());
