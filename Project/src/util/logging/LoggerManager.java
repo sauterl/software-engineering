@@ -15,8 +15,9 @@ public class LoggerManager {
 	private final static String verboseLevelKey = "lsjl.verbose.level";
 	private final static String verboseEnabledKey = "lsjl.verbose.enabled";
 	private final static String configFileKey = "lsjl.config.path";
-	private final static String[] configFileNames = {"lsjl", "logging", "logging-config"};
-	private final static String[] configFileSuffixes = {".json", ".cfg"};
+	private final static String[] configFileNames = { "lsjl", "logging",
+			"logging-config" };
+	private final static String[] configFileSuffixes = { ".json", ".cfg" };
 
 	public static LoggerManager getManager() {
 		if (instance == null) {
@@ -53,38 +54,6 @@ public class LoggerManager {
 		}
 		LOGGER = getLoggingLogger(LoggerManager.class);
 	}
-	
-	private URL findConfigFile(){
-		String pathPerProperty = System.getProperty(configFileKey);
-		URL out = null;
-		if(pathPerProperty == null){
-			for(String suffix : configFileSuffixes){
-				for(String name : configFileNames){
-					LOGGER.debug("Currently trying to load config file: "+name+suffix);
-					out = getClass().getClassLoader().getResource(name + suffix);
-					if(out == null){
-						continue;
-					}else{
-						break;
-					}
-				}
-				if(out == null){
-					continue;
-				}else{
-					break;
-				}
-			}
-		}else{
-			LOGGER.debug("Config file path read from system property is: "+pathPerProperty);
-			try{
-				out = getClass().getClassLoader().getResource(pathPerProperty);
-			}catch(SecurityException ex){
-				LOGGER.warn("SecurityManager denied access to classloader.");
-			}
-		}
-		LOGGER.debug("Config file path: "+out);
-		return out;
-	}
 
 	private LoggerManager() {
 		// TODO fix capacity
@@ -92,9 +61,9 @@ public class LoggerManager {
 		try {
 			// TODO change to pre-defined chain of places to look for.
 			final URL uri = findConfigFile();
-			if(uri != null){
+			if (uri != null) {
 				configManager.loadConfigFile(uri.getPath());
-			}else{
+			} else {
 				LOGGER.warn("Did not find a configuration file.");
 			}
 		} catch (final IOException e) {
@@ -102,7 +71,7 @@ public class LoggerManager {
 			LOGGER.error("Could not read config file");
 		}
 	}
-	
+
 	/**
 	 * Returns the names of all registered Loggers.
 	 * 
@@ -152,5 +121,40 @@ public class LoggerManager {
 			nameLoggerMap.put(logger.getName(), logger);
 			return logger;
 		}
+	}
+
+	private URL findConfigFile() {
+		final String pathPerProperty = System.getProperty(configFileKey);
+		URL out = null;
+		if (pathPerProperty == null) {
+			for (final String suffix : configFileSuffixes) {
+				for (final String name : configFileNames) {
+					LOGGER.debug("Currently trying to load config file: "
+							+ name + suffix);
+					out = getClass().getClassLoader()
+							.getResource(name + suffix);
+					if (out == null) {
+						continue;
+					} else {
+						break;
+					}
+				}
+				if (out == null) {
+					continue;
+				} else {
+					break;
+				}
+			}
+		} else {
+			LOGGER.debug("Config file path read from system property is: "
+					+ pathPerProperty);
+			try {
+				out = getClass().getClassLoader().getResource(pathPerProperty);
+			} catch (final SecurityException ex) {
+				LOGGER.warn("SecurityManager denied access to classloader.");
+			}
+		}
+		LOGGER.debug("Config file path: " + out);
+		return out;
 	}
 }

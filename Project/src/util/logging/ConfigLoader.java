@@ -1,6 +1,5 @@
 package util.logging;
 
-import util.jsontools.Json;
 
 @Deprecated
 public class ConfigLoader {
@@ -18,96 +17,8 @@ public class ConfigLoader {
 	return instance;
     }
     
-    private boolean validateString(Json jsonParent, ConfigDefinition.Element definition){
-	if(definition.getType() != ConfigDefinition.Element.Type.STRING){
-	    //definition's type is NOT string
-	    throw new IllegalArgumentException("The ConfigDefinition.Element type must be STRING.");
-	}
-	//definition's type is string.
-	if(jsonParent.containsEntry(definition.getKey() )){
-	    // jsonParent does contain the specified key.
-	    return true;
-	}else{
-	    // does not contain expected key
-	    return false;
-	}
-    }
-    
-    private boolean validateBoolean(Json jsonParent, ConfigDefinition.Element definition){
-	if(definition.getType() != ConfigDefinition.Element.Type.BOOLEAN){
-	    //definition's type is NOT string
-	    throw new IllegalArgumentException("The ConfigDefinition.Element type must be BOOLEAN.");
-	}
-	// unsupported
-	throw new UnsupportedOperationException("Not yet implemented");
-    }
-    
-    private boolean validateArray(Json jsonParent, ConfigDefinition.Element definition){
-	if(definition.getType() != ConfigDefinition.Element.Type.ARRAY){
-	    //definition's type is NOT string
-	    throw new IllegalArgumentException("The ConfigDefinition.Element type must be ARRAY.");
-	}
-	if(jsonParent.containsSet(definition.getKey() )){
-	    //contains key, key refers to set (=array)
-	    Json[] entries = jsonParent.getSet(definition.getKey() );
-	    for(Json json : entries){
-		
-	    }
-	    return false;
-	}else{
-	    return false;
-	}
-    }
-    
-    private boolean validateObject(Json jsonObj, ConfigDefinition.Element element){
-	if(element.getType() != ConfigDefinition.Element.Type.OBJECT){
-	    return false;
-	}
-	for(ConfigDefinition.Element sub: element.children){
-	    switch(sub.type){
-	    case ARRAY:
-		break;
-	    case BOOLEAN:
-		break;
-	    case OBJECT:
-		break;
-	    case STRING:
-		break;
-	    default:
-		break;
-	    
-	    }
-	}
-	return false;
-    }
-    
-    private boolean validate(Json config, ConfigDefinition def){
-	// TODO validate config for def
-	for(ConfigDefinition.Element elmnt : def.contents){
-	    if(!config.containsEntry(elmnt.getKey())){
-		return false;
-	    }
-	    switch(elmnt.type){
-	    case ARRAY:
-		
-		break;
-	    case BOOLEAN:
-		// unsupported
-		break;
-	    case OBJECT:
-		break;
-	    case STRING:
-		
-		break;
-	    default:
-		break;
-	    
-	    }
-	}
-	return false;
-    }
-    
-    private static class ConfigDefinition{
+    @SuppressWarnings("unused")
+	private static class ConfigDefinition{
 	
 	static final ConfigDefinition devConfig = new ConfigDefinition("dev 0.1", Element.VERSION,
 		Element.HANDLERS,
@@ -124,14 +35,6 @@ public class ConfigLoader {
 	    for(int i=0; i<contents.length; i++){
 		this.contents[i] = contents[i];
 	    }
-	}
-	
-	public String getVersion(){
-	    return version;
-	}
-	
-	public Element[] getContents(){
-	    return contents;
 	}
 	
 	static class Element{
@@ -173,28 +76,12 @@ public class ConfigLoader {
 		}
 	    }
 	    
-	    public boolean isRequired(){
-		return required;
-	    }
-	    
 	    public String getKey(){
 		return key;
 	    }
 	    
 	    public Type getType(){
 		return type;
-	    }
-	    
-	    public Type getChildrenType(){
-		return childrenType;
-	    }
-	    
-	    public Element getChildrenDefinition(){
-		return childrenDef;
-	    }
-	    
-	    public Element[] getChildren(){
-		return children;
 	    }
 	}
     }

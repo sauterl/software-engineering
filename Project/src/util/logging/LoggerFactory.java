@@ -1,6 +1,5 @@
 package util.logging;
 
-import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 /**
