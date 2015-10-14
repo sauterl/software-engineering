@@ -85,7 +85,6 @@ final class CommandParser {
 				}
 			}// end test for option / regular argument
 		}
-
 		return tokens;
 	}
 

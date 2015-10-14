@@ -12,12 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
@@ -59,7 +62,20 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Mapping of ID->metaAsJson
 	 */
-	private final HashMap<String, Json> idMetaMap;
+	private final HashMap<String, Json> idMap;
+	/**
+	 * Mapping of name->metaAsJson
+	 */
+	private final HashMap<String, Json> nameMap;
+	/**
+	 * Mapping of timestamp->metaAsJson
+	 */
+	private final TreeMap<Long, Json> timestampMap;
+	/**
+	 * Indicates whether this meta data manager is prepared for search queries
+	 * or not.
+	 */
+	private volatile boolean queryReady = false;
 
 	private static final String repositoryKey = "repository";
 	private static final String versionKey = "version";
@@ -132,7 +148,9 @@ class MetaDataManager implements Closeable {
 
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
-		this.idMetaMap = new HashMap<String, Json>();
+		this.idMap = new HashMap<String, Json>();
+		nameMap = new HashMap<String, Json>();
+		timestampMap = new TreeMap<Long, Json>();
 		if (!tryLockMetaDataFile()) {
 			throw new RuntimeException(
 					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
@@ -142,7 +160,8 @@ class MetaDataManager implements Closeable {
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		fillMap();
+		fillIdMap();
+		prepareForQueries();
 	}
 
 	/**
@@ -159,7 +178,7 @@ class MetaDataManager implements Closeable {
 		}
 		// assert(data != null);
 		final Json entry = createJsonMetaEntry(data);
-		idMetaMap.put(data.getId(), entry);
+		idMap.put(data.getId(), entry);
 	}
 
 	/**
@@ -198,11 +217,58 @@ class MetaDataManager implements Closeable {
 	 *         null, if the ID does not exist.
 	 */
 	public MetaData getMetaDataForID(final String id) {
-		if (idMetaMap.containsKey(id)) {
-			return extractMetaData(idMetaMap.get(id));
+		if (idMap.containsKey(id)) {
+			return extractMetaData(idMap.get(id));
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Returns the {@link MetaData} object to the corresponding name. If the
+	 * name does not exist, null is returned.
+	 * 
+	 * @param name
+	 *            The name.
+	 * @return The {@link MetaData object corresponding to the given name or
+	 *         null, if the name does not exist.
+	 */
+	public MetaData getMetaDataForName(final String name) {
+		if (nameMap.containsKey(name)) {
+			return extractMetaData(nameMap.get(name));
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Prepares the MetaDataManager to query for a certain {@link Criteria}.
+	 */
+	public void prepareForQueries() {
+		fillNameMap();
+		fillTimeMap();
+		queryReady = true;
+	}
+
+	/**
+	 * Searches meta data based on the given {@link Criteria}.
+	 * This method is not recommended to query for meta data with a specific name or id,
+	 * there are methods exclusively for this purpose. In those cases,
+	 * the method returns (if there is a matching meta data entry) arrays with a single entry.
+	 * 
+	 * @see Criteria
+	 * @param criteria
+	 * @return {@link MetaData}s which match the given criteria.
+	 */
+	public MetaData[] query(final Criteria criteria) {
+		if (!queryReady) {
+			throw new IllegalStateException(
+					"The MetaDataManager is not ready for queries.");
+		}
+		if(criteria == null){
+			throw new IllegalArgumentException("No null-criterias allowed!");
+		}
+		return null;
 	}
 
 	/**
@@ -216,7 +282,7 @@ class MetaDataManager implements Closeable {
 	 */
 	public void replaceMetaData(final String id, final MetaData meta) {
 		final Json entry = createJsonMetaEntry(meta);
-		idMetaMap.put(id, entry);
+		idMap.put(id, entry);
 	}
 
 	/**
@@ -260,10 +326,27 @@ class MetaDataManager implements Closeable {
 		releaseLock();
 	}
 
+	private Collection<Json> getBefore(Date before){
+		return (timestampMap.headMap(before.getTime(), true)).values();
+	}
+	
+	private Collection<Json> getAfter(Date after){
+		return (timestampMap.tailMap(after.getTime(), true)).values();
+	}
+	
+	private MetaData[] convertCollectionToMeta(Collection<Json> collection){
+		MetaData[] out = new MetaData[collection.size()];
+		int i=0;
+		for(Json json : collection){
+			out[i++] = extractMetaData(json);
+		}
+		return out;
+	}
+	
 	private void addMapToJson() {
 		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
 		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
-				idMetaMap.values().toArray(new Json[0]));
+				idMap.values().toArray(new Json[0]));
 	}
 
 	private Json createJsonMetaEntry(final MetaData data) {
@@ -304,10 +387,24 @@ class MetaDataManager implements Closeable {
 				timestamp);
 	}
 
-	private void fillMap() {
+	private void fillIdMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
-			idMetaMap.put(dataset.getString(idKey), dataset);
+			idMap.put(dataset.getString(idKey), dataset);
+		}
+	}
+
+	private void fillNameMap() {
+		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
+		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
+			nameMap.put(dataset.getString(nameKey), dataset);
+		}
+	}
+
+	private void fillTimeMap() {
+		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
+		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
+			timestampMap.put(dataset.getDate(timestampKey).getTime(), dataset);
 		}
 	}
 

@@ -15,7 +15,9 @@ enum Command {
 	 */
 	ADD(2, Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
 
-	REPLACE, DELETE, EXPORT, LIST, HELP;
+	REPLACE, DELETE,
+	EXPORT(2, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
+	LIST, HELP;
 
 	/**
 	 * Parses a given {@link String} to a matching {@link Command}. Unequal

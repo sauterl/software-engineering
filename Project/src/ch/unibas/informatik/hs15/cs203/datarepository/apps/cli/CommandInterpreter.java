@@ -47,7 +47,7 @@ class CommandInterpreter {
 		// already done in lex
 		switch (cmd) {
 			case ADD:
-				// Note how the list command already has add removed from the
+				// Note how the list command already has been removed from the
 				// poll
 				// above
 				executeAdd(command);
