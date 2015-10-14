@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -338,9 +339,23 @@ class MetaDataManager implements Closeable {
 		MetaData[] out = new MetaData[collection.size()];
 		int i=0;
 		for(Json json : collection){
+			//could throw InexistentKeyException but json *should* be well formed
 			out[i++] = extractMetaData(json);
 		}
 		return out;
+	}
+	
+	private Collection<Json> intersect(Collection<Json>...collections){
+		if(collections.length < 1){
+			throw new IllegalArgumentException("Cannot intersect 0 sets");
+		}else if(collections.length == 1){
+			return collections[0];
+		}
+		HashSet<Json> in = new HashSet<Json>(collections[0]);
+		for(int i=1;i<collections.length; i++){
+			in.retainAll(collections[i]);
+		}
+		return in;
 	}
 	
 	private void addMapToJson() {
