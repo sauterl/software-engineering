@@ -28,3 +28,9 @@ Project/.project
 # Unit Tests
 ###################
 Project/test-working-dir/
+
+# Distribution / build
+##################
+Project/ant-classes/
+Project/dist/
+Project/resources/
