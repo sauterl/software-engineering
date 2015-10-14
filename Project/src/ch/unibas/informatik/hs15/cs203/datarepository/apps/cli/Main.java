@@ -3,7 +3,6 @@
  */
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
-
 /**
  * The Main entry point to this command line application. Read the
  * specifications under <a href=
@@ -16,26 +15,26 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
  */
 public class Main {
 
-    /**
-     * The main entry to this command line tool. See <a href=
-     * "http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/specifications.pdf"
-     * > for further information</a>
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-	try {
-	    CommandInterpreter interpreter = new CommandInterpreter();
-	    interpreter.interpret(args);
-	    System.exit(0);
-	} catch (Throwable t) {
-	    System.err.print("[ERROR]: ");
-	    System.err.print(t.getMessage() != null ? t.getMessage()
-		    : "Unkown error");
-	    System.err.println();
-	    System.exit(1);
+	/**
+	 * The main entry to this command line tool. See <a href=
+	 * "http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/specifications.pdf"
+	 * > for further information</a>
+	 * 
+	 * @param args
+	 */
+	public static void main(final String[] args) {
+		int exitStatus = 0;
+		try {
+			final CommandInterpreter interpreter = new CommandInterpreter();
+			interpreter.interpret(args);
+		} catch (final Throwable t) {
+			System.err.print("[ERROR]: ");
+			System.err.print(t.getMessage() != null ? t.getMessage()
+					: "Unkown error");
+			System.err.println();
+			exitStatus = 1;
+		}
+		System.exit(exitStatus);
 	}
-
-    }
 
 }

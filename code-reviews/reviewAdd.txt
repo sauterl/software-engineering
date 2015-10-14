@@ -1,0 +1,52 @@
+Liebe Studenten
+
+1. Ihre Distribution soll nicht alle Dateien Ihres Projekts enthalten, 
+sondern nur die, die es zur Benutzung der Software braucht. Es fehlt 
+dafür eine Readme Datei, die Spezifikationen sowie die Wrapperskripte.
+
+2. Factory, Zeile 44: Besser mkdirs() statt mkdir().
+
+3. DataRepositoryImpl.add(): Metadaten werden nicht gespeichert und 
+ProgressListener nicht bedient.
+
+4. DataRepositoryImpl, Zeile 57: Dieses Statement ist verboten!
+
+5. DataRepositoryImpl, Zeile 184: Besser startsWith() statt contains() 
+verwenden.
+
+6. DataRepositoryImpl.assignID(): Diese Methode liefert immer die gleich 
+ID in der Kommandozeilenapplikation, da jedes mal eine neue Instanz von 
+DataRepositoryImpl erzeugt wird. Sie müssen die letzte oder nächste ID 
+im Repository speichern oder durch abzählen der Datensätze bestimmen.
+
+7. MetaDataManager ist nicht package protected und enthält einen wilden 
+Mix aus TAB und Leerzeichen für Einrückungen. Wegen der Lesbarkeit bitte 
+nur TAB Zeichen oder nur Leerzeichen verwenden!
+
+8. Main, Zeile 30: Nicht nötig. Sie dürfen nur *ein* System.exit() haben.
+
+9. Folgende Klassen in apps.cli sind nicht package protected: 
+CommandInterpreter, Command, Option, DummyProgressListener.
+
+10. Folgende Klassen in apps.cli enthalten sowohl TAB Zeichen als auch 
+Leerzeichen für Einrückungen: Command, CommandParser, 
+DummyProgressListener, Option, Main.
+
+11. jsontools.Test: Diese Klasse und example.json sollten besser im 
+srcTest sein. Noch besser Sie schreiben JUnit Tests, die alle Fälle 
+abdecken.
+
+Mit freundlichen Grüssen
+Franz-Josef Elmer
+
+
+-- 
+===============================================
+Dr. Franz-Josef Elmer
+Dachsweg 8b
+CH-4410 Liestal
+Phone: x41 61 923 10 55
+E-mail: Franz-Josef.Elmer@unibas.ch
+Home page: http://www.elmer.unibas.ch
+===============================================
+

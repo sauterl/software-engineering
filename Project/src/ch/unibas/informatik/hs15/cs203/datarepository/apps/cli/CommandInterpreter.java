@@ -19,7 +19,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
  * @author Loris
  * 
  */
-public class CommandInterpreter {
+class CommandInterpreter {
 
 	/**
 	 * Creates a new {@link CommandInterpreter}. Currently nothing more happens.
@@ -36,23 +36,25 @@ public class CommandInterpreter {
 	 * @param args
 	 *            The command line arguments.
 	 */
-	public void interpret(String[] args) {
-		LinkedList<String> command = CommandParser.lex(args);
+	public void interpret(final String[] args) {
+		final LinkedList<String> command = CommandParser.lex(args);
 		if (command.size() < 1) {
 			throw new IllegalArgumentException("Error while parsing commnd.");
 		}
 		// TODO change if done.
-		Command cmd = Command.parse(command.poll());// no null check since check
+		final Command cmd = Command.parse(command.poll());// no null check since
+															// check
 		// already done in lex
 		switch (cmd) {
-		case ADD:
-			// Note how the list command already has add removed from the poll
-			// above
-			executeAdd(command);
+			case ADD:
+				// Note how the list command already has add removed from the
+				// poll
+				// above
+				executeAdd(command);
 			break;
-		default:
-			throw new UnsupportedOperationException("Command " + cmd
-					+ " Not implemented yet");
+			default:
+				throw new UnsupportedOperationException("Command " + cmd
+						+ " Not implemented yet");
 		}
 	}
 
@@ -66,17 +68,17 @@ public class CommandInterpreter {
 	 * @param arguments
 	 *            The arguments of the command ADD, in tokenized list form.
 	 */
-	private void executeAdd(LinkedList<String> arguments) {
+	private void executeAdd(final LinkedList<String> arguments) {
 		String desc = "", repoLoc = null, file = null;
 		boolean move = false;
-		ProgressListener listener = new DummyProgressListener();
+		final ProgressListener listener = new DummyProgressListener();
 		String curr;
-		int originSize = arguments.size();
+		final int originSize = arguments.size();
 		for (int i = 0; i < originSize; i++) {
 			curr = arguments.poll();
 			if (curr.startsWith(Option.DESCRIPTION.name())) {
 				desc = curr.substring(curr
-						.indexOf(CommandParser.OPTION_SEPARATOR)+1);
+						.indexOf(CommandParser.OPTION_SEPARATOR) + 1);
 			} else if (curr.startsWith(Option.MOVE.name())) {
 				move = true;
 			} else if (curr.startsWith(Option.VERBOSE.name())) {
@@ -91,7 +93,7 @@ public class CommandInterpreter {
 				}
 			}
 		}// endfor
-		DataRepository repo = Factory.create(new File(repoLoc));
+		final DataRepository repo = Factory.create(new File(repoLoc));
 		repo.add(new File(file), desc, move, listener);
 	}
 

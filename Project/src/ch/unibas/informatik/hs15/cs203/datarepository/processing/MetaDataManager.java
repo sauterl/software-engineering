@@ -34,293 +34,312 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
  * @author Loris
  * 
  */
-public class MetaDataManager implements Closeable {
+class MetaDataManager implements Closeable {
 
-    /**
-     * Singleton. This is the instance.
-     */
-    private static MetaDataManager instance = null;
+	/**
+	 * Singleton. This is the instance.
+	 */
+	private static MetaDataManager instance = null;
 
-    /**
-     * The meta data file as {@link Json} object.
-     */
-    private Json metaDataFile;
-    
-    /**
-     * The path to the repository.
-     */
-    private String repoPath;
-    
-    /**
-     * The file lock.
-     * This has private visibility to close it at the appropriate time.
-     * (Instead of being local).
-     */
-    private FileLock lock;
-    /**
-     * Mapping of ID->metaAsJson
-     */
-    private HashMap<String, Json> idMetaMap;
+	/**
+	 * The meta data file as {@link Json} object.
+	 */
+	private Json metaDataFile;
 
-    private static final String repositoryKey = "repository";
-    private static final String versionKey = "version";
-    private static final String nameKey = "name";
-    private static final String timestampKey = "timestamp";
-    private static final String datasetsKey = "datasets";
-    private static final String idKey = "id";
-    private static final String descriptionKey = "description";
-    private static final String filecountKey = "filecount";
-    private static final String sizeKey = "size";
-    @SuppressWarnings("unused")
-    private static final String filetypeKey = "filetype";
+	/**
+	 * The path to the repository.
+	 */
+	private final String repoPath;
 
-    /**
-     * A prefix for temporary files on the file system.
-     */
-    private static final String tmpLabel = "tmp";
-    /**
-     * The name of the lock file, used to lock the metadata file
-     */
-    private static final String lockFile = ".lock";
-    /**
-     * The name of the meta data file
-     */
-    private static final String metaDataFileName = ".metadata";
+	/**
+	 * The file lock. This has private visibility to close it at the appropriate
+	 * time. (Instead of being local).
+	 */
+	private FileLock lock;
+	/**
+	 * Mapping of ID->metaAsJson
+	 */
+	private final HashMap<String, Json> idMetaMap;
 
-    /**
-     * Version.
-     * Why is this not a property?
-     */
-    public static final String VERSION = "0.0.1";
+	private static final String repositoryKey = "repository";
+	private static final String versionKey = "version";
+	private static final String nameKey = "name";
+	private static final String timestampKey = "timestamp";
+	private static final String datasetsKey = "datasets";
+	private static final String idKey = "id";
+	private static final String descriptionKey = "description";
+	private static final String filecountKey = "filecount";
+	private static final String sizeKey = "size";
+	@SuppressWarnings("unused")
+	private static final String filetypeKey = "filetype";
 
-    /*
-     * metadata file structure: { "repository":{ "version":"1.0",
-     * "timestamp":"2014-09-18T13:40:18", "datasets":[ {
-     * "id":"38141ec3-fcc6-4590-b9cb-dff7a4b7c354", "name":"MyDocuments",
-     * "description":"Some of my documents", "filecount":34, "size":2433993827,
-     * "timestamp":"2014-09-18T13:42:38" } ] } }
-     */
+	/**
+	 * A prefix for temporary files on the file system.
+	 */
+	private static final String tmpLabel = "tmp";
+	/**
+	 * The name of the lock file, used to lock the metadata file
+	 */
+	private static final String lockFile = ".lock";
+	/**
+	 * The name of the meta data file
+	 */
+	private static final String metaDataFileName = ".metadata";
 
-    /**
-     * Creates a new {@link MetaDataManager} for the given repository path.
-     * If the given path is not yet recognized as repository (has a meta data file in it),
-     * it will be initialized as one.
-     * 
-     * <b>Note: The {@link MetaDataManager} must be closed before terminating the application</b>.
-     * 
-     * In case the given repo path is already a repository and said repository
-     * is being manipulated by another process of this tool, this method will throw
-     * a RuntimeException.
-     * 
-     * Other reasons for failing (throwing a IOException) are:
-     * Failed reading the metadata file,
-     * Security issues with the JVM which handles this {@link MetaDataManager}
-     * Or anything else that could lead to an IOException during reading of files.
-     * 
-     * @param repoPath The path to the repository. Must be not null.
-     * @return The {@link MetaDataManager} for the given repository.
-     * @throws IOException If one of the above mentioned cases occurs.
-     */
-    public static MetaDataManager getMetaDataManager(String repoPath)
-	    throws IOException {
-	if (instance == null) {
-	    instance = new MetaDataManager(repoPath);
+	/**
+	 * Version. Why is this not a property?
+	 */
+	public static final String VERSION = "0.0.1";
+
+	/*
+	 * metadata file structure: { "repository":{ "version":"1.0",
+	 * "timestamp":"2014-09-18T13:40:18", "datasets":[ {
+	 * "id":"38141ec3-fcc6-4590-b9cb-dff7a4b7c354", "name":"MyDocuments",
+	 * "description":"Some of my documents", "filecount":34, "size":2433993827,
+	 * "timestamp":"2014-09-18T13:42:38" } ] } }
+	 */
+
+	/**
+	 * Creates a new {@link MetaDataManager} for the given repository path. If
+	 * the given path is not yet recognized as repository (has a meta data file
+	 * in it), it will be initialized as one.
+	 * 
+	 * <b>Note: The {@link MetaDataManager} must be closed before terminating
+	 * the application</b>.
+	 * 
+	 * In case the given repo path is already a repository and said repository
+	 * is being manipulated by another process of this tool, this method will
+	 * throw a RuntimeException.
+	 * 
+	 * Other reasons for failing (throwing a IOException) are: Failed reading
+	 * the metadata file, Security issues with the JVM which handles this
+	 * {@link MetaDataManager} Or anything else that could lead to an
+	 * IOException during reading of files.
+	 * 
+	 * @param repoPath
+	 *            The path to the repository. Must be not null.
+	 * @return The {@link MetaDataManager} for the given repository.
+	 * @throws IOException
+	 *             If one of the above mentioned cases occurs.
+	 */
+	public static MetaDataManager getMetaDataManager(final String repoPath)
+			throws IOException {
+		if (instance == null) {
+			instance = new MetaDataManager(repoPath);
+		}
+		return instance;
 	}
-	return instance;
-    }
 
-    private MetaDataManager(String repoPath) throws IOException {
-	this.repoPath = repoPath;
-	this.idMetaMap = new HashMap<String, Json>();
-	if (!tryLockMetaDataFile()) {
-	    throw new RuntimeException(
-		    "Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+	private MetaDataManager(final String repoPath) throws IOException {
+		this.repoPath = repoPath;
+		this.idMetaMap = new HashMap<String, Json>();
+		if (!tryLockMetaDataFile()) {
+			throw new RuntimeException(
+					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+		}
+		try {
+			metaDataFile = parseMetaDataFile(metaDataFileName);
+		} catch (final FileNotFoundException ex) {
+			metaDataFile = createNewMetaDataFile();
+		}
+		fillMap();
 	}
-	try {
-	    metaDataFile = parseMetaDataFile(metaDataFileName);
-	} catch (FileNotFoundException ex) {
-	    metaDataFile = createNewMetaDataFile();
+
+	/**
+	 * Adds the given {@link MetaData} object to the internal buffer. <b>NOTE:
+	 * The method's visibility may get changed to private in a future
+	 * update!</b>
+	 * 
+	 * @param data
+	 *            The {@link MetaData} object to add to the internal buffer.
+	 */
+	public void addMetaData(final MetaData data) {
+		if (data == null) {
+			throw new NullPointerException("MetaData to add is null.");
+		}
+		// assert(data != null);
+		final Json entry = createJsonMetaEntry(data);
+		idMetaMap.put(data.getId(), entry);
 	}
-	fillMap();
-    }
 
-    /**
-     * Adds the given {@link MetaData} object to the internal buffer.
-     * <b>NOTE: The method's visibility may get changed to private in a future update!</b>
-     * @param data The {@link MetaData} object to add to the internal buffer.
-     */
-    public void addMetaData(MetaData data) {
-	if (data == null) {
-	    throw new NullPointerException("MetaData to add is null.");
+	/**
+	 * Closes this {@link MetaDataManager} and releases its resources. <b>Invoke
+	 * this method before terminating the application</b> Or otherwise the
+	 * repository gets corrupted and will not be accessible for a long time.
+	 * 
+	 * In particular the lock of the meta data file gets released as well as the
+	 * temporary written meta data gets moved to stay permanently.
+	 */
+	@Override
+	public void close() throws IOException {
+		releaseLock();
+		Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
+				Paths.get(repoPath, metaDataFileName),
+				StandardCopyOption.REPLACE_EXISTING,
+				StandardCopyOption.ATOMIC_MOVE);
 	}
-	// assert(data != null);
-	Json entry = createJsonMetaEntry(data);
-	idMetaMap.put(data.getId(), entry);
-    }
 
-    /**
-     * Closes this {@link MetaDataManager} and releases its resources.
-     * <b>Invoke this method before terminating the application</b> Or otherwise
-     * the repository gets corrupted and will not be accessible for a long time.
-     * 
-     * In particular the lock of the meta data file gets released as well as the temporary
-     * written meta data gets moved to stay permanently.
-     */
-    @Override
-    public void close() throws IOException {
-	releaseLock();
-	Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
-		Paths.get(repoPath, metaDataFileName),
-		StandardCopyOption.REPLACE_EXISTING,
-		StandardCopyOption.ATOMIC_MOVE);
-    }
-
-    /**
-     * Returns a randomly generated {@link UUID}.
-     * Use this method to get the the ID for a data set.
-     * @return A randomly generated UUID.
-     */
-    public synchronized final String generateRandomUUID() {
-	return UUID.randomUUID().toString();
-    }
-    
-    /**
-     * Returns the {@link MetaData} object to the corresponding id.
-     * If the ID does not exist, null is returned.
-     * @param id
-     * @return The {@link MetaData} object corresponding to the given id or null, if the ID does not exist.
-     */
-    public MetaData getMetaDataForID(String id){
-	if(idMetaMap.containsKey(id)){
-	    return extractMetaData(idMetaMap.get(id));
-	}else{
-	    return null;
+	/**
+	 * Returns a randomly generated {@link UUID}. Use this method to get the the
+	 * ID for a data set.
+	 * 
+	 * @return A randomly generated UUID.
+	 */
+	public synchronized final String generateRandomUUID() {
+		return UUID.randomUUID().toString();
 	}
-    }
 
-    /**
-     * Updates the metadata for the given id.
-     * This replaces the currently stored meta data.
-     * @param id The id of the data set which meta data alter.
-     * @param meta The new meta data set.
-     */
-    public void replaceMetaData(String id, MetaData meta) {
-	Json entry = createJsonMetaEntry(meta);
-	idMetaMap.put(id, entry);
-    }
-    
-    /**
-     * Writes the given {@link MetaData} to the meta data file.
-     * <b>This method suits for most use cases, methods like addMetaData(MetaData) or writeTemporaryMetaDataFile() are
-     * currently visible, but may get hidden in future updates.</b>
-     * 
-     * Firstly the meta data (referred as data) to the internal buffer which gets
-     * 'flushed' (e.g. written) to the file system using the {@link Json#toJson()} method.
-     * 
-     * The meta data gets firstly written to a temporary meta data file that gets
-     * eventually moved to the reliable meta data file.
-     * @param data The {@link MetaData} object to write.
-     * @throws IOException If somewhere while writing an i/o error occurs
-     */
-    public void writeMetadata(MetaData data) throws IOException {
-	addMetaData(data);
-	writeTemporaryMetaDataFile();
-    }
-
-    /**
-     * Writes the currently buffered meta data to a temporary meta data file.
-     * <b>NOTE: The method's visibility may get changed to private in a future update!</b>
-     * @throws IOException If an error occurs while writing the file.
-     */
-    public void writeTemporaryMetaDataFile() throws IOException {
-	FileWriter fw = new FileWriter(Paths.get(repoPath,
-		tmpLabel + metaDataFileName).toFile());
-	addMapToJson();
-	fw.write(metaDataFile.toJson());
-	fw.flush();
-	fw.close();
-	releaseLock();
-    }
-
-    private void addMapToJson() {
-	metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
-	metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
-		idMetaMap.values().toArray(new Json[0]));
-    }
-
-    private Json createJsonMetaEntry(MetaData data) {
-	Json json = new Json();
-	json.addEntry(idKey, data.getId());
-	json.addEntry(nameKey, data.getName());
-	json.addEntry(filecountKey, data.getNumberOfFiles());
-	json.addEntry(sizeKey, data.getSize());
-	json.addEntry(timestampKey, data.getTimestamp());
-	if (data.getDescription() != null) {
-	    json.addEntry(descriptionKey, data.getDescription());
+	/**
+	 * Returns the {@link MetaData} object to the corresponding id. If the ID
+	 * does not exist, null is returned.
+	 * 
+	 * @param id
+	 * @return The {@link MetaData} object corresponding to the given id or
+	 *         null, if the ID does not exist.
+	 */
+	public MetaData getMetaDataForID(final String id) {
+		if (idMetaMap.containsKey(id)) {
+			return extractMetaData(idMetaMap.get(id));
+		} else {
+			return null;
+		}
 	}
-	return json;
-    }
-    
-    private MetaData extractMetaData(Json dataset){
-	String id = dataset.getString(idKey);
-	String name = dataset.getString(nameKey);
-	String description = "";
-	if(dataset.containsKey(descriptionKey) ){
-	    description = dataset.getString(descriptionKey);
+
+	/**
+	 * Updates the metadata for the given id. This replaces the currently stored
+	 * meta data.
+	 * 
+	 * @param id
+	 *            The id of the data set which meta data alter.
+	 * @param meta
+	 *            The new meta data set.
+	 */
+	public void replaceMetaData(final String id, final MetaData meta) {
+		final Json entry = createJsonMetaEntry(meta);
+		idMetaMap.put(id, entry);
 	}
-	int numberOfFiles = (int)dataset.getDouble(filecountKey);
-	long size = (long)dataset.getDouble(sizeKey);
-	Date timestamp = dataset.getDate(timestampKey);
-	return new MetaData(id, name, description, numberOfFiles, size, timestamp);
-    }
 
-    private Json createNewMetaDataFile() {
-	Json repo = new Json();
-	repo.addEntry(versionKey, VERSION);
-	repo.addEntry(timestampKey, new Date());
-	Json[] emptyDatasets = new Json[0];
-	repo.addEntry(datasetsKey, emptyDatasets);
-	Json out = new Json();
-	out.addEntry(repositoryKey, repo);
-	return out;
-    }
-
-    private void fillMap() {
-	Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
-	for (Json dataset : repoJSON.getSet(datasetsKey)) {
-	    idMetaMap.put(dataset.getString(idKey), dataset);
+	/**
+	 * Writes the given {@link MetaData} to the meta data file. <b>This method
+	 * suits for most use cases, methods like addMetaData(MetaData) or
+	 * writeTemporaryMetaDataFile() are currently visible, but may get hidden in
+	 * future updates.</b>
+	 * 
+	 * Firstly the meta data (referred as data) to the internal buffer which
+	 * gets 'flushed' (e.g. written) to the file system using the
+	 * {@link Json#toJson()} method.
+	 * 
+	 * The meta data gets firstly written to a temporary meta data file that
+	 * gets eventually moved to the reliable meta data file.
+	 * 
+	 * @param data
+	 *            The {@link MetaData} object to write.
+	 * @throws IOException
+	 *             If somewhere while writing an i/o error occurs
+	 */
+	public void writeMetadata(final MetaData data) throws IOException {
+		addMetaData(data);
+		writeTemporaryMetaDataFile();
 	}
-    }
 
-    private Json parseMetaDataFile(String file) throws IOException {
-	JsonParser parser = new JsonParser();
-	return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
-		.getPath());
-    }
+	/**
+	 * Writes the currently buffered meta data to a temporary meta data file.
+	 * <b>NOTE: The method's visibility may get changed to private in a future
+	 * update!</b>
+	 * 
+	 * @throws IOException
+	 *             If an error occurs while writing the file.
+	 */
+	public void writeTemporaryMetaDataFile() throws IOException {
+		final FileWriter fw = new FileWriter(Paths.get(repoPath,
+				tmpLabel + metaDataFileName).toFile());
+		addMapToJson();
+		fw.write(metaDataFile.toJson());
+		fw.flush();
+		fw.close();
+		releaseLock();
+	}
 
-    private boolean releaseLock() throws IOException {
-	lock.release();
-	// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
-	// EnumSet.allOf(PosixFilePermission.class));
-	// Files.delete(Paths.get(repoPath, lockFile));//throws
-	// securityexception?!
-	Paths.get(repoPath, lockFile).toFile().delete();
-	return true;
-    }
+	private void addMapToJson() {
+		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
+		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
+				idMetaMap.values().toArray(new Json[0]));
+	}
 
-    private boolean tryLockMetaDataFile() {
-	Path lockFilePath = Paths.get(repoPath, lockFile);
-	try {
-	    FileChannel channel = FileChannel.open(lockFilePath,
-		    StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-	    try {
-		lock = channel.tryLock();
+	private Json createJsonMetaEntry(final MetaData data) {
+		final Json json = new Json();
+		json.addEntry(idKey, data.getId());
+		json.addEntry(nameKey, data.getName());
+		json.addEntry(filecountKey, data.getNumberOfFiles());
+		json.addEntry(sizeKey, data.getSize());
+		json.addEntry(timestampKey, data.getTimestamp());
+		if (data.getDescription() != null) {
+			json.addEntry(descriptionKey, data.getDescription());
+		}
+		return json;
+	}
+
+	private Json createNewMetaDataFile() {
+		final Json repo = new Json();
+		repo.addEntry(versionKey, VERSION);
+		repo.addEntry(timestampKey, new Date());
+		final Json[] emptyDatasets = new Json[0];
+		repo.addEntry(datasetsKey, emptyDatasets);
+		final Json out = new Json();
+		out.addEntry(repositoryKey, repo);
+		return out;
+	}
+
+	private MetaData extractMetaData(final Json dataset) {
+		final String id = dataset.getString(idKey);
+		final String name = dataset.getString(nameKey);
+		String description = "";
+		if (dataset.containsKey(descriptionKey)) {
+			description = dataset.getString(descriptionKey);
+		}
+		final int numberOfFiles = (int) dataset.getDouble(filecountKey);
+		final long size = (long) dataset.getDouble(sizeKey);
+		final Date timestamp = dataset.getDate(timestampKey);
+		return new MetaData(id, name, description, numberOfFiles, size,
+				timestamp);
+	}
+
+	private void fillMap() {
+		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
+		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
+			idMetaMap.put(dataset.getString(idKey), dataset);
+		}
+	}
+
+	private Json parseMetaDataFile(final String file) throws IOException {
+		final JsonParser parser = new JsonParser();
+		return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
+				.getPath());
+	}
+
+	private boolean releaseLock() throws IOException {
+		lock.release();
+		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
+		// EnumSet.allOf(PosixFilePermission.class));
+		// Files.delete(Paths.get(repoPath, lockFile));//throws
+		// securityexception?!
+		Paths.get(repoPath, lockFile).toFile().delete();
 		return true;
-	    } catch (OverlappingFileLockException ex) {
-		return false;
-	    }
-	} catch (IOException e) {
-	    return false;
 	}
-    }
+
+	private boolean tryLockMetaDataFile() {
+		final Path lockFilePath = Paths.get(repoPath, lockFile);
+		try {
+			final FileChannel channel = FileChannel.open(lockFilePath,
+					StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+			try {
+				lock = channel.tryLock();
+				return true;
+			} catch (final OverlappingFileLockException ex) {
+				return false;
+			}
+		} catch (final IOException e) {
+			return false;
+		}
+	}
 }
