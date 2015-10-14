@@ -41,7 +41,7 @@ public class Factory {
 					"The given path does not point to a folder, but to something else");
 		}
 		if(!repositoryFolder.exists()){
-			repositoryFolder.mkdir();
+			repositoryFolder.mkdirs();
 		}
 		//Create Repo and return it
 		DataRepositoryImpl _ret = new DataRepositoryImpl(repositoryFolder);

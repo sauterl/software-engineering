@@ -22,7 +22,6 @@ class DataRepositoryImpl implements DataRepository {
 
 	protected DataRepositoryImpl(File repositoryFolder) {
 		this.repositoryFolder = repositoryFolder;
-		repositoryFolder.mkdirs();
 		// TODO Parse current ID counter
 	}
 
@@ -54,7 +53,6 @@ class DataRepositoryImpl implements DataRepository {
 				copyRecursively(file.getAbsoluteFile().toPath(), joinedPath);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new IllegalArgumentException("File could not be moved/copied");
 		}
 
@@ -181,7 +179,7 @@ class DataRepositoryImpl implements DataRepository {
 	}
 
 	private void verifyNotWithinRepo(File file) throws IllegalArgumentException {
-		if (file.getAbsolutePath().contains(repositoryFolder.getAbsolutePath())) {
+		if (file.getAbsolutePath().startsWith(repositoryFolder.getAbsolutePath())) {
 			throw new IllegalArgumentException(
 					"The given path points to a folder or file within the repository folder");
 		}
