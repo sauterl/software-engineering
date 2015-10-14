@@ -30,71 +30,71 @@ import java.util.logging.LogRecord;
  */
 public class StandardFormatter extends Formatter {
 
-    private final DateFormat dateFormat = new SimpleDateFormat(
-	    "dd-MM-yyyy HH:mm:ss");
+	private final DateFormat dateFormat = new SimpleDateFormat(
+			"dd-MM-yyyy HH:mm:ss");
 
-    /**
-     * Flag to indicate whether the method name is part of the formatted message
-     * or not
-     */
-    private volatile boolean methodNameEnabled = false; //not used yet
+	/**
+	 * Flag to indicate whether the method name is part of the formatted message
+	 * or not
+	 */
+	private volatile boolean methodNameEnabled = false; // not used yet
 
-    /**
-     * Constructs a new default {@link StandardFormatter}.
-     */
-    public StandardFormatter() {
-	/* empty */
-    }
-    
-    /**
-     * Formats the given {@link LogRecord}.
-     * 
-     * <p>
-     * The layout of a single formatted {@link LogRecord} is like so:<br>
-     * {@code dd-MM-yyyy HH:mm:ss [LEVEL] [name] msg NL}<br>
-     * The described time format is in {@link SimpleDateFormat}-notation.<br>
-     * The LEVEL stands for the record's level.<br>
-     * name stands for the name of the logger which created the record.<br>
-     * The placeholder msg will be replaced by the record's message and NL
-     * stands for a new line.
-     * </p>
-     * 
-     * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
-     */
-    @Override
-    public synchronized String format(LogRecord record) {
-	StringBuffer sb = new StringBuffer(256);
-	sb.append(dateFormat.format(new Date(record.getMillis())));
-	sb.append(" ");
-	// adding thread name+number somewhere?
-	sb.append("[");
-	sb.append(record.getLevel().getName());
-	sb.append("]");
-	// sb.append(" ");
-	sb.append("[");
-	sb.append(record.getLoggerName());
-	sb.append("]");
-	sb.append(" ");
-	if (methodNameEnabled) {
-	    sb.append("<");
-	    sb.append(record.getSourceMethodName());
-	    sb.append(">");
-	    sb.append(" ");
+	/**
+	 * Constructs a new default {@link StandardFormatter}.
+	 */
+	public StandardFormatter() {
+		/* empty */
 	}
-	sb.append(record.getMessage());
-	sb.append("\n");
-	Throwable thrown = record.getThrown();
-	if(thrown != null){
-	    //record has throwable
-	    StringWriter strWtr = new StringWriter();
-	    PrintWriter pWtr = new PrintWriter(strWtr);
-	    pWtr.println();
-	    thrown.printStackTrace(pWtr);
-	    pWtr.flush();
-	    pWtr.close();
-	    sb.append(strWtr.toString());
+
+	/**
+	 * Formats the given {@link LogRecord}.
+	 * 
+	 * <p>
+	 * The layout of a single formatted {@link LogRecord} is like so:<br>
+	 * {@code dd-MM-yyyy HH:mm:ss [LEVEL] [name] msg NL}<br>
+	 * The described time format is in {@link SimpleDateFormat}-notation.<br>
+	 * The LEVEL stands for the record's level.<br>
+	 * name stands for the name of the logger which created the record.<br>
+	 * The placeholder msg will be replaced by the record's message and NL
+	 * stands for a new line.
+	 * </p>
+	 * 
+	 * @see java.util.logging.Formatter#format(java.util.logging.LogRecord)
+	 */
+	@Override
+	public synchronized String format(final LogRecord record) {
+		final StringBuffer sb = new StringBuffer(256);
+		sb.append(dateFormat.format(new Date(record.getMillis())));
+		sb.append(" ");
+		// adding thread name+number somewhere?
+		sb.append("[");
+		sb.append(record.getLevel().getName());
+		sb.append("]");
+		// sb.append(" ");
+		sb.append("[");
+		sb.append(record.getLoggerName());
+		sb.append("]");
+		sb.append(" ");
+		if (methodNameEnabled) {
+			sb.append("<");
+			sb.append(record.getSourceMethodName());
+			sb.append(">");
+			sb.append(" ");
+		}
+		sb.append(record.getMessage());
+		sb.append("\n");
+		final Throwable thrown = record.getThrown();
+		if (thrown != null) {
+			// record has throwable
+			final StringWriter strWtr = new StringWriter();
+			final PrintWriter pWtr = new PrintWriter(strWtr);
+			pWtr.println();
+			thrown.printStackTrace(pWtr);
+			pWtr.flush();
+			pWtr.close();
+			sb.append(strWtr.toString());
+		}
+		return sb.toString();
 	}
-	return sb.toString();
-    }
-    
+
 }
