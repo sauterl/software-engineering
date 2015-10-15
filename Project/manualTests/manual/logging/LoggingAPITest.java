@@ -18,9 +18,9 @@ public class LoggingAPITest {
 	}else{
 	    System.err.println("OOOOOOh");
 	}
-	AbstractLogger log = Logger.getLogger(LoggingAPITest.class);
-	AbstractLogger log2 = Logger.getLogger(LoggingAPITest.class);
-	AbstractLogger log3 = Logger.getLogger(LoggerFactory.class);
+	Logger log = Logger.getLogger(LoggingAPITest.class);
+	Logger log2 = Logger.getLogger(LoggingAPITest.class);
+	Logger log3 = Logger.getLogger(LoggerFactory.class);
 	System.out.println(log);
 	System.out.println(log2);
 	Handler[] hs = log.getHandlers();
