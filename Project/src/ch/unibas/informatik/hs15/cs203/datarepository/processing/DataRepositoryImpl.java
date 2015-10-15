@@ -138,7 +138,6 @@ class DataRepositoryImpl implements DataRepository {
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
-			System.err.println(ex.getMessage());
 			throw new IllegalArgumentException("Error while moving file");
 		} finally {
 			try {
