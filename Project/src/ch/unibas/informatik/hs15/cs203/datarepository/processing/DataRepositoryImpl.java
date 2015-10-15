@@ -54,8 +54,6 @@ class DataRepositoryImpl implements DataRepository {
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
 		}
-
-		// TODO Generate ID
 		MetaData _ret = new MetaData(newID, file.getName(), description,
 				getFileCount(joinedPath.toFile()),
 				getFileSize(joinedPath.toFile()), new Date());
