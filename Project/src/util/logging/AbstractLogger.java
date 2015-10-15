@@ -21,10 +21,10 @@ import java.util.logging.Logger;
  * <p>
  * The following {@code java.util.logging.}{@link Logger} methods are masked:
  * <ul>
- * <li> {@link Logger#severe(String)} is masked by
- * {@link AbstractLogger#error(String)}</li>
- * <li> {@link Logger#warning(String)} is masked by
- * {@link AbstractLogger#warn(String)}</li>
+ * <li> {@link java.util.loggingLogger#severe(String)} is masked by
+ * {@link Logger#error(String)}</li>
+ * <li> {@link java.util.logging.Logger#warning(String)} is masked by
+ * {@link Logger#warn(String)}</li>
  * </ul>
  * Additionally {@link AbstractLogger}s can log on {@link LevelX#DEBUG} log
  * level, a level between {@link Level#CONFIG} and {@link Level#FINE}.
@@ -35,7 +35,9 @@ import java.util.logging.Logger;
  * @see LevelX
  * @author Loris
  * 
+ * @deprecated Since the Logger implements neither a interface nor an abstract class.
  */
+@Deprecated
 public abstract class AbstractLogger {
 
 	protected final Logger logger;

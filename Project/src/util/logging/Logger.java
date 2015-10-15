@@ -41,7 +41,7 @@ import java.util.logging.LogRecord;
  * @author Loris
  * 
  */
-public class Logger{
+public final class Logger{
 	
 	private final java.util.logging.Logger logger;
 
@@ -216,7 +216,7 @@ public class Logger{
 	/**
 	 * Logs a specified {@link LogRecord}.
 	 * @see java.util.logging.Logger#log(LogRecord)
-	 * @param msg The record to log.
+	 * @param record The record to log.
 	 */
 	public void log(final LogRecord record) {
 		this.logger.log(record);

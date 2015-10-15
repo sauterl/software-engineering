@@ -10,6 +10,53 @@ import java.util.logging.Level;
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
 
+/**
+ * The {@link ConfigurationManager} manages logging configurations as its name
+ * describes. <br />
+ * On of the main purposes of this class is the parsing and interpretation of
+ * configuration files for this logging API. Further the management of assigning
+ * handlers to loggers is another important part of this class. The two ways of
+ * configuring a logger or manager are described below.
+ * <p>
+ * <h2>Configuration file</h2>
+ * This logging API provides simple JSON-based config-file system. Configuration
+ * files describe handlers by their fully qualified class name. With the
+ * reference name handlers can be assigned to loggers which are addressed by
+ * their name. Both, handlers and loggers, can have their level set through this
+ * configuration.<br />
+ * The following shows an example of such a configuration file:
+ * 
+ * <pre style="font-size: 76%;">
+ * {@code
+ * {
+ * 	"version":"dev 0.1",
+ * 	"handlers":[
+ * 		{
+ * 			"ref":"console",
+ * 			"name":"util.logging.StandardConsoleHandler",
+ * 			"level":"DEBUG"
+ * 		}
+ * 	],
+ * 	"loggers":[
+ * 		{
+ * 			"name":"mypackage.MyApp",
+ * 			"handler":"console",
+ * 			"level":"DEBUG"
+ * 		}
+ * 	]
+ * }
+ * }
+ * </pre>
+ * 
+ * </p>
+ * <p>
+ * <h2>During Runtime</h2>
+ * This way is not yet implemented.
+ * </p>
+ * 
+ * @author Loris
+ * 
+ */
 public class ConfigurationManager {
 
 	private static final Logger LOGGER = LoggerManager
@@ -27,9 +74,9 @@ public class ConfigurationManager {
 	private static ConfigurationManager instance = null;
 
 	/**
-	 * Returns the configuration manager
+	 * Returns the configuration manager instance.
 	 * 
-	 * @return
+	 * @return The configuration manager instance.
 	 */
 	public static ConfigurationManager getConfigManager() {
 		if (instance == null) {

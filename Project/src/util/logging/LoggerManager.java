@@ -14,7 +14,7 @@ public class LoggerManager {
 	private static Level internalLevel;
 	/**
 	 * Contains the system property key to specify the log level of the logging
-	 * api itself. {@value LoggerManager#VERBOSE_LEVEL_KEY}
+	 * api itself.
 	 */
 	public final static String VERBOSE_LEVEL_KEY = "lsjl.verbose.level";
 	/**
