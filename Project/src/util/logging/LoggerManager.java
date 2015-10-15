@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+/**
+ * The {@link LoggerManager} registers {@link Logger}s by their name and manages them.
+ * @author Loris
+ *
+ */
 public class LoggerManager {
 
 	private static LoggerManager instance = null;
@@ -32,10 +37,14 @@ public class LoggerManager {
 	 */
 	public final static String LOGGING_DISABLED_KEY = "lsjl.logging.disabled";
 
-	private final static String[] configFileNames = { "lsjl", "logging",
+	private final static String[] configFileNames = { "lsjl", "logging", "lsjl-config",
 			"logging-config" };
-	private final static String[] configFileSuffixes = { ".json", ".cfg" };
+	private final static String[] configFileSuffixes = { ".json", ".cfg", ".config" };
 
+	/**
+	 * Returns the LoggerManager instance.
+	 * @return
+	 */
 	public static LoggerManager getManager() {
 		if (instance == null) {
 			instance = new LoggerManager();

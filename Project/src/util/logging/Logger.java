@@ -88,7 +88,7 @@ public final class Logger{
 	 * Constructs a new {@link Logger}, with the given internal {@link java.util.logging.Logger}.
 	 * @param log The internal {@link java.util.logging.Logger}, with which this logger logs.
 	 */
-	private Logger(final java.util.logging.Logger log) {
+	Logger(final java.util.logging.Logger log) {
 		this.logger = log;
 	}
 

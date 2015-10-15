@@ -1,7 +1,7 @@
 package util.logging;
 
 import java.util.logging.Level;
-
+@Deprecated
 public class HandlerConfiguration {
 
 	private String ref;

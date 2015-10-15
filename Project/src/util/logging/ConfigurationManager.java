@@ -47,7 +47,25 @@ import util.jsontools.JsonParser;
  * }
  * }
  * </pre>
- * 
+ * A developer may use one of the following techniques to register the config file to the API:
+ * <ul>
+ * <li>By setting a system property named <code>lsjl.logging.config.path</code> with the absolute or relative
+ * path to the config file (inclusive name and suffix, e.g. lsjl.json</li>
+ * <li>By placing a file in the root folder of the application (so were it gets executed) with one of the following names:
+ * <ul>
+ * <li><code>lsjl</code></li>
+ * <li><code>lsjl-config</code></li>
+ * <li><code>logging</code></li>
+ * <li><code>logging-config</code></li>
+ * </ul>
+ * And one of the follwing suffixes:
+ * <ul>
+ * <li><code>.json</code></li>
+ * <li><code>.cfg</code></li>
+ * <li><code>.config</code></li>
+ * </ul>
+ * </li>
+ * </ul>
  * </p>
  * <p>
  * <h2>During Runtime</h2>
@@ -158,6 +176,13 @@ public class ConfigurationManager {
 		return refHandlerMap.get(ref);
 	}
 
+	
+	/**
+	 * Loads the config file specified by the given path.
+	 * It is recommended to give the absolute path - to minimize errors.
+	 * @param file
+	 * @throws IOException
+	 */
 	public void loadConfigFile(final String file) throws IOException {
 		LOGGER.config("Config file: " + file);
 		final Json jsonFile = readConfigFile(file);

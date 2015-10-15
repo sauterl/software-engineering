@@ -8,6 +8,7 @@ import java.util.logging.Logger;
  * @author Loris
  * 
  */
+@Deprecated
 public class LoggerFactory {
 
 	/*

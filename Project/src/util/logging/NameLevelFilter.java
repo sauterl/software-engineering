@@ -19,6 +19,7 @@ import java.util.logging.LogRecord;
  * @author Loris
  * 
  */
+@Deprecated
 public class NameLevelFilter implements Filter {
 
 	private final String name;
