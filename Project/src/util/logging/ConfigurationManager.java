@@ -62,7 +62,7 @@ public class ConfigurationManager {
 	 * 
 	 * @param log
 	 */
-	public void applyConfig(final AbstractLogger log) {
+	public void applyConfig(final Logger log) {
 		if (nameConfigMap.containsKey(log.getName())) {
 			LOGGER.debug(String.format("Found config for logger %s",
 					log.getName()));
@@ -94,7 +94,7 @@ public class ConfigurationManager {
 	 * 
 	 * @param log
 	 */
-	public void applyDefaultConfig(final AbstractLogger log) {
+	public void applyDefaultConfig(final Logger log) {
 		log.resetHandlers();
 		log.addHandler(defaultHandler);
 		log.setLevel(Level.INFO);

@@ -9,12 +9,29 @@ import java.util.logging.Level;
 public class LoggerManager {
 
 	private static LoggerManager instance = null;
-	private static final AbstractLogger LOGGER;
+	private static final Logger LOGGER;
 
 	private static Level internalLevel;
-	private final static String verboseLevelKey = "lsjl.verbose.level";
-	private final static String verboseEnabledKey = "lsjl.verbose.enabled";
-	private final static String configFileKey = "lsjl.config.path";
+	/**
+	 * Contains the system property key to specify the log level of the logging
+	 * api itself. {@value LoggerManager#VERBOSE_LEVEL_KEY}
+	 */
+	public final static String VERBOSE_LEVEL_KEY = "lsjl.verbose.level";
+	/**
+	 * Contains the system property key to specify if the logging api logs its
+	 * actions.
+	 */
+	public final static String VERBOSE_ENABLED_KEY = "lsjl.verbose.enabled";
+	/**
+	 * Contains the system property key to specify the path of the config file.
+	 */
+	public final static String CONFIG_PATH_KEY = "lsjl.logging.config.path";
+	/**
+	 * Contains the system property key to specify if the logging api is
+	 * completely disabled.
+	 */
+	public final static String LOGGING_DISABLED_KEY = "lsjl.logging.disabled";
+
 	private final static String[] configFileNames = { "lsjl", "logging",
 			"logging-config" };
 	private final static String[] configFileSuffixes = { ".json", ".cfg" };
@@ -35,17 +52,17 @@ public class LoggerManager {
 		return l;
 	}
 
-	private final HashMap<String, AbstractLogger> nameLoggerMap;
+	private final HashMap<String, Logger> nameLoggerMap;
 
 	private final ConfigurationManager configManager = ConfigurationManager
 			.getConfigManager();
 
 	static {
 		// verbose preparation
-		if (Boolean.parseBoolean(System.getProperty(verboseEnabledKey))) {
+		if (Boolean.parseBoolean(System.getProperty(VERBOSE_ENABLED_KEY))) {
 			try {
 				internalLevel = LevelX.parse(System
-						.getProperty(verboseLevelKey));
+						.getProperty(VERBOSE_LEVEL_KEY));
 			} catch (final IllegalArgumentException ex) {
 				internalLevel = Level.INFO;
 			}
@@ -93,13 +110,13 @@ public class LoggerManager {
 	}
 
 	public void resetHandlers(final String loggerName) {
-		final AbstractLogger log = nameLoggerMap.get(loggerName);
+		final Logger log = nameLoggerMap.get(loggerName);
 		if (log != null) {
 			log.resetHandlers();
 		}
 	}
 
-	AbstractLogger registerLogger(final AbstractLogger logger) {
+	Logger registerLogger(final Logger logger) {
 		if (logger == null) {
 			throw new NullPointerException(
 					"Registering null loggers not allowed");
@@ -124,7 +141,7 @@ public class LoggerManager {
 	}
 
 	private URL findConfigFile() {
-		final String pathPerProperty = System.getProperty(configFileKey);
+		final String pathPerProperty = System.getProperty(CONFIG_PATH_KEY);
 		URL out = null;
 		if (pathPerProperty == null) {
 			for (final String suffix : configFileSuffixes) {

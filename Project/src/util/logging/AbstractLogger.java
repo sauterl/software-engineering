@@ -38,10 +38,6 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractLogger {
 
-	/*
-	 * TODO Write all log methods TODO Write javadoc for methods
-	 */
-
 	protected final Logger logger;
 
 	protected AbstractLogger(final Logger log) {
