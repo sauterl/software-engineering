@@ -205,7 +205,7 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @return A randomly generated UUID.
 	 */
-	public synchronized final String generateRandomUUID() {
+	public synchronized final static String generateRandomUUID() {
 		return UUID.randomUUID().toString();
 	}
 
@@ -434,8 +434,8 @@ class MetaDataManager implements Closeable {
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
-		// securityexception?!
 		Paths.get(repoPath, lockFile).toFile().delete();
+		lock.release();
 		return true;
 	}
 

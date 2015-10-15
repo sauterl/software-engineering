@@ -1,6 +1,7 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
 import java.io.File;
+import java.io.IOException;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 
@@ -44,7 +45,12 @@ public class Factory {
 			repositoryFolder.mkdirs();
 		}
 		//Create Repo and return it
-		DataRepositoryImpl _ret = new DataRepositoryImpl(repositoryFolder);
+		DataRepositoryImpl _ret;
+		try {
+			_ret = new DataRepositoryImpl(repositoryFolder);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e.getLocalizedMessage());
+		}
 		return _ret;
 	}
 

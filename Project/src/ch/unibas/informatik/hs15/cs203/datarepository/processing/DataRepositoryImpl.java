@@ -19,37 +19,28 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
 class DataRepositoryImpl implements DataRepository {
 	private File repositoryFolder;
-	/**
-	 * get new ID via assignID()
-	 */
-	private int idcounter = 0; // TODO
+	MetaDataManager mdm;
 
-	protected DataRepositoryImpl(File repositoryFolder) {
+	protected DataRepositoryImpl(File repositoryFolder) throws IOException {
 		this.repositoryFolder = repositoryFolder;
-		// TODO Parse current ID counter
+		mdm = MetaDataManager
+				.getMetaDataManager(repositoryFolder.getAbsolutePath());
 	}
 
 	@Override
 	public MetaData add(File file, String description, boolean move,
 			ProgressListener progressListener) {
 		// Verification
-		verifyExistence(file);
-		verifyNotRepoPath(file);
-		verifyNotWithinRepo(file);
+		Verification.verifyExistence(file);
+		Verification.verifyNotRepoPath(file, repositoryFolder);
+		Verification.verifyNotWithinRepo(file, repositoryFolder);
 
-		verifyDescription(description);
+		Verification.verifyDescription(description);
 
-		verifyProgressListener(progressListener);
+		Verification.verifyProgressListener(progressListener);
 
-		// Create Folder with ID
-		int newID = assignID();
-		Path IDFolder = Paths.get(repositoryFolder.getAbsolutePath(),
-				String.valueOf(newID));
-		IDFolder.toFile().mkdir();
-
-		// add File
-		Path joinedPath = Paths.get(repositoryFolder.getAbsolutePath(),
-				String.valueOf(newID));
+		String newID = MetaDataManager.generateRandomUUID();
+		Path joinedPath = createNewDatasetFolder(newID);
 		try {
 			if (move) {
 				move(file.getAbsoluteFile().toPath(), joinedPath);
@@ -65,10 +56,29 @@ class DataRepositoryImpl implements DataRepository {
 		}
 
 		// TODO Generate ID
-		MetaData _ret = new MetaData(String.valueOf(newID), file.getName(),
-				description, getFileCount(joinedPath.toFile()),
+		MetaData _ret = new MetaData(newID, file.getName(), description,
+				getFileCount(joinedPath.toFile()),
 				getFileSize(joinedPath.toFile()), new Date());
+		try {
+			mdm.writeMetadata(_ret);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e.getLocalizedMessage());
+		}
 		return _ret;
+	}
+
+	/**
+	 * Creates a new Folder within the repository using a given ID
+	 * 
+	 * @return Path of the new Folder
+	 */
+	private Path createNewDatasetFolder(String newID) {
+		Path IDFolder = Paths.get(repositoryFolder.getAbsolutePath(), newID);
+		IDFolder.toFile().mkdir();
+
+		// add File
+		Path joinedPath = Paths.get(repositoryFolder.getAbsolutePath(), newID);
+		return joinedPath;
 	}
 
 	/**
@@ -89,7 +99,7 @@ class DataRepositoryImpl implements DataRepository {
 			copy(source, nameTarget, pl, alreadyProcessed, totalSize);
 			return;
 		}
-		
+
 		copy(source, nameTarget, pl, alreadyProcessed, totalSize);
 		alreadyProcessed += source.toFile().length();
 
@@ -102,13 +112,13 @@ class DataRepositoryImpl implements DataRepository {
 			}
 			copyRecursively(file.toPath(), nameTarget, pl, alreadyProcessed,
 					totalSize);
-			alreadyProcessed+=getFileSize(file);
+			alreadyProcessed += getFileSize(file);
 		}
 	}
 
 	/**
-	 * Copies source to target. If source is a directory, just calls mkdirs
-	 * Else buffers with an array of 1024 Bytes and calls the progressListener
+	 * Copies source to target. If source is a directory, just calls mkdirs Else
+	 * buffers with an array of 1024 Bytes and calls the progressListener
 	 * 
 	 * @param source
 	 * @param target
@@ -116,11 +126,9 @@ class DataRepositoryImpl implements DataRepository {
 	private void copy(Path source, Path target,
 			ProgressListener progressListener, long alreadyProcessed,
 			long totalSize) {
-		System.out.println("Copying "+source.toString()+" | "+target.toString()+" | "+alreadyProcessed);
-		
-		if(source.toFile().isDirectory()){
+		if (source.toFile().isDirectory()) {
 			target.toFile().mkdirs();
-			alreadyProcessed+=target.toFile().length();
+			alreadyProcessed += target.toFile().length();
 			progressListener.progress(alreadyProcessed, totalSize);
 			return;
 		}
@@ -129,12 +137,12 @@ class DataRepositoryImpl implements DataRepository {
 		try {
 			inputStream = new FileInputStream(source.toFile());
 			outputStream = new FileOutputStream(target.toFile());
-			
+
 			byte[] buffer = new byte[1024];
 			int size = 0;
 			while ((size = inputStream.read(buffer)) != -1) {
 				outputStream.write(buffer, 0, size);
-				alreadyProcessed+=size;
+				alreadyProcessed += size;
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
@@ -209,70 +217,6 @@ class DataRepositoryImpl implements DataRepository {
 		return length;
 	}
 
-	/**
-	 * CHecks for null, length>1000 and whether the String contains an ISO
-	 * Control Character
-	 * 
-	 * @throws IllegalArgumentException
-	 */
-	private void verifyDescription(String description)
-			throws IllegalArgumentException {
-		if (description == null) {
-			return;
-		}
-		// Check length
-		if (description.length() > 1000) {
-			throw new IllegalArgumentException(
-					"Description is longer than 1000 characters");
-		}
-		// Check ISO control characters
-		for (char c : description.toCharArray()) {
-			if (Character.isISOControl(c)) {
-				throw new IllegalArgumentException(
-						"Description contains an ISO-Control Parameter");
-			}
-		}
-	}
-
-	private void verifyProgressListener(ProgressListener progressListener) {
-		if (progressListener == null) {
-			throw new IllegalArgumentException("No ProgressListener was given");
-		}
-	}
-
-	private void verifyNotWithinRepo(File file) throws IllegalArgumentException {
-		if (file.getAbsolutePath().startsWith(
-				repositoryFolder.getAbsolutePath())) {
-			throw new IllegalArgumentException(
-					"The given path points to a folder or file within the repository folder");
-		}
-	}
-
-	/**
-	 * Compares Repo Path to File path
-	 */
-	private void verifyNotRepoPath(File file) throws IllegalArgumentException {
-		if (file.getAbsolutePath().equals(repositoryFolder.getAbsolutePath())) {
-			throw new IllegalArgumentException(
-					"The given path points to the repository folder");
-		}
-	}
-
-	/**
-	 * Checks for null and whether a the file exists
-	 * 
-	 * @throws IllegalArgumentException
-	 */
-	private void verifyExistence(File file) throws IllegalArgumentException {
-		if (file == null) {
-			throw new IllegalArgumentException("The repository folder is null");
-		}
-		if (!file.exists()) {
-			throw new IllegalArgumentException(
-					"The given folder does not exist");
-		}
-	}
-
 	@Override
 	public List<MetaData> delete(Criteria deletionCriteria) {
 		// TODO Auto-generated method stub
@@ -298,10 +242,4 @@ class DataRepositoryImpl implements DataRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	private synchronized int assignID() {
-		idcounter++;
-		return idcounter;
-	}
-
 }
