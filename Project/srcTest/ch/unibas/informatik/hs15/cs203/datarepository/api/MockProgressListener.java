@@ -46,7 +46,7 @@ class MockProgressListener implements ProgressListener
                 + totalNumberOfBytes + ") called with first argument larger "
                 + "then the second argument.");
       }
-      return this;
+      return this;	
     }
 
     abstract State finish(List<String> recorder);
