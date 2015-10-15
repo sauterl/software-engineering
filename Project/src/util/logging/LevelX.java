@@ -2,6 +2,26 @@ package util.logging;
 
 import java.util.logging.Level;
 
+/**
+ * The {@link LevelX} class is an eXtendend version of {@link Level} class.
+ * It introduces thow new levels, the {@link LevelX#DEBUG}, which is designed to
+ * identify debug messages and the {@link LevelX#FATAL}, which identifies heavily error messages<br />
+ * Further the {@link LevelX} class provides two masks for existing {@link Level}s: {@link LevelX#ERROR}
+ * which equals {@link Level#SEVERE} and {@link LevelX#WARN} which stands for {@link Level#WARNING}.
+ * <br />
+ * Thus the new ordering of the levels is (in descending order):
+ * <ul>
+ * <li><code>FATAL</code> (highest value)</li>
+ * <li><code>ERROR</code></li>
+ * <li><code>WARN</code></li>
+ * <li><code>INFO</code></li>
+ * <li><code>CONFIG</code></li>
+ * <li><code>DEBUG</code></li>
+ * </ul>
+ * The native {@link Level} class provides levels below <code>DEBUG</code>.
+ * @author Loris
+ *
+ */
 public class LevelX extends Level {
 
 	/**
@@ -9,6 +29,8 @@ public class LevelX extends Level {
 	 */
 	private static final long serialVersionUID = 4867372786151143760L;
 
+	public static Level FATAL = new LevelX("FATAL", Level.SEVERE.intValue() + 100);
+	
 	public static Level ERROR = new LevelX("ERROR", Level.SEVERE.intValue());
 
 	public static Level WARN = new LevelX("WARN", Level.WARNING.intValue());
