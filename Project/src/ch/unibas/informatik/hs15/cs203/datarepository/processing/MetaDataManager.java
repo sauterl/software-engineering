@@ -152,10 +152,10 @@ class MetaDataManager implements Closeable {
 		this.idMap = new HashMap<String, Json>();
 		nameMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
-		if (!tryLockMetaDataFile()) {
-			throw new RuntimeException(
-					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
-		}
+//		if (!tryLockMetaDataFile()) {
+//			throw new RuntimeException(
+//					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+//		}
 		try {
 			metaDataFile = parseMetaDataFile(metaDataFileName);
 		} catch (final FileNotFoundException ex) {
@@ -325,6 +325,7 @@ class MetaDataManager implements Closeable {
 		fw.flush();
 		fw.close();
 		releaseLock();
+		System.gc();
 	}
 
 	private Collection<Json> getBefore(Date before){
@@ -430,12 +431,12 @@ class MetaDataManager implements Closeable {
 	}
 
 	private boolean releaseLock() throws IOException {
-		lock.release();
+		//lock.release();
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
-		Paths.get(repoPath, lockFile).toFile().delete();
-		lock.release();
+		//Paths.get(repoPath, lockFile).toFile().delete();
+		//lock.release();
 		return true;
 	}
 

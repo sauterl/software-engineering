@@ -11,7 +11,8 @@ import org.junit.Test;
 
 public class AddTest extends APITestCase
 {
-  @Test
+  
+	@Test
   public void testAddSingleFile()
   {
     File file = new File(workingDir, "example.txt");
