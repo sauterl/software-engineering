@@ -5,7 +5,7 @@ import java.io.File;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
 /**
- * Utils for verifying various Parameters
+ * Collection of static methods for veryifying Parameters. Instead of returning booleans, they throw Exceptions
  *
  */
 class Verification {
