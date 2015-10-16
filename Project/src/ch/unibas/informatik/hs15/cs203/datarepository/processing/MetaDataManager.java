@@ -46,6 +46,16 @@ class MetaDataManager implements Closeable {
 	private static MetaDataManager instance = null;
 
 	/**
+	 * Returns a randomly generated {@link UUID}. Use this method to get the the
+	 * ID for a data set.
+	 * 
+	 * @return A randomly generated UUID.
+	 */
+	public synchronized final static String generateRandomUUID() {
+		return UUID.randomUUID().toString();
+	}
+
+	/**
 	 * The meta data file as {@link Json} object.
 	 */
 	private Json metaDataFile;
@@ -54,7 +64,6 @@ class MetaDataManager implements Closeable {
 	 * The path to the repository.
 	 */
 	private final String repoPath;
-
 	/**
 	 * The file lock. This has private visibility to close it at the appropriate
 	 * time. (Instead of being local).
@@ -72,12 +81,12 @@ class MetaDataManager implements Closeable {
 	 * Mapping of timestamp->metaAsJson
 	 */
 	private final TreeMap<Long, Json> timestampMap;
+
 	/**
 	 * Indicates whether this meta data manager is prepared for search queries
 	 * or not.
 	 */
 	private volatile boolean queryReady = false;
-
 	private static final String repositoryKey = "repository";
 	private static final String versionKey = "version";
 	private static final String nameKey = "name";
@@ -87,9 +96,9 @@ class MetaDataManager implements Closeable {
 	private static final String descriptionKey = "description";
 	private static final String filecountKey = "filecount";
 	private static final String sizeKey = "size";
+
 	@SuppressWarnings("unused")
 	private static final String filetypeKey = "filetype";
-
 	/**
 	 * A prefix for temporary files on the file system.
 	 */
@@ -98,15 +107,11 @@ class MetaDataManager implements Closeable {
 	 * The name of the lock file, used to lock the metadata file
 	 */
 	private static final String lockFile = ".lock";
+
 	/**
 	 * The name of the meta data file
 	 */
 	private static final String metaDataFileName = ".metadata";
-
-	/**
-	 * Version. Why is this not a property?
-	 */
-	public static final String VERSION = "0.0.1";
 
 	/*
 	 * metadata file structure: { "repository":{ "version":"1.0",
@@ -115,6 +120,11 @@ class MetaDataManager implements Closeable {
 	 * "description":"Some of my documents", "filecount":34, "size":2433993827,
 	 * "timestamp":"2014-09-18T13:42:38" } ] } }
 	 */
+
+	/**
+	 * Version. Why is this not a property?
+	 */
+	public static final String VERSION = "0.0.1";
 
 	/**
 	 * Creates a new {@link MetaDataManager} for the given repository path. If
@@ -152,10 +162,10 @@ class MetaDataManager implements Closeable {
 		this.idMap = new HashMap<String, Json>();
 		nameMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
-//		if (!tryLockMetaDataFile()) {
-//			throw new RuntimeException(
-//					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
-//		}
+		// if (!tryLockMetaDataFile()) {
+		// throw new RuntimeException(
+		// "Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+		// }
 		try {
 			metaDataFile = parseMetaDataFile(metaDataFileName);
 		} catch (final FileNotFoundException ex) {
@@ -197,16 +207,6 @@ class MetaDataManager implements Closeable {
 				Paths.get(repoPath, metaDataFileName),
 				StandardCopyOption.REPLACE_EXISTING,
 				StandardCopyOption.ATOMIC_MOVE);
-	}
-
-	/**
-	 * Returns a randomly generated {@link UUID}. Use this method to get the the
-	 * ID for a data set.
-	 * 
-	 * @return A randomly generated UUID.
-	 */
-	public synchronized final static String generateRandomUUID() {
-		return UUID.randomUUID().toString();
 	}
 
 	/**
@@ -252,10 +252,13 @@ class MetaDataManager implements Closeable {
 	}
 
 	/**
-	 * Searches meta data based on the given {@link Criteria}.
-	 * This method is not recommended to query for meta data with a specific name or id,
-	 * there are methods exclusively for this purpose. In those cases,
-	 * the method returns (if there is a matching meta data entry) arrays with a single entry.
+	 * Searches meta data based on the given {@link Criteria}. This method is
+	 * not recommended to query for meta data with a specific name or id, there
+	 * are methods exclusively for this purpose. In those cases, the method
+	 * returns (if there is a matching meta data entry) arrays with a single
+	 * entry. <br />
+	 * Otherwise if no meta data entry matches the given criteria, then an empty
+	 * {@link MetaData} array is returned.
 	 * 
 	 * @see Criteria
 	 * @param criteria
@@ -266,10 +269,26 @@ class MetaDataManager implements Closeable {
 			throw new IllegalStateException(
 					"The MetaDataManager is not ready for queries.");
 		}
-		if(criteria == null){
+		if (criteria == null) {
 			throw new IllegalArgumentException("No null-criterias allowed!");
 		}
-		return null;
+//		 Criteria allRef = Criteria.all();
+//		 if(allRef.equals(criteria) ){
+//			 return convertCollectionToMeta(idMap.values());
+//		 }//So criteria is not ALL
+//		 if(criteria.getId() != null){
+//			 MetaData out = getMetaDataForID(criteria.getId() );
+//			 if(out == null){
+//				 return new MetaData[0];
+//			 }else{
+//				 return new MetaData[]{out};
+//			 }
+//		 }//Criteria is not ID-querying
+		
+		// TODO remove if implementation is complete
+		throw new UnsupportedOperationException(
+				"This method is not implemented yet");
+		// return null;
 	}
 
 	/**
@@ -328,41 +347,36 @@ class MetaDataManager implements Closeable {
 		System.gc();
 	}
 
-	private Collection<Json> getBefore(Date before){
-		return (timestampMap.headMap(before.getTime(), true)).values();
-	}
-	
-	private Collection<Json> getAfter(Date after){
-		return (timestampMap.tailMap(after.getTime(), true)).values();
-	}
-	
-	private MetaData[] convertCollectionToMeta(Collection<Json> collection){
-		MetaData[] out = new MetaData[collection.size()];
-		int i=0;
-		for(Json json : collection){
-			//could throw InexistentKeyException but json *should* be well formed
-			out[i++] = extractMetaData(json);
-		}
-		return out;
-	}
-	
-	private Collection<Json> intersect(Collection<Json>...collections){
-		if(collections.length < 1){
-			throw new IllegalArgumentException("Cannot intersect 0 sets");
-		}else if(collections.length == 1){
-			return collections[0];
-		}
-		HashSet<Json> in = new HashSet<Json>(collections[0]);
-		for(int i=1;i<collections.length; i++){
-			in.retainAll(collections[i]);
-		}
-		return in;
-	}
-	
 	private void addMapToJson() {
 		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
 		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
 				idMap.values().toArray(new Json[0]));
+	}
+
+	/**
+	 * Converts a given collection of json objects into their metadata objects
+	 * and returns them as a metadata array. <b>NOTE: This method permits null
+	 * or empty collections as input and will return in those collections return
+	 * a new metadata array which is <i>empty</i></b>
+	 * 
+	 * @param collection
+	 *            The collection of json objects to convert.
+	 * @return Either an array of {@link MetaData} objects which got converted
+	 *         from their JSON equivalents or an empty <tt>MetaData</tt> array
+	 *         if either <tt>collection</tt> was <code>null</code>or empty.
+	 */
+	private MetaData[] convertCollectionToMeta(final Collection<Json> collection) {
+		if(collection == null || collection.isEmpty() ){
+			return new MetaData[0];
+		}//assert collection is neither null nor empty
+		final MetaData[] out = new MetaData[collection.size()];
+		int i = 0;
+		for (final Json json : collection) {
+			// could throw InexistentKeyException but json *should* be well
+			// formed
+			out[i++] = extractMetaData(json);
+		}
+		return out;
 	}
 
 	private Json createJsonMetaEntry(final MetaData data) {
@@ -424,6 +438,27 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	private Collection<Json> getAfter(final Date after) {
+		return (timestampMap.tailMap(after.getTime(), true)).values();
+	}
+
+	private Collection<Json> getBefore(final Date before) {
+		return (timestampMap.headMap(before.getTime(), true)).values();
+	}
+
+	private Collection<Json> intersect(final Collection<Json>... collections) {
+		if (collections.length < 1) {
+			throw new IllegalArgumentException("Cannot intersect 0 sets");
+		} else if (collections.length == 1) {
+			return collections[0];
+		}
+		final HashSet<Json> in = new HashSet<Json>(collections[0]);
+		for (int i = 1; i < collections.length; i++) {
+			in.retainAll(collections[i]);
+		}
+		return in;
+	}
+
 	private Json parseMetaDataFile(final String file) throws IOException {
 		final JsonParser parser = new JsonParser();
 		return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
@@ -431,12 +466,12 @@ class MetaDataManager implements Closeable {
 	}
 
 	private boolean releaseLock() throws IOException {
-		//lock.release();
+		// lock.release();
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
-		//Paths.get(repoPath, lockFile).toFile().delete();
-		//lock.release();
+		// Paths.get(repoPath, lockFile).toFile().delete();
+		// lock.release();
 		return true;
 	}
 
