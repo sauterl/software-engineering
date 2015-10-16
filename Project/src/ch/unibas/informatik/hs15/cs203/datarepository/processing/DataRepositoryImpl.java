@@ -1,15 +1,11 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
-import java.io.FileInputStream;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
@@ -21,15 +17,9 @@ class DataRepositoryImpl implements DataRepository {
 	 * Path to the Repository Folder
 	 */
 	private File repositoryFolder;
-	/**
-	 * MetaDataManager for this repository. Handle MetaData with this class only
-	 */
-	private MetaDataManager mdm;
 
 	protected DataRepositoryImpl(File repositoryFolder) throws IOException {
 		this.repositoryFolder = repositoryFolder;
-		mdm = MetaDataManager.getMetaDataManager(repositoryFolder
-				.getAbsolutePath());
 	}
 
 	@Override
@@ -64,7 +54,10 @@ class DataRepositoryImpl implements DataRepository {
 				RepoFileUtils.getFileCount(joinedPath.toFile()),
 				RepoFileUtils.getFileSize(joinedPath.toFile()), new Date());
 		try {
+			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder
+					.getAbsolutePath());
 			mdm.writeMetadata(_ret);
+			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e.getLocalizedMessage());
 		}
