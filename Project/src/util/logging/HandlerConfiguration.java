@@ -1,16 +1,16 @@
 package util.logging;
 
 import java.util.logging.Level;
-
+@Deprecated
 public class HandlerConfiguration {
 
-    private String ref;
-    private String name;
-    private Level level;
-    
-    public HandlerConfiguration(String name, Level level) {
-	this.name = name;
-	this.level = level;
-    }
+	private String ref;
+	private final String name;
+	private final Level level;
+
+	public HandlerConfiguration(final String name, final Level level) {
+		this.name = name;
+		this.level = level;
+	}
 
 }
