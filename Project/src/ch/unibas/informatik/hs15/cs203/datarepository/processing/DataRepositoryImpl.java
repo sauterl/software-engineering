@@ -36,30 +36,28 @@ class DataRepositoryImpl implements DataRepository {
 
 		String newID = MetaDataManager.generateRandomUUID();
 		Path joinedPath = createNewDatasetFolder(newID);
-
+		MetaData _ret = new MetaData(newID, file.getName(), description,
+				RepoFileUtils.getFileCount(file),
+				RepoFileUtils.getFileSize(file), new Date());
 		try {
+			MetaDataManager mdm = MetaDataManager
+					.getMetaDataManager(repositoryFolder.getAbsolutePath());
+			//Write temporary metadata
+			mdm.writeMetadata(_ret);
+
 			if (move) {
 				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
 			} else {
 				progressListener.start();
 				progressListener.progress(0, RepoFileUtils.getFileSize(file));
-				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(), joinedPath,
-						progressListener, 0, RepoFileUtils.getFileSize(file));
+				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
+						joinedPath, progressListener, 0,
+						RepoFileUtils.getFileSize(file));
 				progressListener.finish();
 			}
-		} catch (IOException e) {
-			throw new IllegalArgumentException("File could not be moved/copied");
-		}
-		MetaData _ret = new MetaData(newID, file.getName(), description,
-				RepoFileUtils.getFileCount(joinedPath.toFile()),
-				RepoFileUtils.getFileSize(joinedPath.toFile()), new Date());
-		try {
-			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder
-					.getAbsolutePath());
-			mdm.writeMetadata(_ret);
 			mdm.close();
 		} catch (IOException e) {
-			throw new IllegalArgumentException(e.getLocalizedMessage());
+			throw new IllegalArgumentException("File could not be moved/copied");
 		}
 		return _ret;
 	}
@@ -76,7 +74,6 @@ class DataRepositoryImpl implements DataRepository {
 		return joinedPath;
 	}
 
-
 	@Override
 	public List<MetaData> delete(Criteria deletionCriteria) {
 		// TODO Auto-generated method stub
@@ -86,7 +83,18 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> export(Criteria exportCriteria, File target,
 			ProgressListener progressListener) {
-		// TODO Auto-generated method stub
+		Verification.verifyNotNullCriteria(exportCriteria);
+		Verification.verifyProgressListener(progressListener);
+		Verification.verifyAbsence(target);
+		// TODO If ID has been specified, check for existence
+		if(exportCriteria.getId()!=null){
+			if(getMetaData(exportCriteria).size()==0){
+				throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
+			}
+			//Export dataset with given ID
+		}
+		
+		//TODO getMetaData(Criteria searchCriteria), check if two of the files have the same name
 		return null;
 	}
 

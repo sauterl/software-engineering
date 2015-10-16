@@ -139,7 +139,7 @@ class RepoFileUtils {
 		if (file.isFile()) {
 			return 1;
 		}
-		int count = 0;
+		int count = 1;
 		File[] subfiles = file.listFiles();
 
 		if (subfiles != null) {
@@ -149,7 +149,6 @@ class RepoFileUtils {
 					count++;
 					continue;
 				}
-				count++;
 				count += getFileCount(newfile);
 			}
 		}
