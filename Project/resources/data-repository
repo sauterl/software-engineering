@@ -1,0 +1,4 @@
+#!/bin/bash
+
+APP_HOME=`dirname "$0"`
+java -jar "$APP_HOME/data-repository.jar" "$@"
