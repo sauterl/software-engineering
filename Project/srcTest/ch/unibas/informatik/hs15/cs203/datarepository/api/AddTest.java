@@ -11,8 +11,7 @@ import org.junit.Test;
 
 public class AddTest extends APITestCase
 {
-  
-	@Test
+  @Test
   public void testAddSingleFile()
   {
     File file = new File(workingDir, "example.txt");
@@ -29,7 +28,7 @@ public class AddTest extends APITestCase
     assertEquals(12, metaData.getSize());
     assertTimestamp(metaData.getTimestamp());
     assertContent(data, file);
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
   }
   
   @Test
@@ -38,7 +37,7 @@ public class AddTest extends APITestCase
     File file = new File(workingDir, "example.txt");
     String[] data = Utils.createExampleData(file, ":hello world!");
     MetaData metaData1 =  dataRepository.add(file, "example file", false, progressListener);
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
     progressListener = new MockProgressListener();
     
     MetaData metaData2 =  dataRepository.add(file, "example file 2", false, progressListener);
@@ -50,7 +49,7 @@ public class AddTest extends APITestCase
     assertTimestamp(metaData2.getTimestamp());
     assertFalse(metaData1.getId().equals(metaData2.getId()));
     assertContent(data, file);
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
   }
   
   @Test
@@ -67,7 +66,7 @@ public class AddTest extends APITestCase
     assertEquals(12, metaData.getSize());
     assertTimestamp(metaData.getTimestamp());
     assertEquals(false, file.exists());
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
   }
   
   @Test
@@ -87,7 +86,7 @@ public class AddTest extends APITestCase
     assertEquals(8888888 + 12, metaData.getSize());
     assertTimestamp(metaData.getTimestamp());
     assertContent(data, folder);
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
   }
   
   @Test
@@ -108,7 +107,7 @@ public class AddTest extends APITestCase
     assertEquals(66678, metaData.getSize());
     assertTimestamp(metaData.getTimestamp());
     assertEquals(false, folder.exists());
-    assertNoProgressError();
+    assertNoProgressErrorAndFinishedState();
   }
   
   @Test
@@ -186,9 +185,7 @@ public class AddTest extends APITestCase
       fail("IllegalArgumentException expected");
     } catch (IllegalArgumentException e)
     {
-      System.out.println("IllegalArgumentException message [" + name.getMethodName() + "]: " 
-              + e.getMessage());
-      assertNoProgressError();
+      printErrorMessageAndAssertNoProgressErrorAndInitialState(e);
     }
   }
 }

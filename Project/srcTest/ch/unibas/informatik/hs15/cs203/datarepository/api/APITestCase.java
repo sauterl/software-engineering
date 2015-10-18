@@ -5,11 +5,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -20,6 +22,7 @@ public abstract class APITestCase
 {
   protected File workingDir;
   protected File repository;
+  protected File target;
   protected DataRepository dataRepository;
   protected MockProgressListener progressListener;
   private Date startTime;
@@ -35,7 +38,19 @@ public abstract class APITestCase
     repository = new File(new File(workingDir, "subdir"), "repository");
     dataRepository = Factory.create(repository);
     progressListener = new MockProgressListener();
+    target = new File(workingDir, "target");
+    target.mkdirs();
     startTime = new Date();
+  }
+  
+  protected void assertMetaData(MetaData expectedMetaData, MetaData metaData)
+  {
+    assertEquals(expectedMetaData.getDescription(), metaData.getDescription());
+    assertEquals(expectedMetaData.getId(), metaData.getId());
+    assertEquals(expectedMetaData.getName(), metaData.getName());
+    assertEquals(expectedMetaData.getNumberOfFiles(), metaData.getNumberOfFiles());
+    assertEquals(expectedMetaData.getSize(), metaData.getSize());
+    assertEquals(expectedMetaData.getTimestamp(), metaData.getTimestamp());
   }
   
   protected void assertContent(String[] expectedPathsAndContents, File fileOrFolder)
@@ -75,12 +90,26 @@ public abstract class APITestCase
             now.getTime() >= timestamp.getTime());
   }
   
-  protected void assertNoProgressError()
+  protected void assertNoProgressErrorAndInitialState()
   {
     progressListener.assertNoErrors();
-    progressListener.assertInitialOrFinishedState();
+    progressListener.assertInitialState();
   }
 
+  protected void assertNoProgressErrorAndFinishedState()
+  {
+    progressListener.assertNoErrors();
+    progressListener.assertFinishedState();
+  }
+  
+  protected DataSet createDataSet(String rootPath, String description, String... pathsAndContents)
+  {
+    File dataSetFile = new File(workingDir, rootPath);
+    Utils.createExampleData(dataSetFile, pathsAndContents);
+    MetaData metaData = dataRepository.add(dataSetFile, description, true, new DummyProgressListener());
+    return new DataSet(metaData, pathsAndContents);
+  }
+  
   private void gatherFilePaths(File file, Set<String> paths)
   {
       if (file.isDirectory())
@@ -94,5 +123,29 @@ public abstract class APITestCase
       {
           paths.add(file.getAbsolutePath());
       }
+  }
+
+  protected void printErrorMessageAndAssertNoProgressError(IllegalArgumentException e)
+  {
+    System.out.println("IllegalArgumentException message [" + name.getMethodName() + "]: " 
+            + e.getMessage());
+    progressListener.assertNoErrors();
+  }
+  
+  protected void printErrorMessageAndAssertNoProgressErrorAndInitialState(IllegalArgumentException e)
+  {
+    System.out.println("IllegalArgumentException message [" + name.getMethodName() + "]: " 
+            + e.getMessage());
+    assertNoProgressErrorAndInitialState();
+  }
+
+  protected void assertDataSetNames(List<MetaData> metaDataList, String... expectedNames)
+  {
+    List<String> names = new ArrayList<String>();
+    for (MetaData metaData : metaDataList)
+    {
+      names.add(metaData.getName());
+    }
+    assertEquals(Arrays.asList(expectedNames).toString(), names.toString());
   }
 }
