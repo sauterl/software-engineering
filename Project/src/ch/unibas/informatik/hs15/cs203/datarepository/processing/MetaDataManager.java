@@ -12,12 +12,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.Vector;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
@@ -272,25 +275,28 @@ class MetaDataManager implements Closeable {
 		if (criteria == null) {
 			throw new IllegalArgumentException("No null-criterias allowed!");
 		}
-//		 Criteria allRef = Criteria.all();
-//		 if(allRef.equals(criteria) ){
-//			 return convertCollectionToMeta(idMap.values());
-//		 }//So criteria is not ALL
-//		 if(criteria.getId() != null){
-//			 MetaData out = getMetaDataForID(criteria.getId() );
-//			 if(out == null){
-//				 return new MetaData[0];
-//			 }else{
-//				 return new MetaData[]{out};
-//			 }
-//		 }//Criteria is not ID-querying
-		
+		 Criteria allRef = Criteria.all();
+		 if(allRef.equals(criteria) ){
+			 return convertCollectionToMeta(idMap.values());
+		 }//So criteria is not ALL
+		 if(criteria.getId() != null){
+			 MetaData out = getMetaDataForID(criteria.getId() );
+			 if(out == null){
+				 return new MetaData[0];
+			 }else{
+				 return new MetaData[]{out};
+			 }
+		 }//Criteria is not ID-querying
+		Vector<Collection<Json>> pseudoUnion = new Vector<Collection<Json>>(4);
+		if(criteria.getName() != null){
+//			pseudoUnion.add((Collection<Json>)Arrays.asList( new MetaData[]{getMetaDataForName(criteria.getName())});
+		}
 		// TODO remove if implementation is complete
 		throw new UnsupportedOperationException(
 				"This method is not implemented yet");
 		// return null;
 	}
-
+	
 	/**
 	 * Updates the metadata for the given id. This replaces the currently stored
 	 * meta data.
@@ -445,8 +451,41 @@ class MetaDataManager implements Closeable {
 	private Collection<Json> getBefore(final Date before) {
 		return (timestampMap.headMap(before.getTime(), true)).values();
 	}
+	
+	private Collection<Json> getAllContains(final String snippet){
+		Collection<Json> namesContaining = getAllNamesContains(snippet);
+		Collection<Json> descContaining = getAllDescContains(snippet);
+		return intersect(namesContaining, descContaining);
+	}
 
-	private Collection<Json> intersect(final Collection<Json>... collections) {
+	private Collection<Json> getAllNamesContains(final String snippet){
+		Vector<Json> out = new Vector<Json>();
+		Iterator<Json> it = idMap.values().iterator();
+		while(it.hasNext()){
+			Json curr = it.next();
+			String name = curr.getString(nameKey);
+			if(name != null && name.contains(snippet) ){
+				out.add(curr);
+			}
+		}
+		return out;
+	}
+	
+	private Collection<Json> getAllDescContains(final String snippet){
+		Vector<Json> out = new Vector<Json>();
+		Iterator<Json> it = idMap.values().iterator();
+		while(it.hasNext() ){
+			Json curr = it.next();
+			String desc = curr.getString(descriptionKey);
+			if(desc != null && desc.contains(snippet) ){
+				out.add(curr);
+			}
+		}
+		return out;
+	}
+	
+	@SafeVarargs
+	private final Collection<Json> intersect(final Collection<Json>... collections) {
 		if (collections.length < 1) {
 			throw new IllegalArgumentException("Cannot intersect 0 sets");
 		} else if (collections.length == 1) {
@@ -490,4 +529,5 @@ class MetaDataManager implements Closeable {
 			return false;
 		}
 	}
+	
 }
