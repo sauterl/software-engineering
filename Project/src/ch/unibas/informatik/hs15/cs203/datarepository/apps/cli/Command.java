@@ -16,8 +16,21 @@ enum Command {
 	ADD(2, Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
 
 	REPLACE, DELETE,
+	/**
+	 * The EXPORT command. Appropriate {@link Option}s are:
+	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
+	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
+	 * {@link Option#NAME} and {@link Option#VERBOSE} Mandatory argument count: 2
+	 */
 	EXPORT(2, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
-	LIST, HELP;
+	/**
+	 * The LIST command. Appropriate {@link Option}s are:
+	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
+	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT} and
+	 * {@link Option#NAME} Mandatory argument count: 1
+	 */
+	LIST(1,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
+	HELP;
 
 	/**
 	 * Parses a given {@link String} to a matching {@link Command}. Unequal

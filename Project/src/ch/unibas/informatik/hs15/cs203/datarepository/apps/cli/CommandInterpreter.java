@@ -43,7 +43,7 @@ class CommandInterpreter {
 		}
 		// TODO change if done.
 		final Command cmd = Command.parse(command.poll());// no null check since
-															// check
+		// check
 		// already done in lex
 		switch (cmd) {
 			case ADD:
@@ -51,7 +51,11 @@ class CommandInterpreter {
 				// poll
 				// above
 				executeAdd(command);
-			break;
+			case EXPORT:
+				executeExport(command);
+			case LIST:
+				executeList(command);
+				break;
 			default:
 				throw new UnsupportedOperationException("Command " + cmd
 						+ " Not implemented yet");
@@ -96,5 +100,106 @@ class CommandInterpreter {
 		final DataRepository repo = Factory.create(new File(repoLoc));
 		repo.add(new File(file), desc, move, listener);
 	}
+
+	/**
+	 * Executes the List command of the data repository application.The paramter
+	 * <code>arguments</code> are the arguments without the command itself
+	 * @param arguments
+	 * arguments in tokenizer list form
+	 */
+	private void executeList(final LinkedList<String> arguments) {
+		// TODO Auto-generated method stub
+		String curr,ID,NAME,TEXT,BEFORE,AFTER = "",repoLoc=null;
+		final int originSize = arguments.size();
+		for (int i = 0; i < originSize; i++) {
+		curr=arguments.poll();
+		if(curr.startsWith(Option.ID.name())){
+			ID=curr;
+		}
+		else if(curr.startsWith(Option.NAME.name())){
+			NAME=curr;
+		}else if(curr.startsWith(Option.TEXT.name())){
+			TEXT=curr;
+		}else if(curr.startsWith(Option.BEFORE.name())){
+			BEFORE=curr;
+		}else if(curr.startsWith(Option.AFTER.name())){
+			AFTER=curr;
+		}else{
+			if(originSize-i>2){
+				throw new IllegalArgumentException(
+						"Inappropriate number of arguments");
+			}else{
+				repoLoc=curr;
+			}
+		}
+			
+		}
+		final DataRepository repo = Factory.create(new File(repoLoc));
+		//Use method here
+		
+	}
+	/**
+	 * Executes the Export command of the data repository application.The paramter
+	 * <code>arguments</code> are the arguments without the command itself
+	 * @param arguments
+	 * arguments in tokenizer list form
+	 */
+	private void executeExport(final LinkedList<String> arguments) {
+		// TODO Auto-generated method stub
+		String curr,destLoc,ID,NAME,TEXT,BEFORE,AFTER = "",repoLoc=null;
+		final ProgressListener listener = new DummyProgressListener();
+		boolean Identifier=false;
+		final int originSize = arguments.size();
+		for(int i=0;i<originSize;i++){
+			curr=arguments.poll();
+			if(curr.startsWith(Option.ID.name())){
+				Identifier=true;
+				ID=curr;
+			}
+			else if(curr.startsWith(Option.NAME.name())){
+				Identifier=true;
+				NAME=curr;
+			}else if(curr.startsWith(Option.TEXT.name())){
+				Identifier=true;
+				TEXT=curr;
+			}else if(curr.startsWith(Option.BEFORE.name())){
+				Identifier=true;
+				BEFORE=curr;
+			}else if(curr.startsWith(Option.AFTER.name())){
+				Identifier=true;
+				AFTER=curr;
+			}else if(curr.startsWith(Option.VERBOSE.name())){
+				
+			}
+		else if(!Identifier){
+			if(originSize!=3){
+				throw new IllegalArgumentException(
+						"Inappropriate number of arguments");
+			}else{
+				switch(i){
+					case 0:
+						repoLoc=curr;
+					case 1:
+						ID=curr;
+					case 2:
+						destLoc=curr;
+				}
+			}
+		} else if (originSize-i>2){
+			throw new IllegalArgumentException(
+					"Inappropriate number of arguments");
+		} else if (i == originSize - 2) {
+			repoLoc = curr;
+		} else if (i == originSize - 1) {
+			destLoc = curr;
+		} else {
+			throw new RuntimeException("Reached unexpected state.");
+		}
+	}
+	final DataRepository repo = Factory.create(new File(repoLoc));
+	//Use method here
+
+}
+
 
 }

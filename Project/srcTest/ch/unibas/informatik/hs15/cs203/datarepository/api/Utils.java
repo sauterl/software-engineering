@@ -9,6 +9,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 
 class Utils
@@ -114,6 +117,30 @@ class Utils
         {
             throw new IllegalStateException("Couldn't delete " + file + ".");
         }
+    }
+    
+    static void sortMetaData(List<MetaData> metaData)
+    {
+      Collections.sort(metaData, new Comparator<MetaData>()
+        {
+          @Override
+          public int compare(MetaData m1, MetaData m2)
+          {
+            String name1 = getName(m1);
+            String name2 = getName(m2);
+            return name1.compareTo(name2);
+          }
+
+          private String getName(MetaData metaData)
+          {
+            if (metaData == null)
+            {
+              return "";
+            }
+            String name = metaData.getName();
+            return name == null ? "" : name;
+          }
+        });
     }
 
     static String getContentOf(File file)

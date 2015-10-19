@@ -46,7 +46,7 @@ class MockProgressListener implements ProgressListener
                 + totalNumberOfBytes + ") called with first argument larger "
                 + "then the second argument.");
       }
-      return this;	
+      return this;
     }
 
     abstract State finish(List<String> recorder);
@@ -191,16 +191,24 @@ class MockProgressListener implements ProgressListener
     _state = _state.finish(_recorder);
   }
   
-  void assertInitialOrFinishedState()
+  void assertInitialState()
   {
     Class<? extends State> stateClass = _state.getClass();
-    if (stateClass.equals(InitialState.class) == false 
-            && stateClass.equals(FinishedState.class) == false)
+    if (stateClass.equals(InitialState.class) == false)
+    {
+      throw new AssertionError("Not initial state: " + _state);
+    }
+  }
+
+  void assertFinishedState()
+  {
+    Class<? extends State> stateClass = _state.getClass();
+    if (stateClass.equals(FinishedState.class) == false)
     {
       throw new AssertionError("Not finished: " + _state);
     }
   }
-
+  
   void assertNoErrors()
   {
     StringBuilder builder = new StringBuilder();
