@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,10 +75,6 @@ class MetaDataManager implements Closeable {
 	 * Mapping of ID->metaAsJson
 	 */
 	private final HashMap<String, Json> idMap;
-	/**
-	 * Mapping of name->metaAsJson
-	 */
-	private final HashMap<String, Json> nameMap;
 	/**
 	 * Mapping of timestamp->metaAsJson
 	 */
@@ -163,7 +158,6 @@ class MetaDataManager implements Closeable {
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
 		this.idMap = new HashMap<String, Json>();
-		nameMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
 		// if (!tryLockMetaDataFile()) {
 		// throw new RuntimeException(
@@ -229,37 +223,19 @@ class MetaDataManager implements Closeable {
 	}
 
 	/**
-	 * Returns the {@link MetaData} object to the corresponding name. If the
-	 * name does not exist, null is returned.
-	 * 
-	 * @param name
-	 *            The name.
-	 * @return The {@link MetaData object corresponding to the given name or
-	 *         null, if the name does not exist.
-	 */
-	public MetaData getMetaDataForName(final String name) {
-		if (nameMap.containsKey(name)) {
-			return extractMetaData(nameMap.get(name));
-		} else {
-			return null;
-		}
-	}
-
-	/**
 	 * Prepares the MetaDataManager to query for a certain {@link Criteria}.
 	 */
 	public void prepareForQueries() {
-		fillNameMap();
 		fillTimeMap();
 		queryReady = true;
 	}
 
 	/**
 	 * Searches meta data based on the given {@link Criteria}. This method is
-	 * not recommended to query for meta data with a specific name or id, there
-	 * are methods exclusively for this purpose. In those cases, the method
-	 * returns (if there is a matching meta data entry) arrays with a single
-	 * entry. <br />
+	 * not recommended to query for meta data with a specific id, there is a
+	 * method exclusively for this purpose. In this case, the method returns (if
+	 * there is a matching meta data entry) an array with a single entry, the
+	 * matching one or an array with size zero. <br />
 	 * Otherwise if no meta data entry matches the given criteria, then an empty
 	 * {@link MetaData} array is returned.
 	 * 
@@ -275,28 +251,40 @@ class MetaDataManager implements Closeable {
 		if (criteria == null) {
 			throw new IllegalArgumentException("No null-criterias allowed!");
 		}
-		 Criteria allRef = Criteria.all();
-		 if(allRef.equals(criteria) ){
-			 return convertCollectionToMeta(idMap.values());
-		 }//So criteria is not ALL
-		 if(criteria.getId() != null){
-			 MetaData out = getMetaDataForID(criteria.getId() );
-			 if(out == null){
-				 return new MetaData[0];
-			 }else{
-				 return new MetaData[]{out};
-			 }
-		 }//Criteria is not ID-querying
-		Vector<Collection<Json>> pseudoUnion = new Vector<Collection<Json>>(4);
-		if(criteria.getName() != null){
-//			pseudoUnion.add((Collection<Json>)Arrays.asList( new MetaData[]{getMetaDataForName(criteria.getName())});
+		final Criteria allRef = Criteria.all();
+		if (allRef.equals(criteria)) {
+			return convertCollectionToMeta(idMap.values());
+		}// So criteria is not ALL
+		if (criteria.getId() != null) {
+			final MetaData out = getMetaDataForID(criteria.getId());
+			if (out == null) {
+				return new MetaData[0];
+			} else {
+				return new MetaData[] { out };
+			}
+		}// Criteria is not ID-querying
+		Collection<Json> nameColl = null, afterColl = null, beforeColl = null, textColl = null;
+		if (criteria.getName() != null) {
+			nameColl = getNameEquals(criteria.getName());
 		}
-		// TODO remove if implementation is complete
-		throw new UnsupportedOperationException(
-				"This method is not implemented yet");
-		// return null;
+		if (criteria.getText() != null) {
+			textColl = getAllContains(criteria.getText());
+		}
+		if (criteria.getAfter() != null) {
+			afterColl = getAfter(criteria.getAfter());
+		}
+		if (criteria.getBefore() != null) {
+			beforeColl = getBefore(criteria.getBefore());
+		}
+		final Collection<Json> all = intersect(nameColl, textColl, afterColl,
+				beforeColl);
+		if (all == null) {
+			return new MetaData[0];
+		} else {
+			return convertCollectionToMeta(all);
+		}
 	}
-	
+
 	/**
 	 * Updates the metadata for the given id. This replaces the currently stored
 	 * meta data.
@@ -372,9 +360,9 @@ class MetaDataManager implements Closeable {
 	 *         if either <tt>collection</tt> was <code>null</code>or empty.
 	 */
 	private MetaData[] convertCollectionToMeta(final Collection<Json> collection) {
-		if(collection == null || collection.isEmpty() ){
+		if (collection == null || collection.isEmpty()) {
 			return new MetaData[0];
-		}//assert collection is neither null nor empty
+		}// assert collection is neither null nor empty
 		final MetaData[] out = new MetaData[collection.size()];
 		int i = 0;
 		for (final Json json : collection) {
@@ -430,13 +418,6 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
-	private void fillNameMap() {
-		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
-		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
-			nameMap.put(dataset.getString(nameKey), dataset);
-		}
-	}
-
 	private void fillTimeMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
@@ -448,44 +429,58 @@ class MetaDataManager implements Closeable {
 		return (timestampMap.tailMap(after.getTime(), true)).values();
 	}
 
-	private Collection<Json> getBefore(final Date before) {
-		return (timestampMap.headMap(before.getTime(), true)).values();
-	}
-	
-	private Collection<Json> getAllContains(final String snippet){
-		Collection<Json> namesContaining = getAllNamesContains(snippet);
-		Collection<Json> descContaining = getAllDescContains(snippet);
+	private Collection<Json> getAllContains(final String snippet) {
+		final Collection<Json> namesContaining = getNameContains(snippet);
+		final Collection<Json> descContaining = getDescriptionContains(snippet);
 		return intersect(namesContaining, descContaining);
 	}
 
-	private Collection<Json> getAllNamesContains(final String snippet){
-		Vector<Json> out = new Vector<Json>();
-		Iterator<Json> it = idMap.values().iterator();
-		while(it.hasNext()){
-			Json curr = it.next();
-			String name = curr.getString(nameKey);
-			if(name != null && name.contains(snippet) ){
+	private Collection<Json> getBefore(final Date before) {
+		return (timestampMap.headMap(before.getTime(), true)).values();
+	}
+
+	private Collection<Json> getDescriptionContains(final String snippet) {
+		final Vector<Json> out = new Vector<Json>();
+		final Iterator<Json> it = idMap.values().iterator();
+		while (it.hasNext()) {
+			final Json curr = it.next();
+			final String desc = curr.getString(descriptionKey);
+			if (desc != null && desc.contains(snippet)) {
 				out.add(curr);
 			}
 		}
 		return out;
 	}
-	
-	private Collection<Json> getAllDescContains(final String snippet){
-		Vector<Json> out = new Vector<Json>();
-		Iterator<Json> it = idMap.values().iterator();
-		while(it.hasNext() ){
-			Json curr = it.next();
-			String desc = curr.getString(descriptionKey);
-			if(desc != null && desc.contains(snippet) ){
+
+	private Collection<Json> getNameContains(final String snippet) {
+		final Vector<Json> out = new Vector<Json>();
+		final Iterator<Json> it = idMap.values().iterator();
+		while (it.hasNext()) {
+			final Json curr = it.next();
+			final String name = curr.getString(nameKey);
+			if (name != null && name.contains(snippet)) {
 				out.add(curr);
 			}
 		}
 		return out;
 	}
-	
+
+	private Collection<Json> getNameEquals(final String pattern) {
+		final Vector<Json> out = new Vector<Json>();
+		final Iterator<Json> it = idMap.values().iterator();
+		while (it.hasNext()) {
+			final Json curr = it.next();
+			final String name = curr.getString(nameKey);
+			if (name != null && name.equals(pattern)) {
+				out.add(curr);
+			}
+		}
+		return out;
+	}
+
 	@SafeVarargs
-	private final Collection<Json> intersect(final Collection<Json>... collections) {
+	private final Collection<Json> intersect(
+			final Collection<Json>... collections) {
 		if (collections.length < 1) {
 			throw new IllegalArgumentException("Cannot intersect 0 sets");
 		} else if (collections.length == 1) {
@@ -493,7 +488,9 @@ class MetaDataManager implements Closeable {
 		}
 		final HashSet<Json> in = new HashSet<Json>(collections[0]);
 		for (int i = 1; i < collections.length; i++) {
-			in.retainAll(collections[i]);
+			if (collections[i] != null) {
+				in.retainAll(collections[i]);
+			}
 		}
 		return in;
 	}
@@ -529,5 +526,5 @@ class MetaDataManager implements Closeable {
 			return false;
 		}
 	}
-	
+
 }
