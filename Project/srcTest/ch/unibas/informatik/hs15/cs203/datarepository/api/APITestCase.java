@@ -40,7 +40,7 @@ public abstract class APITestCase
     progressListener = new MockProgressListener();
     target = new File(workingDir, "target");
     target.mkdirs();
-    startTime = new Date();
+    startTime = new Date(((long) (System.currentTimeMillis() / 1000)) * 1000);
   }
   
   protected void assertMetaData(MetaData expectedMetaData, MetaData metaData)
@@ -85,7 +85,7 @@ public abstract class APITestCase
   {
     assertTrue("Time stamp '" + timestamp + "' before start time '" + startTime + "'.", 
             timestamp.getTime() >= startTime.getTime());
-    Date now = new Date();
+    Date now = new Date(((long) (System.currentTimeMillis() / 1000) + 1) * 1000);
     assertTrue("Time stamp '" + timestamp + "' after current time '" + now + "'.", 
             now.getTime() >= timestamp.getTime());
   }
