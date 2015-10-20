@@ -15,7 +15,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -25,6 +24,7 @@ import util.jsontools.Json;
 import util.jsontools.JsonParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
 
 /**
  * The {@link MetaDataManager} class manages meta data. This includes reading of
@@ -276,7 +276,7 @@ class MetaDataManager implements Closeable {
 		if (criteria.getBefore() != null) {
 			beforeColl = getBefore(criteria.getBefore());
 		}
-		final Collection<Json> all = intersect(nameColl, textColl, afterColl,
+		final Collection<Json> all = CollectionUtils.intersect(nameColl, textColl, afterColl,
 				beforeColl);
 		if (all == null) {
 			return new MetaData[0];
@@ -432,7 +432,7 @@ class MetaDataManager implements Closeable {
 	private Collection<Json> getAllContains(final String snippet) {
 		final Collection<Json> namesContaining = getNameContains(snippet);
 		final Collection<Json> descContaining = getDescriptionContains(snippet);
-		return intersect(namesContaining, descContaining);
+		return CollectionUtils.intersect(namesContaining, descContaining);
 	}
 
 	private Collection<Json> getBefore(final Date before) {
@@ -476,23 +476,6 @@ class MetaDataManager implements Closeable {
 			}
 		}
 		return out;
-	}
-
-	@SafeVarargs
-	private final Collection<Json> intersect(
-			final Collection<Json>... collections) {
-		if (collections.length < 1) {
-			throw new IllegalArgumentException("Cannot intersect 0 sets");
-		} else if (collections.length == 1) {
-			return collections[0];
-		}
-		final HashSet<Json> in = new HashSet<Json>(collections[0]);
-		for (int i = 1; i < collections.length; i++) {
-			if (collections[i] != null) {
-				in.retainAll(collections[i]);
-			}
-		}
-		return in;
 	}
 
 	private Json parseMetaDataFile(final String file) throws IOException {
