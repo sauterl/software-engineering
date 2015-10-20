@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
@@ -29,9 +30,7 @@ class DataRepositoryImpl implements DataRepository {
 		Verification.verifyExistence(file);
 		Verification.verifyNotRepoPath(file, repositoryFolder);
 		Verification.verifyNotWithinRepo(file, repositoryFolder);
-
 		Verification.verifyDescription(description);
-
 		Verification.verifyProgressListener(progressListener);
 
 		String newID = MetaDataManager.generateRandomUUID();
@@ -45,16 +44,17 @@ class DataRepositoryImpl implements DataRepository {
 			//Write temporary metadata
 			mdm.writeMetadata(_ret);
 
+			progressListener.start();
+			progressListener.progress(0, RepoFileUtils.getFileSize(file));
 			if (move) {
 				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
+				progressListener.progress(RepoFileUtils.getFileSize(joinedPath.toFile()), RepoFileUtils.getFileSize(joinedPath.toFile()));
 			} else {
-				progressListener.start();
-				progressListener.progress(0, RepoFileUtils.getFileSize(file));
 				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
 						joinedPath, progressListener, 0,
 						RepoFileUtils.getFileSize(file));
-				progressListener.finish();
 			}
+			progressListener.finish();
 			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
@@ -94,7 +94,14 @@ class DataRepositoryImpl implements DataRepository {
 			//Export dataset with given ID
 		}
 		
-		//TODO getMetaData(Criteria searchCriteria), check if two of the files have the same name
+		//Check duplicates
+		HashSet<String> names = new HashSet<String>();
+		for(MetaData md : getMetaData(exportCriteria)){
+			if(names.add(md.getName())){
+				throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
+			}
+		}
+		//Export all datasets
 		return null;
 	}
 
