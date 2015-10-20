@@ -29,9 +29,7 @@ class DataRepositoryImpl implements DataRepository {
 		Verification.verifyExistence(file);
 		Verification.verifyNotRepoPath(file, repositoryFolder);
 		Verification.verifyNotWithinRepo(file, repositoryFolder);
-
 		Verification.verifyDescription(description);
-
 		Verification.verifyProgressListener(progressListener);
 
 		String newID = MetaDataManager.generateRandomUUID();
@@ -45,16 +43,17 @@ class DataRepositoryImpl implements DataRepository {
 			//Write temporary metadata
 			mdm.writeMetadata(_ret);
 
+			progressListener.start();
+			progressListener.progress(0, RepoFileUtils.getFileSize(file));
 			if (move) {
 				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
+				progressListener.progress(RepoFileUtils.getFileSize(joinedPath.toFile()), RepoFileUtils.getFileSize(joinedPath.toFile()));
 			} else {
-				progressListener.start();
-				progressListener.progress(0, RepoFileUtils.getFileSize(file));
 				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
 						joinedPath, progressListener, 0,
 						RepoFileUtils.getFileSize(file));
-				progressListener.finish();
 			}
+			progressListener.finish();
 			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
