@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
@@ -93,7 +94,14 @@ class DataRepositoryImpl implements DataRepository {
 			//Export dataset with given ID
 		}
 		
-		//TODO getMetaData(Criteria searchCriteria), check if two of the files have the same name
+		//Check duplicates
+		HashSet<String> names = new HashSet<String>();
+		for(MetaData md : getMetaData(exportCriteria)){
+			if(names.add(md.getName())){
+				throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
+			}
+		}
+		//Export all datasets
 		return null;
 	}
 
