@@ -30,7 +30,7 @@ public class Main {
 		} catch (final Throwable t) {
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage()
-					: "Unkown error");
+					: "Unkown error of type: "+t.getClass().getSimpleName());
 			System.err.println();
 			exitStatus = 1;
 		}

@@ -12,10 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.Vector;
@@ -41,7 +43,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
  * 
  */
 class MetaDataManager implements Closeable {
-// TODO Add another class like MetaDataMap (or -List) to move map/list/search related methods in that new class
+	// TODO Add another class like MetaDataMap (or -List) to move
+	// map/list/search related methods in that new class
 	/**
 	 * Singleton. This is the instance.
 	 */
@@ -74,12 +77,18 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Mapping of ID->metaAsJson
 	 */
+	@Deprecated
 	private final HashMap<String, Json> idMap;
 	/**
 	 * Mapping of timestamp->metaAsJson
 	 */
+	@Deprecated
 	private final TreeMap<Long, Json> timestampMap;
 
+	/**
+	 * The storage of the meta data
+	 */
+	private MetaDataStorage storage = null;
 	/**
 	 * Indicates whether this meta data manager is prepared for search queries
 	 * or not.
@@ -110,6 +119,11 @@ class MetaDataManager implements Closeable {
 	 * The name of the meta data file
 	 */
 	private static final String metaDataFileName = ".metadata";
+
+	/**
+	 * Set this to FALSE to DISABLE file lock!
+	 */
+	private final boolean safeMode = false;
 
 	/*
 	 * metadata file structure: { "repository":{ "version":"1.0",
@@ -159,17 +173,105 @@ class MetaDataManager implements Closeable {
 		this.repoPath = repoPath;
 		this.idMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
-		// if (!tryLockMetaDataFile()) {
-		// throw new RuntimeException(
-		// "Could not apply a lock to the metadata. Assuming another data repository accesses it.");
-		// }
+		if (!tryLockMetaDataFile(0)) {
+			throw new RuntimeException(
+					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+		}
 		try {
 			metaDataFile = parseMetaDataFile(metaDataFileName);
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		fillIdMap();
-		prepareForQueries();
+		MetaData[] entries = convertCollectionToMeta(Arrays.asList(metaDataFile
+				.getJsonObject(repositoryKey).getSet(datasetsKey)));
+		initStorage(entries);
+	}
+	
+	/**
+	 * Adds and writes the specified {@link MetaData} to the meta data file.<br />
+	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to write
+	 * the data persistently</b><br />
+	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaData)} followed by
+	 * {@link MetaDataManager#writeTempMetaFile()}
+	 * @param meta
+	 * @return
+	 * @throws IOException If the writing fails.
+	 */
+	public boolean add(MetaData meta) throws IOException{
+		if(putMeta(meta) ){
+			writeTempMetaFile();
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	/**
+	 * Puts the given meta data to the underlying {@link MetaDataStorage}.
+	 * @param meta The metadata to add.
+	 * @return TRUE if successful
+	 * @see MetaDataStorage#put(MetaData)
+	 */
+	public boolean putMeta(MetaData meta){
+		return storage.put(meta);
+	}
+	
+	/**
+	 * Returns the meta data which fulfill the criteria completely.
+	 * @param criteria
+	 * @return
+	 * @see MetaDataStorage#get(Criteria)
+	 */
+	public List<MetaData> getMatchingMeta(Criteria criteria){
+		return storage.get(criteria);
+	}
+	/**
+	 * Returns the meta data with matching ID or null.
+	 * @param id
+	 * @return
+	 * @see MetaDataStorage#get(String)
+	 */
+	public MetaData getMeta(String id){
+		return storage.get(id);
+	}
+	
+	/**
+	 * Returns all stored meta data.
+	 * @return
+	 * @see MetaDataStorage#getAll()
+	 */
+	public List<MetaData> getAllMetaData(){
+		return Arrays.asList(storage.getAll());
+	}
+	
+
+	public void writeTempMetaFile() throws IOException{
+		final FileWriter fw = new FileWriter(Paths.get(repoPath,
+				tmpLabel + metaDataFileName).toFile());
+		storageToJson();
+		fw.write(metaDataFile.toJson());
+		fw.flush();
+		fw.close();
+		releaseLock();
+		System.gc();
+	}
+	
+	private void storageToJson(){
+		MetaData[] datas = storage.getAll();
+		Json[] entries = new Json[datas.length];
+		for(int i=0; i<datas.length; i++){
+			entries[i] = createJsonMetaEntry(datas[i]);
+		}
+		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
+		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
+				entries);
+	}
+	
+	private void initStorage(MetaData[] entries) {
+		if (storage != null) {
+			throw new IllegalStateException("Cannot intialize storage twice!");
+		}
+		storage = new MetaDataStorage(entries);
 	}
 
 	/**
@@ -179,7 +281,9 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param data
 	 *            The {@link MetaData} object to add to the internal buffer.
+	 * @deprecated Since this method is not used anymore
 	 */
+	@Deprecated
 	public void addMetaData(final MetaData data) {
 		if (data == null) {
 			throw new NullPointerException("MetaData to add is null.");
@@ -214,6 +318,7 @@ class MetaDataManager implements Closeable {
 	 * @return The {@link MetaData} object corresponding to the given id or
 	 *         null, if the ID does not exist.
 	 */
+	@Deprecated
 	public MetaData getMetaDataForID(final String id) {
 		if (idMap.containsKey(id)) {
 			return extractMetaData(idMap.get(id));
@@ -225,6 +330,7 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Prepares the MetaDataManager to query for a certain {@link Criteria}.
 	 */
+	@Deprecated
 	public void prepareForQueries() {
 		fillTimeMap();
 		queryReady = true;
@@ -242,7 +348,9 @@ class MetaDataManager implements Closeable {
 	 * @see Criteria
 	 * @param criteria
 	 * @return {@link MetaData}s which match the given criteria.
+	 * @deprecated
 	 */
+	@Deprecated
 	public MetaData[] query(final Criteria criteria) {
 		if (!queryReady) {
 			throw new IllegalStateException(
@@ -276,8 +384,8 @@ class MetaDataManager implements Closeable {
 		if (criteria.getBefore() != null) {
 			beforeColl = getBefore(criteria.getBefore());
 		}
-		final Collection<Json> all = CollectionUtils.intersect(nameColl, textColl, afterColl,
-				beforeColl);
+		final Collection<Json> all = CollectionUtils.intersect(nameColl,
+				textColl, afterColl, beforeColl);
 		if (all == null) {
 			return new MetaData[0];
 		} else {
@@ -294,6 +402,7 @@ class MetaDataManager implements Closeable {
 	 * @param meta
 	 *            The new meta data set.
 	 */
+	@Deprecated
 	public void replaceMetaData(final String id, final MetaData meta) {
 		final Json entry = createJsonMetaEntry(meta);
 		idMap.put(id, entry);
@@ -316,7 +425,10 @@ class MetaDataManager implements Closeable {
 	 *            The {@link MetaData} object to write.
 	 * @throws IOException
 	 *             If somewhere while writing an i/o error occurs
+	 *             
+	 * @deprecated Got replaced by {@link MetaDataManager#add(MetaData)}
 	 */
+	@Deprecated
 	public void writeMetadata(final MetaData data) throws IOException {
 		addMetaData(data);
 		writeTemporaryMetaDataFile();
@@ -330,6 +442,7 @@ class MetaDataManager implements Closeable {
 	 * @throws IOException
 	 *             If an error occurs while writing the file.
 	 */
+	@Deprecated
 	public void writeTemporaryMetaDataFile() throws IOException {
 		final FileWriter fw = new FileWriter(Paths.get(repoPath,
 				tmpLabel + metaDataFileName).toFile());
@@ -338,9 +451,9 @@ class MetaDataManager implements Closeable {
 		fw.flush();
 		fw.close();
 		releaseLock();
-		System.gc();
 	}
 
+	@Deprecated
 	private void addMapToJson() {
 		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
 		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
@@ -411,6 +524,7 @@ class MetaDataManager implements Closeable {
 				timestamp);
 	}
 
+	@Deprecated
 	private void fillIdMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
@@ -418,6 +532,7 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	@Deprecated
 	private void fillTimeMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
@@ -425,20 +540,24 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	@Deprecated
 	private Collection<Json> getAfter(final Date after) {
 		return (timestampMap.tailMap(after.getTime(), true)).values();
 	}
 
+	@Deprecated
 	private Collection<Json> getAllContains(final String snippet) {
 		final Collection<Json> namesContaining = getNameContains(snippet);
 		final Collection<Json> descContaining = getDescriptionContains(snippet);
 		return CollectionUtils.intersect(namesContaining, descContaining);
 	}
 
+	@Deprecated
 	private Collection<Json> getBefore(final Date before) {
 		return (timestampMap.headMap(before.getTime(), true)).values();
 	}
 
+	@Deprecated
 	private Collection<Json> getDescriptionContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
@@ -452,6 +571,7 @@ class MetaDataManager implements Closeable {
 		return out;
 	}
 
+	@Deprecated
 	private Collection<Json> getNameContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
@@ -465,6 +585,7 @@ class MetaDataManager implements Closeable {
 		return out;
 	}
 
+	@Deprecated
 	private Collection<Json> getNameEquals(final String pattern) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
@@ -485,15 +606,17 @@ class MetaDataManager implements Closeable {
 	}
 
 	private boolean releaseLock() throws IOException {
-		// lock.release();
+		if (safeMode) {
+			lock.release();
+			Paths.get(repoPath, lockFile).toFile().delete();
+		}
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
-		// Paths.get(repoPath, lockFile).toFile().delete();
-		// lock.release();
 		return true;
 	}
 
+	@Deprecated
 	private boolean tryLockMetaDataFile() {
 		final Path lockFilePath = Paths.get(repoPath, lockFile);
 		try {
@@ -510,4 +633,31 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	private boolean tryLockMetaDataFile(int attempt) {
+		if (!safeMode) {
+			return true;
+		}
+		final Path lockFilePath = Paths.get(repoPath, lockFile);
+		try {
+			final FileChannel channel = FileChannel.open(lockFilePath,
+					StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+			try {
+				lock = channel.tryLock();
+				boolean succ = false;
+				while (!succ && attempt < 3) {
+					try {
+						Thread.sleep(1000);
+					} catch (final InterruptedException e) {
+						// silently ignored
+					}
+					succ = tryLockMetaDataFile(++attempt);
+				}
+				return succ;
+			} catch (final OverlappingFileLockException ex) {
+				return false;
+			}
+		} catch (final IOException e) {
+			return false;
+		}
+	}
 }
