@@ -80,7 +80,23 @@ class MetaDataStorage {
 	public MetaData get(final String id) {
 		return idMap.get(id);
 	}
+	
+	/**
+	 * Returns all stored {@link MetaData} objects in a single array.
+	 * @return All stored meta data objects in a single array.
+	 */
+	public MetaData[] getAll(){
+		return idMap.values().toArray(new MetaData[0]);
+	}
 
+	/**
+	 * Returns the size of this storage.
+	 * @return The size of this storage a.k.a. the number of meta data objects stored.
+	 */
+	public int size(){
+		return idMap.size();
+	}
+	
 	/**
 	 * Puts the given {@link MetaData} to this {@link MetaDataStorage}. The
 	 * method's return value is a success indicator and is <tt>true</tt> if and
