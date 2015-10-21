@@ -123,7 +123,7 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Set this to FALSE to DISABLE file lock!
 	 */
-	private final boolean safeMode = true;
+	private final boolean safeMode = false;
 
 	/*
 	 * metadata file structure: { "repository":{ "version":"1.0",
@@ -451,7 +451,6 @@ class MetaDataManager implements Closeable {
 		fw.flush();
 		fw.close();
 		releaseLock();
-		System.gc();
 	}
 
 	@Deprecated
@@ -611,7 +610,6 @@ class MetaDataManager implements Closeable {
 			lock.release();
 			Paths.get(repoPath, lockFile).toFile().delete();
 		}
-
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws

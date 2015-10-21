@@ -56,7 +56,6 @@ class DataRepositoryImpl implements DataRepository {
 						RepoFileUtils.getFileSize(file));
 			}
 			progressListener.finish();
-			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
 		}finally{
