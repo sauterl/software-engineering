@@ -75,12 +75,18 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Mapping of ID->metaAsJson
 	 */
+	@Deprecated
 	private final HashMap<String, Json> idMap;
 	/**
 	 * Mapping of timestamp->metaAsJson
 	 */
+	@Deprecated
 	private final TreeMap<Long, Json> timestampMap;
 
+	/**
+	 * The storage of the meta data
+	 */
+	private MetaDataStorage storage = null;
 	/**
 	 * Indicates whether this meta data manager is prepared for search queries
 	 * or not.
@@ -176,6 +182,13 @@ class MetaDataManager implements Closeable {
 		}
 		fillIdMap();
 		prepareForQueries();
+	}
+	
+	private void initStorage(MetaData[] entries){
+		if(storage != null){
+			throw new IllegalStateException("Cannot intialize storage twice!");
+		}
+		storage = new MetaDataStorage(entries);
 	}
 
 	/**
@@ -347,6 +360,7 @@ class MetaDataManager implements Closeable {
 		System.gc();
 	}
 
+	@Deprecated
 	private void addMapToJson() {
 		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
 		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
@@ -417,6 +431,7 @@ class MetaDataManager implements Closeable {
 				timestamp);
 	}
 
+	@Deprecated
 	private void fillIdMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
@@ -424,6 +439,7 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	@Deprecated
 	private void fillTimeMap() {
 		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
 		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
@@ -431,20 +447,22 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	@Deprecated
 	private Collection<Json> getAfter(final Date after) {
 		return (timestampMap.tailMap(after.getTime(), true)).values();
 	}
 
+	@Deprecated
 	private Collection<Json> getAllContains(final String snippet) {
 		final Collection<Json> namesContaining = getNameContains(snippet);
 		final Collection<Json> descContaining = getDescriptionContains(snippet);
 		return CollectionUtils.intersect(namesContaining, descContaining);
 	}
-
+	@Deprecated
 	private Collection<Json> getBefore(final Date before) {
 		return (timestampMap.headMap(before.getTime(), true)).values();
 	}
-
+	@Deprecated
 	private Collection<Json> getDescriptionContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
@@ -457,7 +475,7 @@ class MetaDataManager implements Closeable {
 		}
 		return out;
 	}
-
+	@Deprecated
 	private Collection<Json> getNameContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
@@ -470,7 +488,8 @@ class MetaDataManager implements Closeable {
 		}
 		return out;
 	}
-
+	
+	@Deprecated
 	private Collection<Json> getNameEquals(final String pattern) {
 		final Vector<Json> out = new Vector<Json>();
 		final Iterator<Json> it = idMap.values().iterator();
