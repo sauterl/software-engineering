@@ -41,7 +41,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
  * 
  */
 class MetaDataManager implements Closeable {
-// TODO Add another class like MetaDataMap (or -List) to move map/list/search related methods in that new class
+	// TODO Add another class like MetaDataMap (or -List) to move
+	// map/list/search related methods in that new class
 	/**
 	 * Singleton. This is the instance.
 	 */
@@ -111,6 +112,11 @@ class MetaDataManager implements Closeable {
 	 */
 	private static final String metaDataFileName = ".metadata";
 
+	/**
+	 * Set this to FALSE to DISABLE file lock!
+	 */
+	private final boolean safeMode = true;
+
 	/*
 	 * metadata file structure: { "repository":{ "version":"1.0",
 	 * "timestamp":"2014-09-18T13:40:18", "datasets":[ {
@@ -159,10 +165,10 @@ class MetaDataManager implements Closeable {
 		this.repoPath = repoPath;
 		this.idMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
-		// if (!tryLockMetaDataFile()) {
-		// throw new RuntimeException(
-		// "Could not apply a lock to the metadata. Assuming another data repository accesses it.");
-		// }
+		if (!tryLockMetaDataFile(0)) {
+			throw new RuntimeException(
+					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
+		}
 		try {
 			metaDataFile = parseMetaDataFile(metaDataFileName);
 		} catch (final FileNotFoundException ex) {
@@ -276,8 +282,8 @@ class MetaDataManager implements Closeable {
 		if (criteria.getBefore() != null) {
 			beforeColl = getBefore(criteria.getBefore());
 		}
-		final Collection<Json> all = CollectionUtils.intersect(nameColl, textColl, afterColl,
-				beforeColl);
+		final Collection<Json> all = CollectionUtils.intersect(nameColl,
+				textColl, afterColl, beforeColl);
 		if (all == null) {
 			return new MetaData[0];
 		} else {
@@ -485,12 +491,14 @@ class MetaDataManager implements Closeable {
 	}
 
 	private boolean releaseLock() throws IOException {
-		// lock.release();
+		if (safeMode) {
+			lock.release();
+			Paths.get(repoPath, lockFile).toFile().delete();
+		}
+
 		// Files.setPosixFilePermissions(Paths.get(repoPath, lockFile),
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
-		// Paths.get(repoPath, lockFile).toFile().delete();
-		// lock.release();
 		return true;
 	}
 
@@ -510,4 +518,31 @@ class MetaDataManager implements Closeable {
 		}
 	}
 
+	private boolean tryLockMetaDataFile(int attempt) {
+		if (!safeMode) {
+			return true;
+		}
+		final Path lockFilePath = Paths.get(repoPath, lockFile);
+		try {
+			final FileChannel channel = FileChannel.open(lockFilePath,
+					StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+			try {
+				lock = channel.tryLock();
+				boolean succ = false;
+				while (!succ && attempt < 3) {
+					try {
+						Thread.sleep(1000);
+					} catch (final InterruptedException e) {
+						// silently ignored
+					}
+					succ = tryLockMetaDataFile(++attempt);
+				}
+				return succ;
+			} catch (final OverlappingFileLockException ex) {
+				return false;
+			}
+		} catch (final IOException e) {
+			return false;
+		}
+	}
 }
