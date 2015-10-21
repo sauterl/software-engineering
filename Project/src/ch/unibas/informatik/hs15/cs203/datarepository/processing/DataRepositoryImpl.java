@@ -82,48 +82,82 @@ class DataRepositoryImpl implements DataRepository {
 
 	@Override
 	public List<MetaData> export(Criteria exportCriteria, File target,
-			ProgressListener progressListener) {
-		Verification.verifyNotNullCriteria(exportCriteria);
-		Verification.verifyProgressListener(progressListener);
-		Verification.verifyAbsence(target);
-		// TODO If ID has been specified, check for existence
-		if(exportCriteria.getId()!=null){
-			if(getMetaData(exportCriteria).size()==0){
-				throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
-			}
-			//Export dataset with given ID
+		ProgressListener progressListener){
+	List<MetaData> wholeMetadata = exportCheck(exportCriteria, target,
+		progressListener);
+		long totalNumberOfBytes=0;
+		for(MetaData md:wholeMetadata){
+			totalNumberOfBytes+=RepoFileUtils.getFileSize(new File(md.getId()));
 		}
 		
-		//Check duplicates
-		HashSet<String> names = new HashSet<String>();
-		MetaData [] wholeMetadata = getMetaData(exportCriteria).toArray(new MetaData[0]);
-		long size=0;
-		for(MetaData md : wholeMetadata){
-			if(names.add(md.getName())){
-				throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
-			}
+		long copiedBytes=0;
+		progressListener.start();
+		progressListener.progress(copiedBytes, totalNumberOfBytes);
+		for(int c=0;c<wholeMetadata.size();c++){
+			File source = new File(wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
+			
+			File fullTarget=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
+//			System.out.println(source.getAbsolutePath());
+//			System.out.println(fullTarget.getAbsolutePath());
+			
+			try {
+		RepoFileUtils.copyRecursively(source.getAbsoluteFile().toPath(), fullTarget.getAbsoluteFile().toPath(), progressListener, copiedBytes, totalNumberOfBytes);
+		} catch (IOException e) {
+		throw new IllegalArgumentException("Something happend while copying");
 		}
+			copiedBytes+=RepoFileUtils.getFileSize(new File(wholeMetadata.get(c).getId()));
+		}
+		
 		
 		
 		//Export all datasets
-		return null;
+		return wholeMetadata;
 	}
-	/**
-	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
-	 * @param data The File ore Folder
-	 * @return The size of the File or Folder in Bytes
-	 */
-	private long getBytesOf(File data) {
-	long size = 0;
-	for (File f : data.listFiles()) {
-		if (f.isFile()) {
-			size+=f.length();
-		} else {
-			size+=getBytesOf(f);
+
+	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
+		ProgressListener progressListener) {
+	Verification.verifyNotNullCriteria(exportCriteria);
+	Verification.verifyProgressListener(progressListener);
+//	Verification.verifyAbsence(target);
+	// TODO If ID has been specified, check for existence
+	if(exportCriteria.getId()!=null){
+		if(getMetaData(exportCriteria).size()==0){
+			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
 		}
+		//Export dataset with given ID
 	}
-	return size;
+	
+	//Check duplicates
+	HashSet<String> names = new HashSet<String>();
+	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
+	long size=0;
+	for(int c=0;c<wholeMetadata.size();c++){
+		if(names.add(wholeMetadata.get(c).getName())){
+			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
+		}
+		File ft=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
+		Verification.verifyAbsence(ft);
 	}
+	return wholeMetadata;
+	}
+	
+	
+//	/**
+//	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
+//	 * @param data The File ore Folder
+//	 * @return The size of the File or Folder in Bytes
+//	 */
+//	private long getBytesOf(File data) {
+//	long size = 0;
+//	for (File f : data.listFiles()) {
+//		if (f.isFile()) {
+//			size+=f.length();
+//		} else {
+//			size+=getBytesOf(f);
+//		}
+//	}
+//	return size;
+//	}
 
 	@Override
 	public MetaData replace(String id, File file, String description,
