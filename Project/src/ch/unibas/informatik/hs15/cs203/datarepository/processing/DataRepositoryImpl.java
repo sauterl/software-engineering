@@ -108,7 +108,11 @@ class DataRepositoryImpl implements DataRepository {
 		//Export all datasets
 		return null;
 	}
-	
+	/**
+	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
+	 * @param data The File ore Folder
+	 * @return The size of the File or Folder in Bytes
+	 */
 	private long getBytesOf(File data) {
 	long size = 0;
 	for (File f : data.listFiles()) {
