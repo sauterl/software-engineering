@@ -42,8 +42,9 @@ class CommandInterpreter {
 	 * 
 	 * @param args
 	 *            The command line arguments.
+	 * @throws ParseException 
 	 */
-	public void interpret(final String[] args) {
+	public void interpret(final String[] args) throws ParseException {
 		final LinkedList<String> command = CommandParser.lex(args);
 		if (command.size() < 1) {
 			throw new IllegalArgumentException("Error while parsing commnd.");
@@ -58,8 +59,10 @@ class CommandInterpreter {
 				// poll
 				// above
 				executeAdd(command);
+				break;
 			case EXPORT:
 				executeExport(command);
+				break;
 			case LIST:
 				executeList(command);
 				break;

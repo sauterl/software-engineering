@@ -30,8 +30,9 @@ public class Main {
 		} catch (final Throwable t) {
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage()
-					: "Unkown error");
+					: "Unkown error : "+t.getClass().getSimpleName());
 			System.err.println();
+			t.printStackTrace();
 			exitStatus = 1;
 		}
 		System.exit(exitStatus);

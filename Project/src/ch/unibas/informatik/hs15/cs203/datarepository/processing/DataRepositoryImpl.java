@@ -96,13 +96,29 @@ class DataRepositoryImpl implements DataRepository {
 		
 		//Check duplicates
 		HashSet<String> names = new HashSet<String>();
-		for(MetaData md : getMetaData(exportCriteria)){
+		MetaData [] wholeMetadata = getMetaData(exportCriteria).toArray(new MetaData[0]);
+		long size=0;
+		for(MetaData md : wholeMetadata){
 			if(names.add(md.getName())){
 				throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
 			}
 		}
+		
+		
 		//Export all datasets
 		return null;
+	}
+	
+	private long getBytesOf(File data) {
+	long size = 0;
+	for (File f : data.listFiles()) {
+		if (f.isFile()) {
+			
+		} else {
+			
+		}
+	}
+	return -1;
 	}
 
 	@Override
