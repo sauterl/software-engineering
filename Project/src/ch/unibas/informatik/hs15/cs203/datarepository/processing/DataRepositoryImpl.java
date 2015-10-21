@@ -113,12 +113,12 @@ class DataRepositoryImpl implements DataRepository {
 	long size = 0;
 	for (File f : data.listFiles()) {
 		if (f.isFile()) {
-			
+			size+=f.length();
 		} else {
-			
+			size+=getBytesOf(f);
 		}
 	}
-	return -1;
+	return size;
 	}
 
 	@Override
