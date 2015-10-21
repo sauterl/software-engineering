@@ -1,9 +1,16 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
@@ -106,47 +113,86 @@ class CommandInterpreter {
 	 * <code>arguments</code> are the arguments without the command itself
 	 * @param arguments
 	 * arguments in tokenizer list form
+	 * @throws ParseException 
 	 */
-	private void executeList(final LinkedList<String> arguments) {
+	private void executeList(final LinkedList<String> arguments) throws ParseException {
 		// TODO Auto-generated method stub
-		String curr,ID,NAME,TEXT,BEFORE,AFTER = "",repoLoc=null;
+		String curr=null,ID=null,NAME=null,TEXT=null,BEFORE=null,AFTER=null,repoLoc=null;
 		final int originSize = arguments.size();
 		for (int i = 0; i < originSize; i++) {
-		curr=arguments.poll();
-		if(curr.startsWith(Option.ID.name())){
-			ID=curr;
-		}
-		else if(curr.startsWith(Option.NAME.name())){
-			NAME=curr;
-		}else if(curr.startsWith(Option.TEXT.name())){
-			TEXT=curr;
-		}else if(curr.startsWith(Option.BEFORE.name())){
-			BEFORE=curr;
-		}else if(curr.startsWith(Option.AFTER.name())){
-			AFTER=curr;
-		}else{
-			if(originSize-i>2){
-				throw new IllegalArgumentException(
-						"Inappropriate number of arguments");
-			}else{
-				repoLoc=curr;
+			curr=arguments.poll();
+			if(curr.startsWith(Option.ID.name())){
+				ID=curr;
 			}
-		}
-			
+			else if(curr.startsWith(Option.NAME.name())){
+				NAME=curr;
+			}else if(curr.startsWith(Option.TEXT.name())){
+				TEXT=curr;
+			}else if(curr.startsWith(Option.BEFORE.name())){
+				BEFORE=curr;
+			}else if(curr.startsWith(Option.AFTER.name())){
+				AFTER=curr;
+			}else{
+				if(originSize-i>2){
+					throw new IllegalArgumentException(
+							"Inappropriate number of arguments");
+				}else{
+					repoLoc=curr;
+				}
+			}
+
 		}
 		final DataRepository repo = Factory.create(new File(repoLoc));
+
+
+		Criteria cr;
+		if(ID==null && TEXT==null && BEFORE==null && AFTER==null && TEXT == null){
+			cr=Criteria.all();
+		}else if(ID==null && (TEXT!=null || BEFORE!=null || AFTER!=null || TEXT != null)){
+			Date before=null, after=null;
+			DateFormat dateFormat1 = new SimpleDateFormat(
+					"yyyy-MM-dd HH:mm:ss");
+			DateFormat dateFormat2 = new SimpleDateFormat(
+					"yyyy-MM-dd");
+
+			if(BEFORE!=null){
+				if(BEFORE.length()>10){
+					before=dateFormat1.parse(BEFORE);
+				}else{
+					before=dateFormat2.parse(BEFORE);
+				}
+			}
+			if(AFTER!=null){
+				if(AFTER.length()>10){
+					after=dateFormat1.parse(AFTER);
+				}else{
+					after=dateFormat2.parse(AFTER);
+				}
+			}
+
+			cr=new Criteria(NAME, TEXT,before,after);
+		}else{
+			cr=Criteria.forId(ID);
+		}
+		List<MetaData> ret=repo.getMetaData(cr);
+		System.out.println("ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n");
+		for(MetaData i:ret){
+			System.out.println(i.getId()+"\t"+i.getName()
+					+"\t"+i.getTimestamp()+"\t"+i.getNumberOfFiles()+"\t"+i.getSize()+"\t"+i.getDescription()+"\n");
+		}
 		//Use method here
-		
+
 	}
 	/**
 	 * Executes the Export command of the data repository application.The paramter
 	 * <code>arguments</code> are the arguments without the command itself
 	 * @param arguments
 	 * arguments in tokenizer list form
+	 * @throws ParseException 
 	 */
-	private void executeExport(final LinkedList<String> arguments) {
+	private void executeExport(final LinkedList<String> arguments) throws ParseException {
 		// TODO Auto-generated method stub
-		String curr,destLoc,ID,NAME,TEXT,BEFORE,AFTER = "",repoLoc=null;
+		String curr,destLoc=null,ID=null,NAME=null,TEXT=null,BEFORE=null,AFTER=null,repoLoc=null;
 		final ProgressListener listener = new DummyProgressListener();
 		boolean Identifier=false;
 		final int originSize = arguments.size();
@@ -169,37 +215,69 @@ class CommandInterpreter {
 				Identifier=true;
 				AFTER=curr;
 			}else if(curr.startsWith(Option.VERBOSE.name())){
-				
+
 			}
-		else if(!Identifier){
-			if(originSize!=3){
+			else if(!Identifier){
+				if(originSize!=3){
+					throw new IllegalArgumentException(
+							"Inappropriate number of arguments");
+				}else{
+					switch(i){
+						case 0:
+							repoLoc=curr;
+						case 1:
+							ID=curr;
+						case 2:
+							destLoc=curr;
+					}
+				}
+			} else if (originSize-i>2){
 				throw new IllegalArgumentException(
 						"Inappropriate number of arguments");
-			}else{
-				switch(i){
-					case 0:
-						repoLoc=curr;
-					case 1:
-						ID=curr;
-					case 2:
-						destLoc=curr;
+			} else if (i == originSize - 2) {
+				repoLoc = curr;
+			} else if (i == originSize - 1) {
+				destLoc = curr;
+			} else {
+				throw new RuntimeException("Reached unexpected state.");
+			}
+		}
+		final DataRepository repo = Factory.create(new File(repoLoc));
+
+		Criteria cr;
+		if(ID==null && TEXT==null && BEFORE==null && AFTER==null && TEXT == null){
+			cr=Criteria.all();
+		}else if(ID==null && (TEXT!=null || BEFORE!=null || AFTER!=null || TEXT != null)){
+			Date before=null, after=null;
+			DateFormat dateFormat1 = new SimpleDateFormat(
+					"yyyy-MM-dd HH:mm:ss");
+			DateFormat dateFormat2 = new SimpleDateFormat(
+					"yyyy-MM-dd");
+
+			if(BEFORE!=null){
+				if(BEFORE.length()>10){
+					before=dateFormat1.parse(BEFORE);
+				}else{
+					before=dateFormat2.parse(BEFORE);
 				}
 			}
-		} else if (originSize-i>2){
-			throw new IllegalArgumentException(
-					"Inappropriate number of arguments");
-		} else if (i == originSize - 2) {
-			repoLoc = curr;
-		} else if (i == originSize - 1) {
-			destLoc = curr;
-		} else {
-			throw new RuntimeException("Reached unexpected state.");
+			if(AFTER!=null){
+				if(AFTER.length()>10){
+					after=dateFormat1.parse(AFTER);
+				}else{
+					after=dateFormat2.parse(AFTER);
+				}
+			} 
+			cr=new Criteria(NAME, TEXT,before,after);
+		}else{
+			cr=Criteria.forId(ID);
 		}
-	}
-	final DataRepository repo = Factory.create(new File(repoLoc));
-	//Use method here
 
-}
+		repo.export(cr, new File(destLoc), listener);
+
+		//Use method here
+
+	}
 
 
 }
