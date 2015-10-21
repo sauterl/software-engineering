@@ -1,10 +1,10 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -23,6 +23,10 @@ class MetaDataStorage {
 	private final TreeMap<String, MetaData> idMap = new TreeMap<String, MetaData>();
 	private final TreeMap<Date, Vector<String>> timeMap = new TreeMap<Date, Vector<String>>();
 
+	/**
+	 * Creates an initially empty {@link MetaDataStorage}.
+	 * 
+	 */
 	public MetaDataStorage() {
 		this(null);
 	}
@@ -33,34 +37,68 @@ class MetaDataStorage {
 		}
 	}
 
+	/**
+	 * Returns <tt>true</tt> if this storage does not contain any meta data
+	 * object.
+	 * 
+	 * @return <tt>true</tt> if this storage does not contain any meta data
+	 *         object.
+	 */
+	public boolean isEmpty() {
+		return timeMap.isEmpty();
+	}
+
+	/**
+	 * Returns a list of meta data objects fulfilling all of the specified
+	 * criteria.<br />
+	 * This method is designed to use with a specific query for meta data objects
+	 * fulfilling a certain criteria. If the <tt>criteria</tt> asks for every
+	 * meta data object in this storage, it is recommended to use {@link MetaDataStorage#getAll()} instead.
+	 * Further if the criteria queries for a certain ID, the appropriate method would be {@link MetaDataStorage#get(String)}.
+	 * For convince this method still returns valid results for the above mentioned cases.<br />
+	 * <b>Note: The resulting list is not <tt>null</tt>-proof (therefore may contains null entries).</b>
+	 * @param criteria
+	 *            The conditions to fulfill.
+	 * @return A list of meta data objects fulfilling all of the specified
+	 *         criteria or an empty list if no matching meta data object was
+	 *         found.
+	 */
 	public List<MetaData> get(final Criteria criteria) {
-		if(criteria == null){
+		if (criteria == null) {
 			throw new IllegalArgumentException("Criteria is null");
 		}
-		Vector<MetaData> out = new Vector<MetaData>();
-		if(criteria.getId() != null){
-			out.add(get(criteria.getId() ));
+		validateNotEmpty();
+		final Vector<MetaData> out = new Vector<MetaData>();
+		// ALL META DATA WANDED
+		final Criteria allRef = Criteria.all();
+		if (allRef.equals(criteria)) {
+			return Arrays.asList(getAll());
+		}
+		// SINGLE ID WANTED
+		if (criteria.getId() != null) {
+			out.add(get(criteria.getId()));
 			return out;
 		}
-		Vector<List<String>> matching = new Vector<List<String>>();
-		if(criteria.getAfter() != null){
-			matching.add(findAfter(criteria.getAfter() ));
+		// COMBINATION OF CONDITIONS
+		final Vector<List<String>> matching = new Vector<List<String>>();
+		if (criteria.getAfter() != null) {
+			matching.add(findAfter(criteria.getAfter()));
 		}
-		if(criteria.getBefore() != null){
-			matching.add(findBefore(criteria.getBefore() ));
+		if (criteria.getBefore() != null) {
+			matching.add(findBefore(criteria.getBefore()));
 		}
-		if(criteria.getName() != null){
-			matching.add(findForName(criteria.getName() ));
+		if (criteria.getName() != null) {
+			matching.add(findForName(criteria.getName()));
 		}
-		if(criteria.getText() != null){
-			matching.add(findTextContains(criteria.getText() ));
+		if (criteria.getText() != null) {
+			matching.add(findTextContains(criteria.getText()));
 		}
-		Vector<String> ids = new Vector<String>();
-		for(List<String> l : matching){
-			//if l is first element: addAll to ids, otherwise only intersection
-			if(ids.size() > 0){
+		final Vector<String> ids = new Vector<String>();
+		for (final List<String> l : matching) {
+			// if l is first element: addAll to ids, otherwise only intersection
+			if (ids.size() > 0) {
 				ids.retainAll(l);
-			}else{
+			} else {
 				ids.addAll(l);
 			}
 		}
@@ -78,25 +116,20 @@ class MetaDataStorage {
 	 * @see TreeMap#get(Object)
 	 */
 	public MetaData get(final String id) {
+		validateNotEmpty();
 		return idMap.get(id);
-	}
-	
-	/**
-	 * Returns all stored {@link MetaData} objects in a single array.
-	 * @return All stored meta data objects in a single array.
-	 */
-	public MetaData[] getAll(){
-		return idMap.values().toArray(new MetaData[0]);
 	}
 
 	/**
-	 * Returns the size of this storage.
-	 * @return The size of this storage a.k.a. the number of meta data objects stored.
+	 * Returns all stored {@link MetaData} objects in a single array.
+	 * 
+	 * @return All stored meta data objects in a single array.
 	 */
-	public int size(){
-		return idMap.size();
+	public MetaData[] getAll() {
+		validateNotEmpty();
+		return idMap.values().toArray(new MetaData[0]);
 	}
-	
+
 	/**
 	 * Puts the given {@link MetaData} to this {@link MetaDataStorage}. The
 	 * method's return value is a success indicator and is <tt>true</tt> if and
@@ -127,15 +160,60 @@ class MetaDataStorage {
 		}
 		return idRes && timeRes;
 	}
-	
-	public MetaData replace(final MetaData meta){
-		if(meta == null){
+
+	public MetaData replace(final MetaData meta) {
+		if (meta == null) {
 			throw new IllegalArgumentException("Cannot replace meta data null.");
 		}
-		if(!idMap.containsKey(meta.getId() )){
-			throw new IllegalArgumentException("Cannot replace non existing meta data");
+		validateNotEmpty();
+		if (!idMap.containsKey(meta.getId())) {
+			throw new IllegalArgumentException(
+					"Cannot replace non existing meta data");
 		}
 		return idMap.put(meta.getId(), meta);
+	}
+
+	/**
+	 * Returns the size of this storage.
+	 * 
+	 * @return The size of this storage a.k.a. the number of meta data objects
+	 *         stored.
+	 */
+	public int size() {
+		return idMap.size();
+	}
+
+	private List<String> findAfter(final Date after) {
+		final Vector<String> out = new Vector<String>();
+		final Collection<Vector<String>> idLists = timeMap.tailMap(after, true)
+				.values();
+		for (final Vector<String> ids : idLists) {
+			out.addAll(ids);
+		}
+		return out;
+	}
+
+	private List<String> findBefore(final Date before) {
+		final Vector<String> out = new Vector<String>();
+		final Collection<Vector<String>> idLists = timeMap
+				.headMap(before, true).values();
+		for (final Vector<String> ids : idLists) {
+			out.addAll(ids);
+		}
+		return out;
+	}
+
+	private List<String> findDescriptionContains(final String snippet) {
+		final Vector<String> out = new Vector<String>();
+		final Iterator<String> idIt = idMap.keySet().iterator();
+		while (idIt.hasNext()) {
+			final String currID = idIt.next();
+			final String currDesc = idMap.get(currID).getDescription();
+			if (currDesc.contains(snippet)) {
+				out.add(currID);
+			}
+		}
+		return out;
 	}
 
 	private List<String> findForName(final String name) {
@@ -150,33 +228,8 @@ class MetaDataStorage {
 		}
 		return out;
 	}
-	
-	private List<String> findAfter(Date after){
-		Vector<String> out = new Vector<String>();
-		Collection<Vector<String>> idLists = timeMap.tailMap(after, true).values();
-		for(Vector<String> ids : idLists){
-			out.addAll(ids);
-		}
-		return out;
-	}
-	
-	private List<String> findBefore(Date before){
-		Vector<String> out = new Vector<String>();
-		Collection<Vector<String>> idLists = timeMap.headMap(before, true).values();
-		for(Vector<String> ids : idLists){
-			out.addAll(ids);
-		}
-		return out;
-	}
-	
-	private List<String> findTextContains(String text){
-		List<String> names = findNameContains(text);
-		List<String> desc = findDescriptionContains(text);
-		names.retainAll(desc);
-		return names;
-	}
-	
-	private List<String> findNameContains(String snippet){
+
+	private List<String> findNameContains(final String snippet) {
 		final Vector<String> out = new Vector<String>();
 		final Iterator<String> idIt = idMap.keySet().iterator();
 		while (idIt.hasNext()) {
@@ -188,18 +241,12 @@ class MetaDataStorage {
 		}
 		return out;
 	}
-	
-	private List<String> findDescriptionContains(String snippet){
-		final Vector<String> out = new Vector<String>();
-		final Iterator<String> idIt = idMap.keySet().iterator();
-		while (idIt.hasNext()) {
-			final String currID = idIt.next();
-			final String currDesc = idMap.get(currID).getDescription();
-			if (currDesc.contains(snippet)) {
-				out.add(currID);
-			}
-		}
-		return out;
+
+	private List<String> findTextContains(final String text) {
+		final List<String> names = findNameContains(text);
+		final List<String> desc = findDescriptionContains(text);
+		names.retainAll(desc);
+		return names;
 	}
 
 	/**
@@ -246,11 +293,18 @@ class MetaDataStorage {
 			return true;
 		} else {
 			final Vector<String> v = timeMap.get(d);
-			if (v != null && !v.contains(meta.getId() )) {
+			if (v != null && !v.contains(meta.getId())) {
 				v.add(meta.getId());
 				return true;
 			}
 			return false;
+		}
+	}
+
+	private void validateNotEmpty() {
+		if (isEmpty()) {
+			throw new IllegalStateException(
+					"Cannot perform this operation on empty storage.");
 		}
 	}
 
