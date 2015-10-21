@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -180,12 +181,23 @@ class MetaDataManager implements Closeable {
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		fillIdMap();
-		prepareForQueries();
+		MetaData[] entries = convertCollectionToMeta(Arrays.asList(metaDataFile
+				.getJsonObject(repositoryKey).getSet(datasetsKey)));
+		initStorage(entries);
 	}
 	
-	private void initStorage(MetaData[] entries){
-		if(storage != null){
+	/**
+	 * Puts the given meta data to the underlying {@link MetaDataStorage}.
+	 * @param meta The metadata to add.
+	 * @return TRUE if successful
+	 * @see MetaDataStorage#put(MetaData)
+	 */
+	public boolean putMeta(MetaData meta){
+		return storage.put(meta);
+	}
+
+	private void initStorage(MetaData[] entries) {
+		if (storage != null) {
 			throw new IllegalStateException("Cannot intialize storage twice!");
 		}
 		storage = new MetaDataStorage(entries);
@@ -198,7 +210,9 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param data
 	 *            The {@link MetaData} object to add to the internal buffer.
+	 * @deprecated Since this method is not used anymore
 	 */
+	@Deprecated
 	public void addMetaData(final MetaData data) {
 		if (data == null) {
 			throw new NullPointerException("MetaData to add is null.");
@@ -233,6 +247,7 @@ class MetaDataManager implements Closeable {
 	 * @return The {@link MetaData} object corresponding to the given id or
 	 *         null, if the ID does not exist.
 	 */
+	@Deprecated
 	public MetaData getMetaDataForID(final String id) {
 		if (idMap.containsKey(id)) {
 			return extractMetaData(idMap.get(id));
@@ -244,6 +259,7 @@ class MetaDataManager implements Closeable {
 	/**
 	 * Prepares the MetaDataManager to query for a certain {@link Criteria}.
 	 */
+	@Deprecated
 	public void prepareForQueries() {
 		fillTimeMap();
 		queryReady = true;
@@ -261,7 +277,9 @@ class MetaDataManager implements Closeable {
 	 * @see Criteria
 	 * @param criteria
 	 * @return {@link MetaData}s which match the given criteria.
+	 * @deprecated
 	 */
+	@Deprecated
 	public MetaData[] query(final Criteria criteria) {
 		if (!queryReady) {
 			throw new IllegalStateException(
@@ -313,6 +331,7 @@ class MetaDataManager implements Closeable {
 	 * @param meta
 	 *            The new meta data set.
 	 */
+	@Deprecated
 	public void replaceMetaData(final String id, final MetaData meta) {
 		final Json entry = createJsonMetaEntry(meta);
 		idMap.put(id, entry);
@@ -349,6 +368,7 @@ class MetaDataManager implements Closeable {
 	 * @throws IOException
 	 *             If an error occurs while writing the file.
 	 */
+	@Deprecated
 	public void writeTemporaryMetaDataFile() throws IOException {
 		final FileWriter fw = new FileWriter(Paths.get(repoPath,
 				tmpLabel + metaDataFileName).toFile());
@@ -458,10 +478,12 @@ class MetaDataManager implements Closeable {
 		final Collection<Json> descContaining = getDescriptionContains(snippet);
 		return CollectionUtils.intersect(namesContaining, descContaining);
 	}
+
 	@Deprecated
 	private Collection<Json> getBefore(final Date before) {
 		return (timestampMap.headMap(before.getTime(), true)).values();
 	}
+
 	@Deprecated
 	private Collection<Json> getDescriptionContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
@@ -475,6 +497,7 @@ class MetaDataManager implements Closeable {
 		}
 		return out;
 	}
+
 	@Deprecated
 	private Collection<Json> getNameContains(final String snippet) {
 		final Vector<Json> out = new Vector<Json>();
@@ -488,7 +511,7 @@ class MetaDataManager implements Closeable {
 		}
 		return out;
 	}
-	
+
 	@Deprecated
 	private Collection<Json> getNameEquals(final String pattern) {
 		final Vector<Json> out = new Vector<Json>();

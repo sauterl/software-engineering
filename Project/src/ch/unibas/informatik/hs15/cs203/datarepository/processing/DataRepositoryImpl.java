@@ -38,8 +38,9 @@ class DataRepositoryImpl implements DataRepository {
 		MetaData _ret = new MetaData(newID, file.getName(), description,
 				RepoFileUtils.getFileCount(file),
 				RepoFileUtils.getFileSize(file), new Date());
+		MetaDataManager mdm = null;
 		try {
-			MetaDataManager mdm = MetaDataManager
+			mdm = MetaDataManager
 					.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			//Write temporary metadata
 			mdm.writeMetadata(_ret);
@@ -58,6 +59,14 @@ class DataRepositoryImpl implements DataRepository {
 			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
+		}finally{
+			if(mdm != null){
+				try {
+					mdm.close();
+				} catch (IOException e) {
+					throw new RuntimeException("An IOException occurred while closing the MetaDataManger",e);
+				}
+			}
 		}
 		return _ret;
 	}
