@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.Vector;
@@ -187,6 +188,25 @@ class MetaDataManager implements Closeable {
 	}
 	
 	/**
+	 * Adds and writes the specified {@link MetaData} to the meta data file.<br />
+	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to write
+	 * the data persistently</b><br />
+	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaData)} followed by
+	 * {@link MetaDataManager#writeTempMetaFile()}
+	 * @param meta
+	 * @return
+	 * @throws IOException If the writing fails.
+	 */
+	public boolean add(MetaData meta) throws IOException{
+		if(putMeta(meta) ){
+			writeTempMetaFile();
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	/**
 	 * Puts the given meta data to the underlying {@link MetaDataStorage}.
 	 * @param meta The metadata to add.
 	 * @return TRUE if successful
@@ -195,7 +215,58 @@ class MetaDataManager implements Closeable {
 	public boolean putMeta(MetaData meta){
 		return storage.put(meta);
 	}
+	
+	/**
+	 * Returns the meta data which fulfill the criteria completely.
+	 * @param criteria
+	 * @return
+	 * @see MetaDataStorage#get(Criteria)
+	 */
+	public List<MetaData> getMatchingMeta(Criteria criteria){
+		return storage.get(criteria);
+	}
+	/**
+	 * Returns the meta data with matching ID or null.
+	 * @param id
+	 * @return
+	 * @see MetaDataStorage#get(String)
+	 */
+	public MetaData getMeta(String id){
+		return storage.get(id);
+	}
+	
+	/**
+	 * Returns all stored meta data.
+	 * @return
+	 * @see MetaDataStorage#getAll()
+	 */
+	public List<MetaData> getAllMetaData(){
+		return Arrays.asList(storage.getAll());
+	}
+	
 
+	public void writeTempMetaFile() throws IOException{
+		final FileWriter fw = new FileWriter(Paths.get(repoPath,
+				tmpLabel + metaDataFileName).toFile());
+		storageToJson();
+		fw.write(metaDataFile.toJson());
+		fw.flush();
+		fw.close();
+		releaseLock();
+		System.gc();
+	}
+	
+	private void storageToJson(){
+		MetaData[] datas = storage.getAll();
+		Json[] entries = new Json[datas.length];
+		for(int i=0; i<datas.length; i++){
+			entries[i] = createJsonMetaEntry(datas[i]);
+		}
+		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
+		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
+				entries);
+	}
+	
 	private void initStorage(MetaData[] entries) {
 		if (storage != null) {
 			throw new IllegalStateException("Cannot intialize storage twice!");
@@ -354,7 +425,10 @@ class MetaDataManager implements Closeable {
 	 *            The {@link MetaData} object to write.
 	 * @throws IOException
 	 *             If somewhere while writing an i/o error occurs
+	 *             
+	 * @deprecated Got replaced by {@link MetaDataManager#add(MetaData)}
 	 */
+	@Deprecated
 	public void writeMetadata(final MetaData data) throws IOException {
 		addMetaData(data);
 		writeTemporaryMetaDataFile();
@@ -544,6 +618,7 @@ class MetaDataManager implements Closeable {
 		return true;
 	}
 
+	@Deprecated
 	private boolean tryLockMetaDataFile() {
 		final Path lockFilePath = Paths.get(repoPath, lockFile);
 		try {
