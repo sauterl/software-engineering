@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,11 +40,12 @@ class DataRepositoryImpl implements DataRepository {
 		MetaData _ret = new MetaData(newID, file.getName(), description,
 				RepoFileUtils.getFileCount(file),
 				RepoFileUtils.getFileSize(file), new Date());
+		MetaDataManager mdm = null;
 		try {
-			MetaDataManager mdm = MetaDataManager
+			mdm = MetaDataManager
 					.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			//Write temporary metadata
-			mdm.writeMetadata(_ret);
+			mdm.add(_ret);
 
 			progressListener.start();
 			progressListener.progress(0, RepoFileUtils.getFileSize(file));
@@ -55,9 +58,16 @@ class DataRepositoryImpl implements DataRepository {
 						RepoFileUtils.getFileSize(file));
 			}
 			progressListener.finish();
-			mdm.close();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
+		}finally{
+			if(mdm != null){
+				try {
+					mdm.close();
+				} catch (IOException e) {
+					throw new RuntimeException("An IOException occurred while closing the MetaDataManger",e);
+				}
+			}
 		}
 		return _ret;
 	}
@@ -171,7 +181,30 @@ class DataRepositoryImpl implements DataRepository {
 
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
-		// TODO Auto-generated method stub
-		return null;
+		List<MetaData> _res = new ArrayList<MetaData>();
+
+		try{
+			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
+			if(searchCriteria==null || searchCriteria.empty()){
+				_res = mdm.getAllMetaData();
+				Collections.sort(_res, new MetaDataComparator());
+				return _res;
+			}
+			if(searchCriteria.getId()!= null && !searchCriteria.onlyID()){
+				throw new IllegalArgumentException("If you specify an ID, no other criteria can be specified");
+			}
+			if(searchCriteria.onlyID()){
+				MetaData idMatch = mdm.getMeta(searchCriteria.getId());
+				if(idMatch!= null){
+					_res.add(idMatch);
+				}
+				return _res;
+			}
+			_res.addAll(mdm.getMatchingMeta(searchCriteria));
+			Collections.sort(_res, new MetaDataComparator());
+			return _res;
+		}catch(Exception e){
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 }

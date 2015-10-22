@@ -29,8 +29,12 @@ public class Main {
 			interpreter.interpret(args);
 		} catch (final Throwable t) {
 			System.err.print("[ERROR]: ");
-			System.err.print(t.getMessage() != null ? t.getMessage()
-					: "Unkown error : "+t.getClass().getSimpleName());
+			System.err.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
+//<<<<<<< HEAD
+//					: "Unkown error : "+t.getClass().getSimpleName());
+//=======
+//					: "Unkown error of type: "+t.getClass().getSimpleName());
+//>>>>>>> 26c9771de28a9ddcce9e0ce280f3db4d7f58977e
 			System.err.println();
 			t.printStackTrace();
 			exitStatus = 1;

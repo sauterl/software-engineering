@@ -45,6 +45,7 @@ public class StandardFormatter extends Formatter {
 	public StandardFormatter() {
 		/* empty */
 	}
+	
 
 	/**
 	 * Formats the given {@link LogRecord}.
