@@ -95,12 +95,12 @@ class Verification {
 		if (criteria == null) {
 			throw new IllegalArgumentException("The given criteria is null");
 		}
-		if (criteria.getAfter() == null && criteria.getBefore() == null
-				&& criteria.getId() == null && criteria.getName() == null
-				&& criteria.getText() == null) {
-			throw new IllegalArgumentException(
-					"No criteria have been specified");
-		}
+//		if (criteria.getAfter() == null && criteria.getBefore() == null
+//				&& criteria.getId() == null && criteria.getName() == null
+//				&& criteria.getText() == null) {
+//			throw new IllegalArgumentException(
+//					"No criteria have been specified");
+//		}
 		if (criteria.getId() != null
 				&& (criteria.getAfter() != null || criteria.getBefore() != null
 						|| criteria.getName() != null || criteria.getText() != null)) {
