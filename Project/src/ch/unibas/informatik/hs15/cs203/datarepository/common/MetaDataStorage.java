@@ -1,4 +1,4 @@
-package ch.unibas.informatik.hs15.cs203.datarepository.processing;
+package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,7 +13,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * The {@link MetaDataStorage} class provides methods to store a list of meta
- * data.
+ * data.<br />
+ * Further this class also is capable of handling queries with {@link Criteria} objects.
  * 
  * @author Loris
  * 

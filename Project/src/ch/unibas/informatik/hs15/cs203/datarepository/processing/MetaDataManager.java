@@ -27,6 +27,7 @@ import util.jsontools.JsonParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataStorage;
 
 /**
  * The {@link MetaDataManager} class manages meta data. This includes reading of
