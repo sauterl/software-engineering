@@ -19,7 +19,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
  * @author Loris
  * 
  */
-class MetaDataStorage {
+public class MetaDataStorage {
 
 	private final TreeMap<String, MetaData> idMap = new TreeMap<String, MetaData>();
 	private final TreeMap<Date, Vector<String>> timeMap = new TreeMap<Date, Vector<String>>();
