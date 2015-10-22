@@ -121,6 +121,9 @@ class DataRepositoryImpl implements DataRepository {
 //	Verification.verifyAbsence(target);
 	// TODO If ID has been specified, check for existence
 	if(exportCriteria.getId()!=null){
+		
+//		System.out.println(getMetaData(exportCriteria));
+//		
 		if(getMetaData(exportCriteria).size()==0){
 			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
 		}

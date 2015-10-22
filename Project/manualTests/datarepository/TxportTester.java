@@ -12,7 +12,6 @@ public class TxportTester {
 	
 	
 	public static void main(String[] args) {
-		System.out.println("ding");
 		exportTest();
 	}
 	
