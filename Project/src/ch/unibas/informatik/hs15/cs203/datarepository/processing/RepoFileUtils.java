@@ -93,6 +93,7 @@ class RepoFileUtils {
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
+//			ex.printStackTrace();
 			throw new IllegalArgumentException("Error while moving file");
 		} finally {
 			try {

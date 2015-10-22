@@ -97,25 +97,25 @@ class DataRepositoryImpl implements DataRepository {
 		progressListener);
 		long totalNumberOfBytes=0;
 		for(MetaData md:wholeMetadata){
-			totalNumberOfBytes+=RepoFileUtils.getFileSize(new File(md.getId()));
+//			System.out.println(md.getId());
+			totalNumberOfBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+md.getId()));
 		}
 		
 		long copiedBytes=0;
 		progressListener.start();
 		progressListener.progress(copiedBytes, totalNumberOfBytes);
 		for(int c=0;c<wholeMetadata.size();c++){
-			File source = new File(wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
-			
-			File fullTarget=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
-//			System.out.println(source.getAbsolutePath());
-//			System.out.println(fullTarget.getAbsolutePath());
+//			System.out.println(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
+			File source = new File(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
+//			System.out.println(target.getAbsolutePath());
+			File fullTarget=new File(target.getAbsolutePath());
 			
 			try {
 		RepoFileUtils.copyRecursively(source.getAbsoluteFile().toPath(), fullTarget.getAbsoluteFile().toPath(), progressListener, copiedBytes, totalNumberOfBytes);
 		} catch (IOException e) {
 		throw new IllegalArgumentException("Something happend while copying");
 		}
-			copiedBytes+=RepoFileUtils.getFileSize(new File(wholeMetadata.get(c).getId()));
+			copiedBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()));
 		}
 		
 		
@@ -133,7 +133,7 @@ class DataRepositoryImpl implements DataRepository {
 	if(exportCriteria.getId()!=null){
 		
 //		System.out.println(getMetaData(exportCriteria));
-//		
+		
 		if(getMetaData(exportCriteria).size()==0){
 			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
 		}
@@ -145,7 +145,7 @@ class DataRepositoryImpl implements DataRepository {
 	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
 	long size=0;
 	for(int c=0;c<wholeMetadata.size();c++){
-		if(names.add(wholeMetadata.get(c).getName())){
+		if(!names.add(wholeMetadata.get(c).getName())){
 			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
 		}
 		File ft=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
@@ -155,22 +155,22 @@ class DataRepositoryImpl implements DataRepository {
 	}
 	
 	
-//	/**
-//	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
-//	 * @param data The File ore Folder
-//	 * @return The size of the File or Folder in Bytes
-//	 */
-//	private long getBytesOf(File data) {
-//	long size = 0;
-//	for (File f : data.listFiles()) {
-//		if (f.isFile()) {
-//			size+=f.length();
-//		} else {
-//			size+=getBytesOf(f);
-//		}
-//	}
-//	return size;
-//	}
+	/**
+	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
+	 * @param data The File ore Folder
+	 * @return The size of the File or Folder in Bytes
+	 */
+	private long getBytesOf(File data) {
+	long size = 0;
+	for (File f : data.listFiles()) {
+		if (f.isFile()) {
+			size+=f.length();
+		} else {
+			size+=getBytesOf(f);
+		}
+	}
+	return size;
+	}
 
 	@Override
 	public MetaData replace(String id, File file, String description,
@@ -204,6 +204,7 @@ class DataRepositoryImpl implements DataRepository {
 			Collections.sort(_res, new MetaDataComparator());
 			return _res;
 		}catch(Exception e){
+			e.printStackTrace();
 			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
