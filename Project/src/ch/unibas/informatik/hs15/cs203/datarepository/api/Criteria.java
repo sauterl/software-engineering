@@ -116,6 +116,17 @@ public final class Criteria
     this.before = before;
     this.after = after;
   }
+  
+  /**
+   * Returns true if the criteria only has an ID and no other criteria
+   */
+  public boolean onlyID(){
+	  if(this.getId()!=null && (this.getAfter() == null && this.getBefore() == null
+				&& this.getName() == null && this.getText() == null)){
+		  return true;
+	  }
+	  return false;
+  }
 
   /**
    * Returns the id or <code>null</code> if not specified.
@@ -215,5 +226,16 @@ public boolean equals(Object obj) {
 	} else if (!text.equals(other.text))
 		return false;
 	return true;
+}
+
+/**
+ * Returns true if all criteria is null
+ */
+public boolean empty() {
+	  if(this.getId()==null && (this.getAfter() == null && this.getBefore() == null
+				&& this.getName() == null && this.getText() == null)){
+		  return true;
+	  }
+	  return false;
 }
 }

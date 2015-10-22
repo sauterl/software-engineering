@@ -245,7 +245,7 @@ class MetaDataStorage {
 	private List<String> findTextContains(final String text) {
 		final List<String> names = findNameContains(text);
 		final List<String> desc = findDescriptionContains(text);
-		names.retainAll(desc);
+		names.addAll(desc);
 		return names;
 	}
 
