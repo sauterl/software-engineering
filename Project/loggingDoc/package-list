@@ -1,1 +1,8 @@
+api
+api.options
+ch.unibas.informatik.hs15.cs203.datarepository.api
+ch.unibas.informatik.hs15.cs203.datarepository.apps.cli
+ch.unibas.informatik.hs15.cs203.datarepository.processing
+manual.logging
+util.jsontools
 util.logging
