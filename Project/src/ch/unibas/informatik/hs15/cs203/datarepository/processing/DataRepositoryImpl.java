@@ -14,6 +14,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import util.jsontools.Json;
 
 class DataRepositoryImpl implements DataRepository {
 	/**
@@ -70,6 +71,10 @@ class DataRepositoryImpl implements DataRepository {
 			}
 		}
 		return _ret;
+	}
+	
+	private Date dateCutter(Date d){
+		return Json.iso8601ToDate(Json.dateToISO8601(d));
 	}
 
 	/**
@@ -155,8 +160,7 @@ class DataRepositoryImpl implements DataRepository {
 		
 		if(wholeMetadata.size()==0){
 			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
-		}
-			
+		}	
 		//Export dataset with given ID
 	}
 	
@@ -166,7 +170,7 @@ class DataRepositoryImpl implements DataRepository {
 	long size=0;
 //	System.out.println(wholeMetadata.size());
 	for(int c=0;c<wholeMetadata.size();c++){
-//		System.out.println(wholeMetadata.get(c).getName());
+		System.out.println(wholeMetadata.get(c).getName());
 		if(!names.add(wholeMetadata.get(c).getName())){
 			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
 		}
