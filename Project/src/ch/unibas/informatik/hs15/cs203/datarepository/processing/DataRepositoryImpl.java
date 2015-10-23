@@ -40,7 +40,7 @@ class DataRepositoryImpl implements DataRepository {
 		Path joinedPath = createNewDatasetFolder(newID);
 		MetaData _ret = new MetaData(newID, file.getName(), description,
 				RepoFileUtils.getFileCount(file),
-				RepoFileUtils.getFileSize(file), new Date());
+				RepoFileUtils.getFileSize(file), dateCutter(new Date()));
 		MetaDataManager mdm = null;
 		try {
 			mdm = MetaDataManager
