@@ -91,9 +91,11 @@ class DataRepositoryImpl implements DataRepository {
 	}
 
 	@Override
-	public List<MetaData> export(Criteria exportCriteria, File target,
+	public List<MetaData> export(Criteria exportCriteria, File target,	
 		ProgressListener progressListener){
-	List<MetaData> wholeMetadata = exportCheck(exportCriteria, target,
+		try{
+		
+			List<MetaData> wholeMetadata = exportCheck(exportCriteria, target,
 		progressListener);
 		long totalNumberOfBytes=0;
 		for(MetaData md:wholeMetadata){
@@ -113,15 +115,23 @@ class DataRepositoryImpl implements DataRepository {
 			try {
 		RepoFileUtils.copyRecursively(source.getAbsoluteFile().toPath(), fullTarget.getAbsoluteFile().toPath(), progressListener, copiedBytes, totalNumberOfBytes);
 		} catch (IOException e) {
+			progressListener.finish();
 		throw new IllegalArgumentException("Something happend while copying");
 		}
 			copiedBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()));
 		}
+		progressListener.finish();
 		
 		
+	
 		
 		//Export all datasets
 		return wholeMetadata;
+		
+		}catch (Exception e){
+//			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
@@ -130,6 +140,15 @@ class DataRepositoryImpl implements DataRepository {
 	Verification.verifyProgressListener(progressListener);
 //	Verification.verifyAbsence(target);
 	// TODO If ID has been specified, check for existence
+	if(target!=null){
+	if(!target.exists()){
+//		System.out.println("Hello");
+		throw new IllegalArgumentException("The target path enterd couldn't be found");
+	}
+	}else{
+		throw new IllegalArgumentException("Please define a target.");
+	}
+	
 	if(exportCriteria.getId()!=null){
 		
 //		System.out.println(getMetaData(exportCriteria));
@@ -137,6 +156,7 @@ class DataRepositoryImpl implements DataRepository {
 		if(getMetaData(exportCriteria).size()==0){
 			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
 		}
+			
 		//Export dataset with given ID
 	}
 	
@@ -144,33 +164,40 @@ class DataRepositoryImpl implements DataRepository {
 	HashSet<String> names = new HashSet<String>();
 	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
 	long size=0;
+//	System.out.println(wholeMetadata.size());
 	for(int c=0;c<wholeMetadata.size();c++){
+//		System.out.println(wholeMetadata.get(c).getName());
 		if(!names.add(wholeMetadata.get(c).getName())){
 			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
 		}
 		File ft=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
 		Verification.verifyAbsence(ft);
 	}
+	
+	if(target.getAbsolutePath().startsWith(repositoryFolder.getAbsolutePath())){
+		throw new IllegalArgumentException("The targer path given seems to bo inside the repository.");
+	}
+	
 	return wholeMetadata;
 	}
 	
 	
-	/**
-	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
-	 * @param data The File ore Folder
-	 * @return The size of the File or Folder in Bytes
-	 */
-	private long getBytesOf(File data) {
-	long size = 0;
-	for (File f : data.listFiles()) {
-		if (f.isFile()) {
-			size+=f.length();
-		} else {
-			size+=getBytesOf(f);
-		}
-	}
-	return size;
-	}
+//	/**
+//	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
+//	 * @param data The File ore Folder
+//	 * @return The size of the File or Folder in Bytes
+//	 */
+//	private long getBytesOf(File data) {
+//	long size = 0;
+//	for (File f : data.listFiles()) {
+//		if (f.isFile()) {
+//			size+=f.length();
+//		} else {
+//			size+=getBytesOf(f);
+//		}
+//	}
+//	return size;
+//	}
 
 	@Override
 	public MetaData replace(String id, File file, String description,
@@ -182,9 +209,9 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
 		List<MetaData> _res = new ArrayList<MetaData>();
-
+		MetaDataManager mdm=null;
 		try{
-			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
+			mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			if(searchCriteria==null || searchCriteria.empty()){
 				_res = mdm.getAllMetaData();
 				Collections.sort(_res, new MetaDataComparator());
@@ -202,9 +229,19 @@ class DataRepositoryImpl implements DataRepository {
 			}
 			_res.addAll(mdm.getMatchingMeta(searchCriteria));
 			Collections.sort(_res, new MetaDataComparator());
+			try{
+			mdm.close();
+			}catch(IOException e){
+				e.printStackTrace();
+			}
 			return _res;
 		}catch(Exception e){
-			e.printStackTrace();
+			try {
+		mdm.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+//			throw new IllegalArgumentException(e1.getMessage());
+		}
 			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
