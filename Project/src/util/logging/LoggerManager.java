@@ -33,9 +33,17 @@ public class LoggerManager {
 	public final static String CONFIG_PATH_KEY = "lsjl.logging.config.path";
 	/**
 	 * Contains the system property key to specify if the logging api is
-	 * completely disabled.
+	 * completely disabled.<br />
+	 * If a system property with this key exists and is set to <tt>true</tt>,
+	 * the logging is completely disabled.
 	 */
 	public final static String LOGGING_DISABLED_KEY = "lsjl.logging.disabled";
+	/**
+	 * Contains the system property key to specify the default logging level.
+	 * <br />
+	 * If no system property with this key exists, the logging is disabled.
+	 */
+	public final static String LOGGING_DEFAULT_LEVEL = "lsjl.logging.level";
 
 	private final static String[] configFileNames = { "lsjl", "logging", "lsjl-config",
 			"logging-config" };
@@ -79,6 +87,10 @@ public class LoggerManager {
 			internalLevel = Level.OFF;
 		}
 		LOGGER = getLoggingLogger(LoggerManager.class);
+		// setting default logging config.
+		if(Boolean.parseBoolean(System.getProperty(LOGGING_DISABLED_KEY))){
+			System.setProperty(LOGGING_DEFAULT_LEVEL, LevelX.OFF.getName() );
+		}
 	}
 
 	private LoggerManager() {
