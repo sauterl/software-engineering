@@ -26,7 +26,7 @@ import util.jsontools.JsonParser;
  * configuration.<br />
  * The following shows an example of such a configuration file:
  * 
- * <pre style="font-size: 76%;">
+ * <pre>
  * {@code
  * {
  * 	"version":"dev 0.1",
@@ -47,11 +47,15 @@ import util.jsontools.JsonParser;
  * }
  * }
  * </pre>
- * A developer may use one of the following techniques to register the config file to the API:
+ * 
+ * A developer may use one of the following techniques to register the config
+ * file to the API:
  * <ul>
- * <li>By setting a system property named <code>lsjl.logging.config.path</code> with the absolute or relative
- * path to the config file (inclusive name and suffix, e.g. lsjl.json</li>
- * <li>By placing a file in the root folder of the application (so were it gets executed) with one of the following names:
+ * <li>By setting a system property named <code>lsjl.logging.config.path</code>
+ * with the absolute or relative path to the config file (inclusive name and
+ * suffix, e.g. lsjl.json</li>
+ * <li>By placing a file in the root folder of the application (so were it gets
+ * executed) with one of the following names:
  * <ul>
  * <li><code>lsjl</code></li>
  * <li><code>lsjl-config</code></li>
@@ -89,6 +93,8 @@ public class ConfigurationManager {
 	private static final String LOGGERS_KEY = "loggers";
 	private static final String HANDLER_KEY = "handler";
 
+	private static Level defaultLevel = null;
+
 	private static ConfigurationManager instance = null;
 
 	/**
@@ -103,11 +109,28 @@ public class ConfigurationManager {
 		return instance;
 	}
 
+	private static void loadDefaultLevel() {
+		if (defaultLevel == null) {
+			if (System.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL_KEY) != null) {
+				defaultLevel = LevelX.parse(System
+						.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL_KEY));
+			} else {
+				defaultLevel = Level.INFO;
+			}
+		}
+		// dont load it again
+	}
+
 	private final HashMap<String, Handler> refHandlerMap;
 
 	private final HashMap<String, LoggerConfiguration> nameConfigMap;
 
 	private static final StandardConsoleHandler defaultHandler = new StandardConsoleHandler();
+
+	{
+		// load default level
+		loadDefaultLevel();
+	}
 
 	/**
 	 * Creates the configmanager
@@ -162,7 +185,7 @@ public class ConfigurationManager {
 	public void applyDefaultConfig(final Logger log) {
 		log.resetHandlers();
 		log.addHandler(defaultHandler);
-		log.setLevel(Level.INFO);
+		log.setLevel(defaultLevel);
 	}
 
 	/**
@@ -176,10 +199,10 @@ public class ConfigurationManager {
 		return refHandlerMap.get(ref);
 	}
 
-	
 	/**
-	 * Loads the config file specified by the given path.
-	 * It is recommended to give the absolute path - to minimize errors.
+	 * Loads the config file specified by the given path. It is recommended to
+	 * give the absolute path - to minimize errors.
+	 * 
 	 * @param file
 	 * @throws IOException
 	 */
