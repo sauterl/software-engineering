@@ -203,20 +203,20 @@ class CommandInterpreter {
 			curr=arguments.poll();
 			if(curr.startsWith(Option.ID.name())){
 				Identifier=true;
-				ID=curr;
+				ID=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			}
 			else if(curr.startsWith(Option.NAME.name())){
 				Identifier=true;
-				NAME=curr;
+				NAME=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			}else if(curr.startsWith(Option.TEXT.name())){
 				Identifier=true;
-				TEXT=curr;
+				TEXT=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			}else if(curr.startsWith(Option.BEFORE.name())){
 				Identifier=true;
-				BEFORE=curr;
+				BEFORE=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			}else if(curr.startsWith(Option.AFTER.name())){
 				Identifier=true;
-				AFTER=curr;
+				AFTER=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
 			}else if(curr.startsWith(Option.VERBOSE.name())){
 
 			}
