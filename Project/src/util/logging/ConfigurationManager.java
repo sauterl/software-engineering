@@ -111,9 +111,9 @@ public class ConfigurationManager {
 
 	private static void loadDefaultLevel() {
 		if (defaultLevel == null) {
-			if (System.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL) != null) {
+			if (System.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL_KEY) != null) {
 				defaultLevel = LevelX.parse(System
-						.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL));
+						.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL_KEY));
 			} else {
 				defaultLevel = Level.INFO;
 			}
