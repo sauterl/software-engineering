@@ -148,12 +148,12 @@ class DataRepositoryImpl implements DataRepository {
 	}else{
 		throw new IllegalArgumentException("Please define a target.");
 	}
-	
+	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
 	if(exportCriteria.getId()!=null){
 		
 //		System.out.println(getMetaData(exportCriteria));
 		
-		if(getMetaData(exportCriteria).size()==0){
+		if(wholeMetadata.size()==0){
 			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
 		}
 			
@@ -162,7 +162,7 @@ class DataRepositoryImpl implements DataRepository {
 	
 	//Check duplicates
 	HashSet<String> names = new HashSet<String>();
-	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
+	
 	long size=0;
 //	System.out.println(wholeMetadata.size());
 	for(int c=0;c<wholeMetadata.size();c++){
@@ -229,20 +229,28 @@ class DataRepositoryImpl implements DataRepository {
 			}
 			_res.addAll(mdm.getMatchingMeta(searchCriteria));
 			Collections.sort(_res, new MetaDataComparator());
-			try{
-			mdm.close();
-			}catch(IOException e){
-				e.printStackTrace();
-			}
+//			try{
+//			mdm.close();
+//			}catch(IOException e){
+//				e.printStackTrace();
+//			}
 			return _res;
 		}catch(Exception e){
-			try {
-		mdm.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-//			throw new IllegalArgumentException(e1.getMessage());
-		}
+//			try {
+//		mdm.close();
+//		} catch (IOException e1) {
+//			e1.printStackTrace();
+////			throw new IllegalArgumentException(e1.getMessage());
+//		}
 			throw new IllegalArgumentException(e.getMessage());
+		}finally{
+			if(mdm!=null){
+				try{
+					mdm.close();
+				}catch(IOException e){
+					throw new RuntimeException(e.getMessage(), e);
+				}
+			}
 		}
 	}
 }
