@@ -16,7 +16,21 @@ import util.jsontools.JsonParser;
  * On of the main purposes of this class is the parsing and interpretation of
  * configuration files for this logging API. Further the management of assigning
  * handlers to loggers is another important part of this class. The two ways of
- * configuring a logger or manager are described below.
+ * configuring a logger or manager are described further below.
+ * <p>
+ * <h2>Default configuration</h2>
+ * This class firstly checks if a system property with key
+ * {@value LoggerManager#LOGGING_DISABLED_KEY} exists. If such a property was
+ * found and equals case insensitive to <tt>true</tt>, the configuration manager
+ * will set the level of each registered handler to {@link Level#OFF} (and to
+ * handlers which will be registered in future).<br />
+ * Does said property exist and equals case insensitive to <tt>false</tt>, then
+ * the default logging level will be set to {@link Level#INFO}, except a system
+ * property named {@value LoggerManager#LOGGING_DEFAULT_LEVEL_KEY} does exist.
+ * In this case and if that property could get parsed with
+ * {@link LevelX#parse(String)}, that level will be taken as default level.<br />
+ * If neither of the above mentioned cases occurred, the logging is disabled.<br />
+ * </p>
  * <p>
  * <h2>Configuration file</h2>
  * This logging API provides simple JSON-based config-file system. Configuration
@@ -29,7 +43,7 @@ import util.jsontools.JsonParser;
  * <pre>
  * {@code
  * {
- * 	"version":"dev 0.1",
+ * 	"version":"dev 0.2",
  * 	"handlers":[
  * 		{
  * 			"ref":"console",
@@ -48,12 +62,65 @@ import util.jsontools.JsonParser;
  * }
  * </pre>
  * 
+ * <h3>Configuration file keys</h3>
+ * <table>
+ * <tr>
+ * <th>Key name</th>
+ * <th>Description</th>
+ * <th>Remark</th>
+ * </tr>
+ * <tr>
+ * <td>version</td>
+ * <td>This describes the version of the configuration file. Currently this has
+ * to be: <tt>dev 0.2</tt></td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td>handlers</td>
+ * <td>An array of <i>handler JSON objects</i></td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td>loggers</td>
+ * <td>An array of <i>logger JSON objects</i></td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td><i>hander JSON object</i></td>
+ * <td>Contains the keys <tt>name</tt>, <tt>ref</tt> and <tt>level</tt>, see
+ * their descriptions.</td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td><i>logger JSON object</i></td>
+ * <td>Contains the keys <tt>name</tt>, <tt>handler</tt> and <tt>level</tt>, see
+ * their descriptions.</td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td>ref</td>
+ * <td>A string to reference that handler. It is used in
+ * <tt><i>logger</i>.handler</tt> to assign a handler to a certain logger.</td>
+ * <td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td>name</td><td>The full class name of the handler. <b>Or</b> the logger's complete name.</td><td>mandatory</td>
+ * </tr>
+ * <tr>
+ * <td>level</td><td>The logger / handler's {@link LevelX}.</td><td>optional</td>
+ * </tr>
+ * <tr>
+ * <td>handler</td><td>The reference string to a previous defined handler.</td><td>mandatory</td>
+ * </tr>
+ * </table>
+ * </p>
+ * <p>
  * A developer may use one of the following techniques to register the config
  * file to the API:
  * <ul>
- * <li>By setting a system property named <code>lsjl.logging.config.path</code>
- * with the absolute or relative path to the config file (inclusive name and
- * suffix, e.g. lsjl.json</li>
+ * <li>By setting a system property named
+ * <tt>{@value LoggerManager#CONFIG_PATH_KEY}</tt> with the absolute or relative
+ * path to the config file (inclusive name and suffix, e.g. lsjl.json</li>
  * <li>By placing a file in the root folder of the application (so were it gets
  * executed) with one of the following names:
  * <ul>
@@ -85,7 +152,7 @@ public class ConfigurationManager {
 			.getLoggingLogger(ConfigurationManager.class);
 
 	private static final String VERSION_KEY = "version";
-	private static final String VERSION = "dev 0.1";
+	public static final String VERSION = "dev 0.2";
 	private static final String HANDLERS_KEY = "handlers";
 	private static final String REF_KEY = "ref";
 	private static final String NAME_KEY = "name";
@@ -94,7 +161,7 @@ public class ConfigurationManager {
 	private static final String HANDLER_KEY = "handler";
 
 	private static Level defaultLevel = null;
-
+	private static boolean loggingDisabled;
 	private static ConfigurationManager instance = null;
 
 	/**
@@ -110,6 +177,10 @@ public class ConfigurationManager {
 	}
 
 	private static void loadDefaultLevel() {
+		if (loggingDisabled) {
+			defaultLevel = Level.OFF;
+			return;
+		}
 		if (defaultLevel == null) {
 			if (System.getProperty(LoggerManager.LOGGING_DEFAULT_LEVEL_KEY) != null) {
 				defaultLevel = LevelX.parse(System
@@ -119,17 +190,50 @@ public class ConfigurationManager {
 			}
 		}
 		// dont load it again
+		LOGGER.config("Default logging level: " + defaultLevel.getName());
+	}
+
+	/**
+	 * Do <b>NOT</b> invoke this method before loadDefaultLevel()
+	 */
+	private static void setUpDefaultHandler() {
+		if (defaultHandler == null) {
+			defaultHandler = new StandardConsoleHandler(defaultLevel);
+			if (loggingDisabled) {
+				defaultHandler.setLevel(Level.OFF);
+				LOGGER.debug("Since logging disabled, default handler is disabled");
+			} else {
+				// do nothing
+			}
+			LOGGER.config("Default console handler's level: "
+					+ defaultHandler.getLevel().getName());
+		}//
+
 	}
 
 	private final HashMap<String, Handler> refHandlerMap;
 
 	private final HashMap<String, LoggerConfiguration> nameConfigMap;
 
-	private static final StandardConsoleHandler defaultHandler = new StandardConsoleHandler();
+	private static StandardConsoleHandler defaultHandler = null;
 
 	{
+		// logging disabled?
+		String disabledPropertyValue = System
+				.getProperty(LoggerManager.LOGGING_DISABLED_KEY);
+		if (disabledPropertyValue != null) {
+			// logging disabled key exists
+			if ("false".equalsIgnoreCase(disabledPropertyValue)) {
+				loggingDisabled = false;
+				LOGGER.config("Logging enabled");
+			} else {
+				loggingDisabled = true;
+				LOGGER.config("Logging disabled");
+			}
+		}
 		// load default level
 		loadDefaultLevel();
+		setUpDefaultHandler();
 	}
 
 	/**
@@ -212,7 +316,7 @@ public class ConfigurationManager {
 		// log.debug("Parsed config: \n"+jsonFile.toJson() );
 		LOGGER.debug("Successfully parsed config file");
 		if (!validateStructure(jsonFile)) {
-			throw new IllegalArgumentException("no valid config");
+			throw new IllegalArgumentException("No valid config");
 		}
 		LOGGER.debug("Validated config file");
 		parseHandlers(jsonFile);
@@ -244,6 +348,12 @@ public class ConfigurationManager {
 			throw new IllegalArgumentException(
 					"Cannot register handler for ref" + ref
 							+ ", since this reference is already used.");
+		}
+		if (loggingDisabled) {
+			LOGGER.debug(String
+					.format("Set %s 's (ref: %s) level to OFF, since logging is disabled.",
+							handler.getClass().getName(), ref));
+			handler.setLevel(Level.OFF);
 		}
 		refHandlerMap.put(ref, handler);
 	}

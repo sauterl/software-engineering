@@ -9,11 +9,7 @@ import java.util.logging.Level;
 /**
  * The {@link LoggerManager} registers {@link Logger}s by their name and manages
  * them. <br />
- * To completely disable the logging functionalities the system property with
- * key {@value #LOGGING_DISABLED_KEY} must be set to <tt>true</tt>. Otherwise
- * via the system property with key {@value #LOGGING_DEFAULT_LEVEL_KEY} the name
- * of the default level can be defined as well. If neither of them is set, the
- * default level is {@link Level#INFO}.
+ * To read more about logging configuration see {@link ConfigurationManager}.
  * 
  * @author Loris
  * 
@@ -25,34 +21,45 @@ public class LoggerManager {
 
 	private static Level internalLevel;
 	/**
-	 * Contains the system property key to specify the log level of the logging
-	 * api itself.
+	 * This logging API's name: <b>L</b>ightweight and <b>S</b>imple <b>J</b>ava
+	 * <b>L</b>ogging API.<br />
+	 * The value is the prefix for every system property of this API.<br />
+	 * The value is: {@value}
 	 */
-	public final static String VERBOSE_LEVEL_KEY = "lsjl.verbose.level";
+	public final static String API_NAME = "lsjl";
+	/**
+	 * Contains the system property key to specify the log level of the logging
+	 * api itself. The value is: {@value}
+	 */
+	public final static String VERBOSE_LEVEL_KEY = API_NAME + ".verbose.level";
 	/**
 	 * Contains the system property key to specify if the logging api logs its
-	 * actions.
+	 * actions.The value is: {@value}
 	 */
-	public final static String VERBOSE_ENABLED_KEY = "lsjl.verbose.enabled";
+	public final static String VERBOSE_ENABLED_KEY = API_NAME
+			+ ".verbose.enabled";
 	/**
-	 * Contains the system property key to specify the path of the config file.
+	 * Contains the system property key to specify the path of the config file.The value is: {@value}
 	 */
-	public final static String CONFIG_PATH_KEY = "lsjl.logging.config.path";
+	public final static String CONFIG_PATH_KEY = API_NAME
+			+ ".logging.config.path";
 	/**
 	 * Contains the system property key to specify if the logging api is
 	 * completely disabled.<br />
 	 * If a system property with this key exists and is set to <tt>true</tt>,
-	 * the logging is completely disabled.
+	 * the logging is completely disabled.The value is: {@value}
 	 */
-	public final static String LOGGING_DISABLED_KEY = "lsjl.logging.disabled";
+	public final static String LOGGING_DISABLED_KEY = API_NAME
+			+ ".logging.disabled";
 	/**
 	 * Contains the system property key to specify the default logging level. <br />
-	 * If no system property with this key exists, the logging is disabled.
+	 * If no system property with this key exists, the logging is disabled.The value is: {@value}
 	 */
-	public final static String LOGGING_DEFAULT_LEVEL_KEY = "lsjl.logging.level";
+	public final static String LOGGING_DEFAULT_LEVEL_KEY = API_NAME
+			+ ".logging.level";
 
-	private final static String[] configFileNames = { "lsjl", "logging",
-			"lsjl-config", "logging-config" };
+	private final static String[] configFileNames = { API_NAME, "logging",
+			API_NAME + "-config", "logging-config" };
 	private final static String[] configFileSuffixes = { ".json", ".cfg",
 			".config" };
 
@@ -115,6 +122,9 @@ public class LoggerManager {
 		} catch (final IOException e) {
 			LOGGER.warn("Reading config failed: ", e);
 			LOGGER.error("Could not read config file");
+		} catch (final IllegalArgumentException ex){
+			LOGGER.warn("Config file not parseable: ",ex);
+			LOGGER.error("Could not parse config file");
 		}
 	}
 
