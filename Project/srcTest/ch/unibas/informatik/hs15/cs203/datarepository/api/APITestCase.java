@@ -53,6 +53,7 @@ public abstract class APITestCase
     assertEquals(expectedMetaData.getSize(), metaData.getSize());
     System.out.println(expectedMetaData.getTimestamp().getTime());
     System.out.println(metaData.getTimestamp().getTime());
+    System.out.println(expectedMetaData.getTimestamp().getTime()-metaData.getTimestamp().getTime());
     assertEquals(expectedMetaData.getTimestamp(), metaData.getTimestamp());
   }
   

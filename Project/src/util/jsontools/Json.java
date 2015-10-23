@@ -112,6 +112,7 @@ public static Date iso8601ToDate(String iso8601date){
 	Calendar cal = Calendar.getInstance();
 	cal.set(year, month ,day, hour, minute, second);
 	return cal.getTime();
+
 }
 
 public static String dateToISO8601(Date date){
