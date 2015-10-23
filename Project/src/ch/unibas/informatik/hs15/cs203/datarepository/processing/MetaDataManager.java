@@ -312,6 +312,7 @@ class MetaDataManager implements Closeable {
 					StandardCopyOption.REPLACE_EXISTING,
 					StandardCopyOption.ATOMIC_MOVE);
 		}
+		instance = null;
 	}
 
 	/**
