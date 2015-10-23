@@ -24,22 +24,22 @@ public class LoggerManager {
 	 * This logging API's name: <b>L</b>ightweight and <b>S</b>imple <b>J</b>ava
 	 * <b>L</b>ogging API.<br />
 	 * The value is the prefix for every system property of this API.<br />
-	 * The value is: {@value #API_NAME}
+	 * The value is: {@value}
 	 */
 	public final static String API_NAME = "lsjl";
 	/**
 	 * Contains the system property key to specify the log level of the logging
-	 * api itself.
+	 * api itself. The value is: {@value}
 	 */
 	public final static String VERBOSE_LEVEL_KEY = API_NAME + ".verbose.level";
 	/**
 	 * Contains the system property key to specify if the logging api logs its
-	 * actions.
+	 * actions.The value is: {@value}
 	 */
 	public final static String VERBOSE_ENABLED_KEY = API_NAME
 			+ ".verbose.enabled";
 	/**
-	 * Contains the system property key to specify the path of the config file.
+	 * Contains the system property key to specify the path of the config file.The value is: {@value}
 	 */
 	public final static String CONFIG_PATH_KEY = API_NAME
 			+ ".logging.config.path";
@@ -47,13 +47,13 @@ public class LoggerManager {
 	 * Contains the system property key to specify if the logging api is
 	 * completely disabled.<br />
 	 * If a system property with this key exists and is set to <tt>true</tt>,
-	 * the logging is completely disabled.
+	 * the logging is completely disabled.The value is: {@value}
 	 */
 	public final static String LOGGING_DISABLED_KEY = API_NAME
 			+ ".logging.disabled";
 	/**
 	 * Contains the system property key to specify the default logging level. <br />
-	 * If no system property with this key exists, the logging is disabled.
+	 * If no system property with this key exists, the logging is disabled.The value is: {@value}
 	 */
 	public final static String LOGGING_DEFAULT_LEVEL_KEY = API_NAME
 			+ ".logging.level";
