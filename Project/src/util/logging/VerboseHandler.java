@@ -10,7 +10,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-public class VerboseHandler extends ConsoleHandler {
+class VerboseHandler extends ConsoleHandler {
 
 	private static class VerboseFormatter extends Formatter {
 		private final DateFormat dateFormat = new SimpleDateFormat(

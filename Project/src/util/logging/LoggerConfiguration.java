@@ -8,7 +8,7 @@ import java.util.logging.Level;
  * @author Loris
  * 
  */
-public class LoggerConfiguration {
+class LoggerConfiguration {
 
 	private String name;
 	private final String handlerRef;
