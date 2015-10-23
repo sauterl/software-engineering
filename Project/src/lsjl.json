@@ -1,0 +1,17 @@
+{
+	"version":"dev 0.1",
+	"handlers":[
+		{
+			"ref":"console",
+			"name":"util.logging.StandardConsoleHandler",
+			"level":"DEBUG"
+		}
+	],
+	"loggers":[
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.processing.MetaDataManager",
+			"handler":"console",
+			"level":"DEBUG"
+		}
+	]
+}

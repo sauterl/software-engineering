@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
+import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
@@ -49,6 +50,8 @@ class MetaDataManager implements Closeable {
 	 * Singleton. This is the instance.
 	 */
 	private static MetaDataManager instance = null;
+	
+	private static final Logger LOG = Logger.getLogger(MetaDataManager.class);
 
 	/**
 	 * Returns a randomly generated {@link UUID}. Use this method to get the the
@@ -164,6 +167,7 @@ class MetaDataManager implements Closeable {
 	public static MetaDataManager getMetaDataManager(final String repoPath)
 			throws IOException {
 		if (instance == null) {
+			LOG.debug("Created new instance");
 			instance = new MetaDataManager(repoPath);
 		}
 		return instance;
@@ -171,6 +175,7 @@ class MetaDataManager implements Closeable {
 
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
+		LOG.config(String.format("Intialicing with repository path %s", repoPath));
 		this.idMap = new HashMap<String, Json>();
 		timestampMap = new TreeMap<Long, Json>();
 		if (!tryLockMetaDataFile(0)) {

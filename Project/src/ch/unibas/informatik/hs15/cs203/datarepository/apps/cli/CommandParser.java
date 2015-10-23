@@ -23,11 +23,15 @@ final class CommandParser {
 	/**
 	 * Splits the given command line arguments into a logical and structural
 	 * correct list of tokens.
-	 * 
+	 * <br />
+	 * <b>Note: 'parameterized options' are represented by a single token.
+	 * The token contains the option's name and the parameter / argument, separated
+	 * by the {@value #OPTION_SEPARATOR}-character.</b>
+	 * <br />
 	 * In particular this method links option identifiers (like '--description')
 	 * and the following option value, if one is needed, (like '--description
 	 * "Some description").
-	 * 
+	 * <p>
 	 * A rough validation of the command is being executed as well, so that this
 	 * method throws exceptions if
 	 * <ul>
@@ -37,7 +41,7 @@ final class CommandParser {
 	 * <li>either the command or the option is unknown or</li>
 	 * <li>the command is not completely</li>
 	 * </ul>
-	 * 
+	 * </p>
 	 * Note that if the parameter <code>args</code> is empty but not
 	 * <code>null</code>, a single token containing the 'help' command is
 	 * returned.
