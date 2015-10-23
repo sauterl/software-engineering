@@ -45,8 +45,6 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataStorage;
  * 
  */
 class MetaDataManager implements Closeable {
-	// TODO Add another class like MetaDataMap (or -List) to move
-	// map/list/search related methods in that new class
 	/**
 	 * Singleton. This is the instance.
 	 */

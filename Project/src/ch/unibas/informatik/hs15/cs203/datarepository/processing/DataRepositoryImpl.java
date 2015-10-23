@@ -170,7 +170,7 @@ class DataRepositoryImpl implements DataRepository {
 	long size=0;
 //	System.out.println(wholeMetadata.size());
 	for(int c=0;c<wholeMetadata.size();c++){
-		System.out.println(wholeMetadata.get(c).getName());
+//		System.out.println(wholeMetadata.get(c).getName());
 		if(!names.add(wholeMetadata.get(c).getName())){
 			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
 		}

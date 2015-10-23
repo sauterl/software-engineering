@@ -110,6 +110,7 @@ public static Date iso8601ToDate(String iso8601date){
 	int minute=Integer.parseInt(iso8601date.substring(14, 16));
 	int second=Integer.parseInt(iso8601date.substring(17, 19));
 	Calendar cal = Calendar.getInstance();
+	cal.clear();
 	cal.set(year, month ,day, hour, minute, second);
 	return cal.getTime();
 }
