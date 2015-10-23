@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -305,10 +306,12 @@ class MetaDataManager implements Closeable {
 	@Override
 	public void close() throws IOException {
 		releaseLock();
-		Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
-				Paths.get(repoPath, metaDataFileName),
-				StandardCopyOption.REPLACE_EXISTING,
-				StandardCopyOption.ATOMIC_MOVE);
+		if(Files.exists(Paths.get(repoPath, tmpLabel+metaDataFileName), LinkOption.NOFOLLOW_LINKS)){
+			Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
+					Paths.get(repoPath, metaDataFileName),
+					StandardCopyOption.REPLACE_EXISTING,
+					StandardCopyOption.ATOMIC_MOVE);
+		}
 	}
 
 	/**
