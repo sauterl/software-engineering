@@ -7,9 +7,16 @@ import java.util.Iterator;
 import java.util.logging.Level;
 
 /**
- * The {@link LoggerManager} registers {@link Logger}s by their name and manages them.
+ * The {@link LoggerManager} registers {@link Logger}s by their name and manages
+ * them. <br />
+ * To completely disable the logging functionalities the system property with
+ * key {@value #LOGGING_DISABLED_KEY} must be set to <tt>true</tt>. Otherwise
+ * via the system property with key {@value #LOGGING_DEFAULT_LEVEL_KEY} the name
+ * of the default level can be defined as well. If neither of them is set, the
+ * default level is {@link Level#INFO}.
+ * 
  * @author Loris
- *
+ * 
  */
 public class LoggerManager {
 
@@ -33,16 +40,25 @@ public class LoggerManager {
 	public final static String CONFIG_PATH_KEY = "lsjl.logging.config.path";
 	/**
 	 * Contains the system property key to specify if the logging api is
-	 * completely disabled.
+	 * completely disabled.<br />
+	 * If a system property with this key exists and is set to <tt>true</tt>,
+	 * the logging is completely disabled.
 	 */
 	public final static String LOGGING_DISABLED_KEY = "lsjl.logging.disabled";
+	/**
+	 * Contains the system property key to specify the default logging level. <br />
+	 * If no system property with this key exists, the logging is disabled.
+	 */
+	public final static String LOGGING_DEFAULT_LEVEL_KEY = "lsjl.logging.level";
 
-	private final static String[] configFileNames = { "lsjl", "logging", "lsjl-config",
-			"logging-config" };
-	private final static String[] configFileSuffixes = { ".json", ".cfg", ".config" };
+	private final static String[] configFileNames = { "lsjl", "logging",
+			"lsjl-config", "logging-config" };
+	private final static String[] configFileSuffixes = { ".json", ".cfg",
+			".config" };
 
 	/**
 	 * Returns the LoggerManager instance.
+	 * 
 	 * @return
 	 */
 	public static LoggerManager getManager() {
@@ -79,6 +95,10 @@ public class LoggerManager {
 			internalLevel = Level.OFF;
 		}
 		LOGGER = getLoggingLogger(LoggerManager.class);
+		// check logging disalbed
+		if (Boolean.parseBoolean(System.getProperty(LOGGING_DISABLED_KEY))) {
+			System.setProperty(LOGGING_DEFAULT_LEVEL_KEY, Level.OFF.getName());
+		}
 	}
 
 	private LoggerManager() {

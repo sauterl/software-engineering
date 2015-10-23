@@ -1,10 +1,11 @@
-package ch.unibas.informatik.hs15.cs203.datarepository.processing;
+package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -13,12 +14,24 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * The {@link MetaDataStorage} class provides methods to store a list of meta
- * data.
+ * data.<br />
+ * Further this class also is capable of handling queries with {@link Criteria} objects.<br />
+ * 
+ * <p>
+ * The most commonly used methods of this class are:
+ * <ul>
+ * <li> {@link #put(MetaData)} - To add {@link MetaData} to the storage</li>
+ * <li> {@link #get(Criteria)} - To get all stored {@link MetaData} matching the {@link Criteria}</li>
+ * <li> {@link #get(String)} - To get a {@link MetaData} object by its ID</li>
+ * <li> {@link #getAll()} - To get every single stored {@link MetaData}</li>
+ * </ul>
+ * But there are more uses.
+ * </p>
  * 
  * @author Loris
  * 
  */
-class MetaDataStorage {
+public class MetaDataStorage {
 
 	private final TreeMap<String, MetaData> idMap = new TreeMap<String, MetaData>();
 	private final TreeMap<Date, Vector<String>> timeMap = new TreeMap<Date, Vector<String>>();
@@ -62,6 +75,8 @@ class MetaDataStorage {
 	 * @return A list of meta data objects fulfilling all of the specified
 	 *         criteria or an empty list if no matching meta data object was
 	 *         found.
+	 * @throws IllegalArgumentException If the given criteria is <tt>null</tt>.
+	 * @throws IllegalStateException If the storage is empty.
 	 */
 	public List<MetaData> get(final Criteria criteria) {
 		if (criteria == null) {
@@ -114,6 +129,7 @@ class MetaDataStorage {
 	 * @return The found meta data with specified ID or <tt>null</tt> if none
 	 *         exists with such an ID.
 	 * @see TreeMap#get(Object)
+	 * @throws IllegalStateException If the storage is empty.
 	 */
 	public MetaData get(final String id) {
 		validateNotEmpty();
@@ -124,10 +140,23 @@ class MetaDataStorage {
 	 * Returns all stored {@link MetaData} objects in a single array.
 	 * 
 	 * @return All stored meta data objects in a single array.
+	 * @throws IllegalStateException If the storage is empty.
 	 */
 	public MetaData[] getAll() {
 		validateNotEmpty();
 		return idMap.values().toArray(new MetaData[0]);
+	}
+	
+	/**
+	 * Returns all IDs known to this {@link MetaDataStorage}.
+	 * <br />It is granted, that to every single entry of the returning list,
+	 * the IDs, a meta data entry in this storage exists.
+	 * @return All known IDs.
+	 * @throws IllegalStateException If the storage is empty.
+	 */
+	public Set<String> getAllIDs(){
+		validateNotEmpty();
+		return idMap.keySet();
 	}
 
 	/**
@@ -161,18 +190,28 @@ class MetaDataStorage {
 		return idRes && timeRes;
 	}
 
+	/**
+	 * @param meta
+	 * @return
+	 */
 	public MetaData replace(final MetaData meta) {
-		if (meta == null) {
-			throw new IllegalArgumentException("Cannot replace meta data null.");
-		}
-		validateNotEmpty();
-		if (!idMap.containsKey(meta.getId())) {
-			throw new IllegalArgumentException(
-					"Cannot replace non existing meta data");
-		}
-		return idMap.put(meta.getId(), meta);
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
-
+	
+	/**
+	 * Removes the specified {@link MetaData} object from this storage.
+	 * @param meta The meta data object to remove.
+	 * @return The removed meta data or <tt>null</tt> if none got removed.
+	 * @throws IllegalStateException If an error occured while removing.
+	 */
+	public MetaData remove(final MetaData meta){
+		if(removeTime(meta)){
+			return removeID(meta);
+		}else{
+			throw new IllegalStateException("Could not entirely remove meta data with id: "+meta.getId());
+		}
+	}
+	
 	/**
 	 * Returns the size of this storage.
 	 * 
@@ -283,6 +322,14 @@ class MetaDataStorage {
 			return false;
 		}
 	}
+	
+	private MetaData removeID(final MetaData meta){
+		if(!idMap.containsKey(meta.getId() ) ){
+			throw new IllegalArgumentException("Cannot remove inexistent meta data with id: "+meta.getId() );
+		}else{
+			return idMap.remove(meta.getId() );
+		}
+	}
 
 	private boolean putTime(final MetaData meta) {
 		final Date d = meta.getTimestamp();
@@ -298,6 +345,33 @@ class MetaDataStorage {
 				return true;
 			}
 			return false;
+		}
+	}
+	
+	private boolean removeTime(final MetaData meta){
+		final Date d = meta.getTimestamp();
+		if(!timeMap.containsKey(d) ){
+			// May throw an error?
+			return true;
+		}else{
+			Vector<String> ids = timeMap.get(d);
+			if(ids != null){
+				if(ids.contains(meta.getId() )){
+					if(ids.removeElement(meta.getId() ) ){
+						//GOT REMOVED
+						return true;
+					}else{
+						//got NOT removed, was NO ELEMENT
+						return false;
+					}
+				}else{
+					// may throw an error?
+					return true;
+				}
+			}else{
+				// May throw an error?
+				return true;
+			}
 		}
 	}
 
