@@ -3,6 +3,12 @@
  */
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
+import java.util.logging.Level;
+
+import util.logging.LevelX;
+import util.logging.Logger;
+import util.logging.LoggerManager;
+
 /**
  * The Main entry point to this command line application. Read the
  * specifications under <a href=
@@ -14,6 +20,8 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
  * 
  */
 public class Main {
+	
+	private static final Logger LOG = Logger.getLogger(Main.class);
 
 	/**
 	 * The main entry to this command line tool. See <a href=
@@ -28,10 +36,16 @@ public class Main {
 			final CommandInterpreter interpreter = new CommandInterpreter();
 			interpreter.interpret(args);
 		} catch (final Throwable t) {
+			//eror to stderr
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
 			System.err.println();
-			t.printStackTrace();
+			//ERROR to stdout
+			System.out.println("[ERROR]: ");
+			System.out.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
+			System.out.println();
+			//log error if logging enabled
+			LOG.log(LevelX.FATAL, "A fatal error has occurred. See stacktrace for further detail: ", t);
 			exitStatus = 1;
 		}
 		System.exit(exitStatus);

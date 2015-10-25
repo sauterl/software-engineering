@@ -230,6 +230,9 @@ public class ConfigurationManager {
 				loggingDisabled = true;
 				LOGGER.config("Logging disabled");
 			}
+		} else{
+			loggingDisabled = true;
+			LOGGER.config("Logging disabled, since no system property asked for logging");
 		}
 		// load default level
 		loadDefaultLevel();
@@ -359,7 +362,11 @@ public class ConfigurationManager {
 	}
 
 	private boolean checkVersion(final String version) {
-		return VERSION.equalsIgnoreCase(version);
+		boolean out = VERSION.equalsIgnoreCase(version);
+		if(!out){
+			LOGGER.warn(String.format("Version of config language is wrong: Expected: <%s> but was <%s>", VERSION, version));
+		}
+		return out;
 	}
 
 	private Handler parseHandlerObject(final Json handlerObj)
@@ -436,9 +443,11 @@ public class ConfigurationManager {
 
 	private boolean validateHandler(final Json handlerObj) {
 		if (!handlerObj.containsKey(REF_KEY)) {
+			LOGGER.error(String.format("Handler object <%s> does not contain reference key.", handlerObj.toJson()));
 			return false;
 		}
 		if (!handlerObj.containsKey(NAME_KEY)) {
+			LOGGER.error(String.format("Handler object <%s> does not contain name key.", handlerObj.toJson()));
 			return false;
 		}
 		// is likely valid: has ref and name keys
@@ -447,9 +456,11 @@ public class ConfigurationManager {
 
 	private boolean validateLogger(final Json loggerObj) {
 		if (!loggerObj.containsKey(NAME_KEY)) {
+			LOGGER.error(String.format("Logger object <%s> does not contain name key.", loggerObj.toJson()));
 			return false;
 		}
 		if (!loggerObj.containsKey(HANDLER_KEY)) {
+			LOGGER.error(String.format("Logger object <%s> does not contain handler key.", loggerObj.toJson()));
 			return false;
 		}
 		// is likey valid format: has name and handler key
@@ -473,6 +484,7 @@ public class ConfigurationManager {
 			// all handler-objs are valid
 		} else {
 			// no handlers
+			LOGGER.error("Config does not contain handlers key.");
 			return false;
 		}
 		// valid handlers
@@ -488,6 +500,7 @@ public class ConfigurationManager {
 			// all logger-objs are valid
 		} else {
 			// no loggers
+			LOGGER.error("Config does not contain loggers key");
 			return false;
 		}
 		// valid loggers
@@ -496,6 +509,7 @@ public class ConfigurationManager {
 
 	private boolean validateVersion(final Json parentObj) {
 		if (!parentObj.containsKey(VERSION_KEY)) {
+			LOGGER.warn("Config does not contain version key.");
 			return false;
 		}
 		return checkVersion(parentObj.getString(VERSION_KEY));

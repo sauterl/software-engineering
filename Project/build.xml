@@ -60,5 +60,6 @@
 	</target>
 
 	<target name="build" depends="dist, test" />
+	<target name="buildNotest" depends="dist" />
 
 </project>

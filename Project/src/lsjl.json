@@ -1,5 +1,5 @@
 {
-	"version":"dev 0.1",
+	"version":"dev 0.2",
 	"handlers":[
 		{
 			"ref":"console",
@@ -12,6 +12,11 @@
 			"name":"ch.unibas.informatik.hs15.cs203.datarepository.processing.MetaDataManager",
 			"handler":"console",
 			"level":"DEBUG"
+		},
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.Main",
+			"handler":"console",
+			"level":"ERROR"
 		}
 	]
 }

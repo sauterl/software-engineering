@@ -15,6 +15,7 @@ public class LsjlTest {
 		l.debug("Should not be printed");
 		l.config("No print too");
 		l.info("print");
+		System.err.println("blbo");
 	}
 
 }
