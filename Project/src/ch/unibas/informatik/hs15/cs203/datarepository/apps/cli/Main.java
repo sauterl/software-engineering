@@ -41,9 +41,9 @@ public class Main {
 			System.err.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
 			System.err.println();
 			//ERROR to stdout
-			System.out.print("[ERROR]: ");
-			System.out.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
-			System.out.println();
+//			System.out.print("[ERROR]: ");
+//			System.out.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
+//			System.out.println();
 			//log error if logging enabled
 			LOG.log(LevelX.FATAL, "A fatal error has occurred. See stacktrace for further detail: ", t);
 			exitStatus = 1;

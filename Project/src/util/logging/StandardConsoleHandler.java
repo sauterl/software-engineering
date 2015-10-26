@@ -6,6 +6,8 @@ import java.util.logging.Filter;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
 /**
  * The {@link StandardConsoleHandler} is a {@link ConsoleHandler} which logs to
@@ -17,7 +19,7 @@ import java.util.logging.Level;
  * @author Loris
  * 
  */
-public class StandardConsoleHandler extends ConsoleHandler {
+public class StandardConsoleHandler extends StreamHandler {
 
 	/**
 	 * Creates a new {@link StandardConsoleHandler} with default settings.
@@ -77,4 +79,29 @@ public class StandardConsoleHandler extends ConsoleHandler {
 		}
 
 	}
+	
+	/**
+     * Publish a <tt>LogRecord</tt>.
+     * <p>
+     * The logging request was made initially to a <tt>Logger</tt> object,
+     * which initialized the <tt>LogRecord</tt> and forwarded it here.
+     * <p>
+     * @param  record  description of the log event. A null record is
+     *                 silently ignored and is not published
+     */
+    @Override
+    public void publish(LogRecord record) {
+        super.publish(record);
+        flush();
+    }
+
+    /**
+     * Override <tt>StreamHandler.close</tt> to do a flush but not
+     * to close the output stream.  That is, we do <b>not</b>
+     * close <tt>System.err</tt>.
+     */
+    @Override
+    public void close() {
+        flush();
+    }
 }

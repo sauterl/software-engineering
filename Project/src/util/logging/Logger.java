@@ -91,6 +91,8 @@ public final class Logger{
 	 */
 	Logger(final java.util.logging.Logger log) {
 		this.logger = log;
+		this.logger.setUseParentHandlers(false);
+		resetHandlers();
 	}
 
 	/**

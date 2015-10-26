@@ -9,8 +9,9 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
 
-class VerboseHandler extends ConsoleHandler {
+class VerboseHandler extends StreamHandler {
 
 	private static class VerboseFormatter extends Formatter {
 		private final DateFormat dateFormat = new SimpleDateFormat(
@@ -64,9 +65,34 @@ class VerboseHandler extends ConsoleHandler {
 	}
 
 	public VerboseHandler(final Level lvl) {
-		setOutputStream(System.out);
 		setFormatter(new VerboseFormatter());
+		setOutputStream(System.out);
 		setLevel(lvl);
 	}
+	
+	/**
+     * Publish a <tt>LogRecord</tt>.
+     * <p>
+     * The logging request was made initially to a <tt>Logger</tt> object,
+     * which initialized the <tt>LogRecord</tt> and forwarded it here.
+     * <p>
+     * @param  record  description of the log event. A null record is
+     *                 silently ignored and is not published
+     */
+    @Override
+    public void publish(LogRecord record) {
+        super.publish(record);
+        flush();
+    }
+
+    /**
+     * Override <tt>StreamHandler.close</tt> to do a flush but not
+     * to close the output stream.  That is, we do <b>not</b>
+     * close <tt>System.err</tt>.
+     */
+    @Override
+    public void close() {
+        flush();
+    }
 
 }

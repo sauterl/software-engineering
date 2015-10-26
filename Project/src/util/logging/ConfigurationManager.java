@@ -231,6 +231,7 @@ public class ConfigurationManager {
 				LOGGER.config("Logging disabled");
 			}
 		} else{
+			//experimental
 			loggingDisabled = true;
 			LOGGER.config("Logging disabled, since no system property asked for logging");
 		}
