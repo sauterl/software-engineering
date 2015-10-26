@@ -90,7 +90,7 @@ public class StandardFormatter extends Formatter {
 			final StringWriter strWtr = new StringWriter();
 			final PrintWriter pWtr = new PrintWriter(strWtr);
 			pWtr.println();
-			thrown.printStackTrace(pWtr);
+			//thrown.printStackTrace(pWtr);
 			pWtr.flush();
 			pWtr.close();
 			sb.append(strWtr.toString());
