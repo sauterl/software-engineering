@@ -2,7 +2,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
-public class SimpleProgressListener implements ProgressListener{
+class SimpleProgressListener implements ProgressListener{
 
 	@Override
 	public void start() {
