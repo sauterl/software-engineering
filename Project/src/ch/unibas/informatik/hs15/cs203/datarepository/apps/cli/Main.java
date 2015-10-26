@@ -41,7 +41,7 @@ public class Main {
 			System.err.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
 			System.err.println();
 			//ERROR to stdout
-			System.out.println("[ERROR]: ");
+			System.out.print("[ERROR]: ");
 			System.out.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
 			System.out.println();
 			//log error if logging enabled
