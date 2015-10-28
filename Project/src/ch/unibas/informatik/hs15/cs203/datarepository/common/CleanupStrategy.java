@@ -1,11 +1,9 @@
 /**
  * 
  */
-package ch.unibas.informatik.hs15.cs203.datarepository.api;
+package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import java.nio.file.Path;
-
-import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataStorage;
 
 /**
  * Strategy pattern for clean ups of meta data.
