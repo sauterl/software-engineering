@@ -351,7 +351,7 @@ public class MetaDataStorage {
 	private boolean removeTime(final MetaData meta){
 		final Date d = meta.getTimestamp();
 		if(!timeMap.containsKey(d) ){
-			// May throw an error?
+			// likely already removed
 			return true;
 		}else{
 			Vector<String> ids = timeMap.get(d);
@@ -361,15 +361,15 @@ public class MetaDataStorage {
 						//GOT REMOVED
 						return true;
 					}else{
-						//got NOT removed, was NO ELEMENT
+						//got NOT removed, was NO ELEMENT, throw an error?
 						return false;
 					}
 				}else{
-					// may throw an error?
+					// likely already removed
 					return true;
 				}
 			}else{
-				// May throw an error?
+				// likely already removed
 				return true;
 			}
 		}
