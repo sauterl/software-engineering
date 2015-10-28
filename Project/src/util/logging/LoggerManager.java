@@ -96,7 +96,7 @@ public class LoggerManager {
 				internalLevel = LevelX.parse(System
 						.getProperty(VERBOSE_LEVEL_KEY));
 			} catch (final IllegalArgumentException ex) {
-				internalLevel = Level.INFO;
+				internalLevel = LevelX.WARN;
 			}
 		} else {
 			internalLevel = Level.OFF;
@@ -109,13 +109,13 @@ public class LoggerManager {
 	}
 
 	private LoggerManager() {
-		// TODO fix capacity
-		nameLoggerMap = new HashMap<>(10);
+		nameLoggerMap = new HashMap<>();
 		try {
-			// TODO change to pre-defined chain of places to look for.
-			final URL uri = findConfigFile();
-			if (uri != null) {
-				configManager.loadConfigFile(uri.getPath());
+			final URL url = findConfigFile();
+			if (url != null) {
+				configManager.setConfigFilePath(url);
+//				configManager.loadConfigFile(url.getPath());
+				configManager.loadConfigFile();
 			} else {
 				LOGGER.warn("Did not find a configuration file.");
 			}

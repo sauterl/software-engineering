@@ -3,6 +3,7 @@ package util.logging;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -104,13 +105,20 @@ import util.jsontools.JsonParser;
  * <td>mandatory</td>
  * </tr>
  * <tr>
- * <td>name</td><td>The full class name of the handler. <b>Or</b> the logger's complete name.</td><td>mandatory</td>
+ * <td>name</td>
+ * <td>The full class name of the handler. <b>Or</b> the logger's complete name.
+ * </td>
+ * <td>mandatory</td>
  * </tr>
  * <tr>
- * <td>level</td><td>The logger / handler's {@link LevelX}.</td><td>optional</td>
+ * <td>level</td>
+ * <td>The logger / handler's {@link LevelX}.</td>
+ * <td>optional</td>
  * </tr>
  * <tr>
- * <td>handler</td><td>The reference string to a previous defined handler.</td><td>mandatory</td>
+ * <td>handler</td>
+ * <td>The reference string to a previous defined handler.</td>
+ * <td>mandatory</td>
  * </tr>
  * </table>
  * </p>
@@ -219,7 +227,7 @@ public class ConfigurationManager {
 
 	{
 		// logging disabled?
-		String disabledPropertyValue = System
+		final String disabledPropertyValue = System
 				.getProperty(LoggerManager.LOGGING_DISABLED_KEY);
 		if (disabledPropertyValue != null) {
 			// logging disabled key exists
@@ -230,15 +238,22 @@ public class ConfigurationManager {
 				loggingDisabled = true;
 				LOGGER.config("Logging disabled");
 			}
-		} else{
-			//experimental
+		} else {
+			// experimental
 			loggingDisabled = true;
-			LOGGER.config("Logging disabled, since no system property asked for logging");
+			LOGGER.info("Logging disabled, since no system property asked for logging");
 		}
 		// load default level
 		loadDefaultLevel();
 		setUpDefaultHandler();
 	}
+
+	/**
+	 * Contains the path of the config file.
+	 */
+	private URL configFilePath = null;
+
+	private volatile boolean configPathReceived = false;
 
 	/**
 	 * Creates the configmanager
@@ -313,7 +328,9 @@ public class ConfigurationManager {
 	 * 
 	 * @param file
 	 * @throws IOException
+	 * @deprecated Since the config mechanism is no more public!
 	 */
+	@Deprecated
 	public void loadConfigFile(final String file) throws IOException {
 		LOGGER.config("Config file: " + file);
 		final Json jsonFile = readConfigFile(file);
@@ -362,10 +379,68 @@ public class ConfigurationManager {
 		refHandlerMap.put(ref, handler);
 	}
 
+	/**
+	 * Loads the config file at previously set location (with
+	 * {@link #setConfigFilePath(URL)}.
+	 * 
+	 * @throws IllegalStateException
+	 *             If the method {@link #setConfigFilePath(URL)} was not invoked
+	 *             before.
+	 * @throws IOException
+	 *             If an error occurs while reading the config file.
+	 * @throws IllegalArgumentException
+	 *             If the file is not well formed.
+	 */
+	void loadConfigFile() throws IOException, IllegalArgumentException {
+		if (!configPathReceived) {
+			final String msg = "No config file path is set!";
+			// may change to only print error to LOGGER
+			throw new IllegalStateException(msg);
+		}
+		if (configFilePath != null) {
+			LOGGER.config("Loading configuration file: "
+					+ configFilePath.getPath());
+			final Json jsonFile = readConfigFile(configFilePath.getPath());
+			// log.debug("Parsed config: \n"+jsonFile.toJson() );
+			LOGGER.debug("Parsed json");
+			if (!validateStructure(jsonFile)) {
+				throw new IllegalArgumentException("No valid config");
+			}
+			LOGGER.debug("Validated config file");
+			parseHandlers(jsonFile);
+			parseLoggers(jsonFile);
+			LOGGER.info("Successfully loaded configuration file");
+		} else {
+			// setup default configuration
+		}
+	}
+
+	/**
+	 * Sets the config file path if none was set previously. <br />
+	 * On success, the return value is <tt>true</tt>, <tt>false</tt> otherwise. <br />
+	 * <b>Note: Once invoked, the method will always return <tt>false</tt></b>
+	 * 
+	 * @param path
+	 *            The URL containing the path to the config file.
+	 * @return <tt>true</tt> if the config file path was set successfully.
+	 *         Otherwise <tt>false</tt>.
+	 */
+	boolean setConfigFilePath(final URL path) {
+		if (configPathReceived) {
+			return false;
+		} else {
+			configFilePath = path;
+			configPathReceived = true;
+			return true;
+		}
+	}
+
 	private boolean checkVersion(final String version) {
-		boolean out = VERSION.equalsIgnoreCase(version);
-		if(!out){
-			LOGGER.warn(String.format("Version of config language is wrong: Expected: <%s> but was <%s>", VERSION, version));
+		final boolean out = VERSION.equalsIgnoreCase(version);
+		if (!out) {
+			LOGGER.warn(String
+					.format("Version of config language is wrong: Expected: <%s> but was <%s>",
+							VERSION, version));
 		}
 		return out;
 	}
@@ -444,11 +519,15 @@ public class ConfigurationManager {
 
 	private boolean validateHandler(final Json handlerObj) {
 		if (!handlerObj.containsKey(REF_KEY)) {
-			LOGGER.error(String.format("Handler object <%s> does not contain reference key.", handlerObj.toJson()));
+			LOGGER.error(String.format(
+					"Handler object <%s> does not contain reference key.",
+					handlerObj.toJson()));
 			return false;
 		}
 		if (!handlerObj.containsKey(NAME_KEY)) {
-			LOGGER.error(String.format("Handler object <%s> does not contain name key.", handlerObj.toJson()));
+			LOGGER.error(String.format(
+					"Handler object <%s> does not contain name key.",
+					handlerObj.toJson()));
 			return false;
 		}
 		// is likely valid: has ref and name keys
@@ -457,11 +536,15 @@ public class ConfigurationManager {
 
 	private boolean validateLogger(final Json loggerObj) {
 		if (!loggerObj.containsKey(NAME_KEY)) {
-			LOGGER.error(String.format("Logger object <%s> does not contain name key.", loggerObj.toJson()));
+			LOGGER.error(String.format(
+					"Logger object <%s> does not contain name key.",
+					loggerObj.toJson()));
 			return false;
 		}
 		if (!loggerObj.containsKey(HANDLER_KEY)) {
-			LOGGER.error(String.format("Logger object <%s> does not contain handler key.", loggerObj.toJson()));
+			LOGGER.error(String.format(
+					"Logger object <%s> does not contain handler key.",
+					loggerObj.toJson()));
 			return false;
 		}
 		// is likey valid format: has name and handler key
