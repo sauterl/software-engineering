@@ -209,7 +209,7 @@ public class ConfigurationManager {
 			defaultHandler = new StandardConsoleHandler(defaultLevel);
 			if (loggingDisabled) {
 				defaultHandler.setLevel(Level.OFF);
-				LOGGER.debug("Since logging disabled, default handler is disabled");
+				LOGGER.debug("Since logging disabled, default handler's level is OFF");
 			} else {
 				// do nothing
 			}
@@ -239,9 +239,10 @@ public class ConfigurationManager {
 				LOGGER.config("Logging disabled");
 			}
 		} else {
-			// experimental
-			loggingDisabled = true;
-			LOGGER.info("Logging disabled, since no system property asked for logging");
+			// experimental, change to look for config file and decide then
+			loggingDisabled = false;
+			LOGGER.debug("No system property disables logging");
+//			LOGGER.info("Logging disabled, since no system property asked for logging");
 		}
 		// load default level
 		loadDefaultLevel();
