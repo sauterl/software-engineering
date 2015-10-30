@@ -28,8 +28,6 @@ import util.jsontools.JsonParser;
 import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
-import ch.unibas.informatik.hs15.cs203.datarepository.common.CollectionUtils;
-import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataStorage;
 
 /**
  * The {@link MetaDataManager} class manages meta data. This includes reading of
@@ -77,17 +75,6 @@ class MetaDataManager implements Closeable {
 	 * time. (Instead of being local).
 	 */
 	private FileLock lock;
-	/**
-	 * Mapping of ID->metaAsJson
-	 */
-	@Deprecated
-	private final HashMap<String, Json> idMap;
-	/**
-	 * Mapping of timestamp->metaAsJson
-	 */
-	@Deprecated
-	private final TreeMap<Long, Json> timestampMap;
-
 	/**
 	 * The storage of the meta data
 	 */
@@ -176,8 +163,6 @@ class MetaDataManager implements Closeable {
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
 		LOG.config(String.format("Intialicing with repository path %s", repoPath));
-		this.idMap = new HashMap<String, Json>();
-		timestampMap = new TreeMap<Long, Json>();
 		if (!tryLockMetaDataFile(0)) {
 			throw new RuntimeException(
 					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
@@ -280,25 +265,6 @@ class MetaDataManager implements Closeable {
 	}
 
 	/**
-	 * Adds the given {@link MetaData} object to the internal buffer. <b>NOTE:
-	 * The method's visibility may get changed to private in a future
-	 * update!</b>
-	 * 
-	 * @param data
-	 *            The {@link MetaData} object to add to the internal buffer.
-	 * @deprecated Since this method is not used anymore
-	 */
-	@Deprecated
-	public void addMetaData(final MetaData data) {
-		if (data == null) {
-			throw new NullPointerException("MetaData to add is null.");
-		}
-		// assert(data != null);
-		final Json entry = createJsonMetaEntry(data);
-		idMap.put(data.getId(), entry);
-	}
-
-	/**
 	 * Closes this {@link MetaDataManager} and releases its resources. <b>Invoke
 	 * this method before terminating the application</b> Or otherwise the
 	 * repository gets corrupted and will not be accessible for a long time.
@@ -316,156 +282,6 @@ class MetaDataManager implements Closeable {
 					StandardCopyOption.ATOMIC_MOVE);
 		}
 		instance = null;
-	}
-
-	/**
-	 * Returns the {@link MetaData} object to the corresponding id. If the ID
-	 * does not exist, null is returned.
-	 * 
-	 * @param id
-	 * @return The {@link MetaData} object corresponding to the given id or
-	 *         null, if the ID does not exist.
-	 */
-	@Deprecated
-	public MetaData getMetaDataForID(final String id) {
-		if (idMap.containsKey(id)) {
-			return extractMetaData(idMap.get(id));
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Prepares the MetaDataManager to query for a certain {@link Criteria}.
-	 */
-	@Deprecated
-	public void prepareForQueries() {
-		fillTimeMap();
-		queryReady = true;
-	}
-
-	/**
-	 * Searches meta data based on the given {@link Criteria}. This method is
-	 * not recommended to query for meta data with a specific id, there is a
-	 * method exclusively for this purpose. In this case, the method returns (if
-	 * there is a matching meta data entry) an array with a single entry, the
-	 * matching one or an array with size zero. <br />
-	 * Otherwise if no meta data entry matches the given criteria, then an empty
-	 * {@link MetaData} array is returned.
-	 * 
-	 * @see Criteria
-	 * @param criteria
-	 * @return {@link MetaData}s which match the given criteria.
-	 * @deprecated
-	 */
-	@Deprecated
-	public MetaData[] query(final Criteria criteria) {
-		if (!queryReady) {
-			throw new IllegalStateException(
-					"The MetaDataManager is not ready for queries.");
-		}
-		if (criteria == null) {
-			throw new IllegalArgumentException("No null-criterias allowed!");
-		}
-		final Criteria allRef = Criteria.all();
-		if (allRef.equals(criteria)) {
-			return convertCollectionToMeta(idMap.values());
-		}// So criteria is not ALL
-		if (criteria.getId() != null) {
-			final MetaData out = getMetaDataForID(criteria.getId());
-			if (out == null) {
-				return new MetaData[0];
-			} else {
-				return new MetaData[] { out };
-			}
-		}// Criteria is not ID-querying
-		Collection<Json> nameColl = null, afterColl = null, beforeColl = null, textColl = null;
-		if (criteria.getName() != null) {
-			nameColl = getNameEquals(criteria.getName());
-		}
-		if (criteria.getText() != null) {
-			textColl = getAllContains(criteria.getText());
-		}
-		if (criteria.getAfter() != null) {
-			afterColl = getAfter(criteria.getAfter());
-		}
-		if (criteria.getBefore() != null) {
-			beforeColl = getBefore(criteria.getBefore());
-		}
-		final Collection<Json> all = CollectionUtils.intersect(nameColl,
-				textColl, afterColl, beforeColl);
-		if (all == null) {
-			return new MetaData[0];
-		} else {
-			return convertCollectionToMeta(all);
-		}
-	}
-
-	/**
-	 * Updates the metadata for the given id. This replaces the currently stored
-	 * meta data.
-	 * 
-	 * @param id
-	 *            The id of the data set which meta data alter.
-	 * @param meta
-	 *            The new meta data set.
-	 */
-	@Deprecated
-	public void replaceMetaData(final String id, final MetaData meta) {
-		final Json entry = createJsonMetaEntry(meta);
-		idMap.put(id, entry);
-	}
-
-	/**
-	 * Writes the given {@link MetaData} to the meta data file. <b>This method
-	 * suits for most use cases, methods like addMetaData(MetaData) or
-	 * writeTemporaryMetaDataFile() are currently visible, but may get hidden in
-	 * future updates.</b>
-	 * 
-	 * Firstly the meta data (referred as data) to the internal buffer which
-	 * gets 'flushed' (e.g. written) to the file system using the
-	 * {@link Json#toJson()} method.
-	 * 
-	 * The meta data gets firstly written to a temporary meta data file that
-	 * gets eventually moved to the reliable meta data file.
-	 * 
-	 * @param data
-	 *            The {@link MetaData} object to write.
-	 * @throws IOException
-	 *             If somewhere while writing an i/o error occurs
-	 *             
-	 * @deprecated Got replaced by {@link MetaDataManager#add(MetaData)}
-	 */
-	@Deprecated
-	public void writeMetadata(final MetaData data) throws IOException {
-		addMetaData(data);
-		writeTemporaryMetaDataFile();
-	}
-
-	/**
-	 * Writes the currently buffered meta data to a temporary meta data file.
-	 * <b>NOTE: The method's visibility may get changed to private in a future
-	 * update!</b>
-	 * 
-	 * @throws IOException
-	 *             If an error occurs while writing the file.
-	 */
-	@Deprecated
-	public void writeTemporaryMetaDataFile() throws IOException {
-		final FileWriter fw = new FileWriter(Paths.get(repoPath,
-				tmpLabel + metaDataFileName).toFile());
-		addMapToJson();
-		fw.write(metaDataFile.toJson());
-		fw.flush();
-		fw.close();
-		releaseLock();
-	}
-
-	@Deprecated
-	private void addMapToJson() {
-		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
-		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
-				idMap.values().toArray(new Json[0]));
 	}
 
 	/**
@@ -532,81 +348,6 @@ class MetaDataManager implements Closeable {
 				timestamp);
 	}
 
-	@Deprecated
-	private void fillIdMap() {
-		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
-		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
-			idMap.put(dataset.getString(idKey), dataset);
-		}
-	}
-
-	@Deprecated
-	private void fillTimeMap() {
-		final Json repoJSON = metaDataFile.getJsonObject(repositoryKey);
-		for (final Json dataset : repoJSON.getSet(datasetsKey)) {
-			timestampMap.put(dataset.getDate(timestampKey).getTime(), dataset);
-		}
-	}
-
-	@Deprecated
-	private Collection<Json> getAfter(final Date after) {
-		return (timestampMap.tailMap(after.getTime(), true)).values();
-	}
-
-	@Deprecated
-	private Collection<Json> getAllContains(final String snippet) {
-		final Collection<Json> namesContaining = getNameContains(snippet);
-		final Collection<Json> descContaining = getDescriptionContains(snippet);
-		return CollectionUtils.intersect(namesContaining, descContaining);
-	}
-
-	@Deprecated
-	private Collection<Json> getBefore(final Date before) {
-		return (timestampMap.headMap(before.getTime(), true)).values();
-	}
-
-	@Deprecated
-	private Collection<Json> getDescriptionContains(final String snippet) {
-		final Vector<Json> out = new Vector<Json>();
-		final Iterator<Json> it = idMap.values().iterator();
-		while (it.hasNext()) {
-			final Json curr = it.next();
-			final String desc = curr.getString(descriptionKey);
-			if (desc != null && desc.contains(snippet)) {
-				out.add(curr);
-			}
-		}
-		return out;
-	}
-
-	@Deprecated
-	private Collection<Json> getNameContains(final String snippet) {
-		final Vector<Json> out = new Vector<Json>();
-		final Iterator<Json> it = idMap.values().iterator();
-		while (it.hasNext()) {
-			final Json curr = it.next();
-			final String name = curr.getString(nameKey);
-			if (name != null && name.contains(snippet)) {
-				out.add(curr);
-			}
-		}
-		return out;
-	}
-
-	@Deprecated
-	private Collection<Json> getNameEquals(final String pattern) {
-		final Vector<Json> out = new Vector<Json>();
-		final Iterator<Json> it = idMap.values().iterator();
-		while (it.hasNext()) {
-			final Json curr = it.next();
-			final String name = curr.getString(nameKey);
-			if (name != null && name.equals(pattern)) {
-				out.add(curr);
-			}
-		}
-		return out;
-	}
-
 	private Json parseMetaDataFile(final String file) throws IOException {
 		final JsonParser parser = new JsonParser();
 		return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
@@ -622,23 +363,6 @@ class MetaDataManager implements Closeable {
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
 		return true;
-	}
-
-	@Deprecated
-	private boolean tryLockMetaDataFile() {
-		final Path lockFilePath = Paths.get(repoPath, lockFile);
-		try {
-			final FileChannel channel = FileChannel.open(lockFilePath,
-					StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
-			try {
-				lock = channel.tryLock();
-				return true;
-			} catch (final OverlappingFileLockException ex) {
-				return false;
-			}
-		} catch (final IOException e) {
-			return false;
-		}
 	}
 
 	private boolean tryLockMetaDataFile(int attempt) {
