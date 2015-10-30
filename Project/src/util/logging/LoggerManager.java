@@ -117,7 +117,8 @@ public class LoggerManager {
 //				configManager.loadConfigFile(url.getPath());
 				configManager.loadConfigFile();
 			} else {
-				LOGGER.warn("Did not find a configuration file.");
+				LOGGER.warn("Did not find a configuration file, logging disabled.");
+				configManager.disableLogging();
 			}
 		} catch (final IOException e) {
 			LOGGER.warn("Reading config failed: ", e);

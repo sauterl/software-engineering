@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
@@ -242,7 +243,7 @@ public class ConfigurationManager {
 			// experimental, change to look for config file and decide then
 			loggingDisabled = false;
 			LOGGER.debug("No system property disables logging");
-//			LOGGER.info("Logging disabled, since no system property asked for logging");
+			// LOGGER.info("Logging disabled, since no system property asked for logging");
 		}
 		// load default level
 		loadDefaultLevel();
@@ -307,6 +308,8 @@ public class ConfigurationManager {
 	 * @param log
 	 */
 	public void applyDefaultConfig(final Logger log) {
+		LOGGER.debug(String.format("Default config for logger %s: %s",
+				log.getName(), getDefaultConfigDesc()));
 		log.resetHandlers();
 		log.addHandler(defaultHandler);
 		log.setLevel(defaultLevel);
@@ -381,6 +384,14 @@ public class ConfigurationManager {
 	}
 
 	/**
+	 * Disables the logging for handlers registered to this configuration
+	 * manager.
+	 */
+	void disableLogging() {
+		disableAllHandlers();
+	}
+
+	/**
 	 * Loads the config file at previously set location (with
 	 * {@link #setConfigFilePath(URL)}.
 	 * 
@@ -412,7 +423,11 @@ public class ConfigurationManager {
 			parseLoggers(jsonFile);
 			LOGGER.info("Successfully loaded configuration file");
 		} else {
-			// setup default configuration
+			// check if logging forced enabled
+			// otherwise disable logging
+			if (loggingDisabled) {
+				disableAllHandlers();
+			}
 		}
 	}
 
@@ -444,6 +459,23 @@ public class ConfigurationManager {
 							VERSION, version));
 		}
 		return out;
+	}
+
+	private void disableAllHandlers() {
+		final Iterator<Handler> it = refHandlerMap.values().iterator();
+		while (it.hasNext()) {
+			it.next().setLevel(Level.OFF);
+		}
+		LOGGER.debug("Disabled all registered handlers");
+		defaultHandler.setLevel(Level.OFF);
+		LOGGER.debug("Disabled default handler");
+	}
+
+	private String getDefaultConfigDesc() {
+		return String.format(
+				"Handler: %s, Handler's levle: %s, Logger's level: %s",
+				defaultHandler.getClass().getSimpleName(), defaultHandler
+						.getLevel().getName(), defaultLevel.getName());
 	}
 
 	private Handler parseHandlerObject(final Json handlerObj)
