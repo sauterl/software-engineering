@@ -22,16 +22,18 @@ import util.jsontools.JsonParser;
  * <p>
  * <h2>Default configuration</h2>
  * This class firstly checks if a system property with key
- * {@value LoggerManager#LOGGING_DISABLED_KEY} exists. If such a property was
+ * {@link LoggerManager#LOGGING_DISABLED_KEY} exists. If such a property was
  * found and equals case insensitive to <tt>true</tt>, the configuration manager
  * will set the level of each registered handler to {@link Level#OFF} (and to
  * handlers which will be registered in future).<br />
  * Does said property exist and equals case insensitive to <tt>false</tt>, then
  * the default logging level will be set to {@link Level#INFO}, except a system
- * property named {@value LoggerManager#LOGGING_DEFAULT_LEVEL_KEY} does exist.
+ * property named {@link LoggerManager#LOGGING_DEFAULT_LEVEL_KEY} does exist.
  * In this case and if that property could get parsed with
  * {@link LevelX#parse(String)}, that level will be taken as default level.<br />
- * If neither of the above mentioned cases occurred, the logging is disabled.<br />
+ * Otherwise if no system property is set, but a config file (valid location, valid format) is present
+ * the configuration will be loaded from said file. <i>In case such a file does not exist,
+ * then the logging is automatically disabled.</i><br />
  * </p>
  * <p>
  * <h2>Configuration file</h2>
@@ -351,7 +353,9 @@ public class ConfigurationManager {
 
 	/**
 	 * Register the given {@link Handler} object with the associated reference.
-	 * This method is designed to register handlers from another class.
+	 * This method is designed to register handlers from another class.<br />
+	 * <b>Note: The configuration manager will automatically and silently set
+	 * the handler's level to {@link Level#OFF} if logging is disabled!</b>
 	 * 
 	 * @param ref
 	 *            The reference the handler is identified with, must be not
@@ -381,6 +385,9 @@ public class ConfigurationManager {
 			handler.setLevel(Level.OFF);
 		}
 		refHandlerMap.put(ref, handler);
+		if(loggingDisabled){
+			handler.setLevel(Level.OFF);
+		}
 	}
 
 	/**
@@ -388,6 +395,7 @@ public class ConfigurationManager {
 	 * manager.
 	 */
 	void disableLogging() {
+		loggingDisabled = true;
 		disableAllHandlers();
 	}
 

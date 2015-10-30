@@ -10,6 +10,9 @@ import java.util.logging.Level;
  * The {@link LoggerManager} registers {@link Logger}s by their name and manages
  * them. <br />
  * To read more about logging configuration see {@link ConfigurationManager}.
+ * <br />
+ * <b>Note to get more information on the logging framework setup process, use the system properties
+ * {@value #VERBOSE_ENABLED_KEY} and {@value #VERBOSE_LEVEL_KEY} to get log messages about it.</b>
  * 
  * @author Loris
  * 
