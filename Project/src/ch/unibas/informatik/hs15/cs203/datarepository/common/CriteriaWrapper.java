@@ -5,30 +5,101 @@ import java.util.Date;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 
 /**
- * The {@link Criteria} wrapper.
- * Since the api classes must not be changed, this wrapper class
- * provides extended access to the {@link Criteria} object.
+ * The {@link Criteria} wrapper. Since the api classes must not be changed, this
+ * wrapper class provides extended access to the {@link Criteria} object.
+ * 
  * @author Loris
  * @see Criteria
  */
 public class CriteriaWrapper {
-	
-	private Criteria wrapped;
 
-	public CriteriaWrapper(String nameOrNull, String textOrNull, Date afterOrNull,
-	          Date beforeOrNull) {
-		this(new Criteria(nameOrNull, textOrNull, afterOrNull, beforeOrNull));
-	}
-	
-	public CriteriaWrapper(Criteria toWrapp){
+	private final Criteria wrapped;
+
+	public CriteriaWrapper(final Criteria toWrapp) {
 		wrapped = toWrapp;
 	}
-	
-	public CriteriaWrapper(String id){
+
+	public CriteriaWrapper(final String id) {
 		this(Criteria.forId(id));
 	}
-	
-	public String getId(){
+
+	public CriteriaWrapper(final String nameOrNull, final String textOrNull,
+			final Date afterOrNull, final Date beforeOrNull) {
+		this(new Criteria(nameOrNull, textOrNull, afterOrNull, beforeOrNull));
+	}
+
+	/**
+	 * Compares this object and another one on equality. Eclipse generated.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof CriteriaWrapper)) {
+			return false;
+		}
+		final CriteriaWrapper other = (CriteriaWrapper) obj;
+		if (getAfter() == null) {
+			if (other.getAfter() != null) {
+				return false;
+			}
+		} else if (!getAfter().equals(other.getAfter())) {
+			return false;
+		}
+		if (getBefore() == null) {
+			if (other.getBefore() != null) {
+				return false;
+			}
+		} else if (!getBefore().equals(other.getBefore())) {
+			return false;
+		}
+		if (getId() == null) {
+			if (other.getId() != null) {
+				return false;
+			}
+		} else if (!getId().equals(other.getId())) {
+			return false;
+		}
+		if (getName() == null) {
+			if (other.getName() != null) {
+				return false;
+			}
+		} else if (!getName().equals(other.getName())) {
+			return false;
+		}
+		if (getText() == null) {
+			if (other.getText() != null) {
+				return false;
+			}
+		} else if (!getText().equals(other.getText())) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @return
+	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria#getAfter()
+	 */
+	public Date getAfter() {
+		return wrapped.getAfter();
+	}
+
+	/**
+	 * @return
+	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria#getBefore()
+	 */
+	public Date getBefore() {
+		return wrapped.getBefore();
+	}
+
+	public String getId() {
 		return wrapped.getId();
 	}
 
@@ -49,27 +120,56 @@ public class CriteriaWrapper {
 	}
 
 	/**
-	 * @return
-	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria#getBefore()
+	 * Returns a hash value for this object. The hash value method is eclipse
+	 * generated.
+	 * 
+	 * @return A hash value for this object.
+	 * @see java.lang.Object#hashCode()
 	 */
-	public Date getBefore() {
-		return wrapped.getBefore();
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((getAfter() == null) ? 0 : getAfter().hashCode());
+		result = prime * result
+				+ ((getBefore() == null) ? 0 : getBefore().hashCode());
+		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+		result = prime * result
+				+ ((getName() == null) ? 0 : getName().hashCode());
+		result = prime * result
+				+ ((getText() == null) ? 0 : getText().hashCode());
+		return result;
 	}
 
 	/**
+	 * Returns true if this is an empty criteria, so all fields are set to null.
+	 * 
 	 * @return
-	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria#getAfter()
 	 */
-	public Date getAfter() {
-		return wrapped.getAfter();
+	public boolean isEmpty() {
+		return getId() == null && getName() == null && getText() == null
+				&& getBefore() == null && getAfter() == null;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * Returns true if this is a criteria query for a certain id. In other
+	 * words: returns true if and only if <tt>getId() == null</tt>
+	 * 
+	 * @return
+	 */
+	public boolean isIdCriteria() {
+		return getId() == null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		builder.append("CriteriaWrapper [");
 		if (getId() != null) {
 			builder.append("getId()=");
@@ -98,65 +198,4 @@ public class CriteriaWrapper {
 		builder.append("]");
 		return builder.toString();
 	}
-	
-	/**
-	 * Returns a hash value for this object.
-	 * The hash value method is eclipse generated.
-	 * @return A hash value for this object.
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((getAfter() == null) ? 0 : getAfter().hashCode());
-		result = prime * result + ((getBefore() == null) ? 0 : getBefore().hashCode());
-		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + ((getText() == null) ? 0 : getText().hashCode());
-		return result;
-	}
-
-	/**
-	 * Compares this object and another one on equality.
-	 * Eclipse generated.
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof CriteriaWrapper))
-			return false;
-		CriteriaWrapper other = (CriteriaWrapper) obj;
-		if (getAfter() == null) {
-			if (other.getAfter() != null)
-				return false;
-		} else if (!getAfter().equals(other.getAfter()))
-			return false;
-		if (getBefore() == null) {
-			if (other.getBefore() != null)
-				return false;
-		} else if (!getBefore().equals(other.getBefore()))
-			return false;
-		if (getId() == null) {
-			if (other.getId() != null)
-				return false;
-		} else if (!getId().equals(other.getId()))
-			return false;
-		if (getName() == null) {
-			if (other.getName() != null)
-				return false;
-		} else if (!getName().equals(other.getName()))
-			return false;
-		if (getText() == null) {
-			if (other.getText() != null)
-				return false;
-		} else if (!getText().equals(other.getText()))
-			return false;
-		return true;
-	}
-
 }
