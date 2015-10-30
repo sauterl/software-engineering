@@ -10,6 +10,9 @@ import java.util.logging.Level;
  * The {@link LoggerManager} registers {@link Logger}s by their name and manages
  * them. <br />
  * To read more about logging configuration see {@link ConfigurationManager}.
+ * <br />
+ * <b>Note to get more information on the logging framework setup process, use the system properties
+ * {@value #VERBOSE_ENABLED_KEY} and {@value #VERBOSE_LEVEL_KEY} to get log messages about it.</b>
  * 
  * @author Loris
  * 
@@ -96,7 +99,7 @@ public class LoggerManager {
 				internalLevel = LevelX.parse(System
 						.getProperty(VERBOSE_LEVEL_KEY));
 			} catch (final IllegalArgumentException ex) {
-				internalLevel = Level.INFO;
+				internalLevel = LevelX.WARN;
 			}
 		} else {
 			internalLevel = Level.OFF;
@@ -109,15 +112,16 @@ public class LoggerManager {
 	}
 
 	private LoggerManager() {
-		// TODO fix capacity
-		nameLoggerMap = new HashMap<>(10);
+		nameLoggerMap = new HashMap<>();
 		try {
-			// TODO change to pre-defined chain of places to look for.
-			final URL uri = findConfigFile();
-			if (uri != null) {
-				configManager.loadConfigFile(uri.getPath());
+			final URL url = findConfigFile();
+			if (url != null) {
+				configManager.setConfigFilePath(url);
+//				configManager.loadConfigFile(url.getPath());
+				configManager.loadConfigFile();
 			} else {
-				LOGGER.warn("Did not find a configuration file.");
+				LOGGER.warn("Did not find a configuration file, logging disabled.");
+				configManager.disableLogging();
 			}
 		} catch (final IOException e) {
 			LOGGER.warn("Reading config failed: ", e);

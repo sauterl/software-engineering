@@ -1,0 +1,50 @@
+1. Die Distribution data-repository.zip sollte nicht in Subversion 
+eingecheckt werden. Das ist nicht nötig, da diese ja vollständig aus dem 
+Inhalt der im Subversion vorhandenen Dateien gebaut werden kann. 
+Stattdessen laden Sie die Distribution auf courses.cs.unibas.ch hoch.
+
+2. Die API Klassen dürfen nicht geändert werden.
+
+3. Sie wissen, das zwei der Unit Tests fehlschlagen?
+
+4. Das add Kommando muss einen Erfolgsnachricht ausgeben, welche die ID 
+enthält.
+
+5. DataRepositoryImpl.add(): RepoFileUtils.getFileSize(file) wird 
+mindestens dreimal berechnet. Dies ist aber eine kostspielige (sprich 
+zeitaufwendige) Berechnung bei Datensätzen mit zehntausenden von Dateien.
+
+6. DataRepositoryImpl: Die Einrückungen sind zum Teil inkonsistent. Sie 
+sollten die ganze Klasse neu formatieren.
+
+7. DataRepositoryImpl, Zeile 108: Statt totalNumberOfBytes neu zu 
+berechnen, können Sie doch den Wert aus dem MetaData Objekt entnehmen.
+
+8. MetaDataManager: Warum sind viele Attribute und Methode deprecated 
+deklariert? So was macht man nur bei alten Libraries und Frameworks wenn 
+man dem Applikationsprogrammierer sagen möchte, dass er gewisse Methoden 
+nicht mehr benutzen soll. Die Javadoc sollte dann einen Hinweis 
+enthalten, welche alternativen Methoden man benutzen soll. Ich habe den 
+Eindruck, dass Sie damit toten Code bezeichnen. Falls dem so ist, dann 
+sollten Sie ihn einfach löschen.
+
+9. MetaDataManager hat close() Statements, die nicht in einer finally 
+Klausel eines try Statements sind.
+
+10. RepoFileUtils, Zeile 88: Sie sollten 1MB als Buffersize wählen, 
+ansonsten wird die Konsolausgabe überlastet.
+
+11. MetaDataStorage und CollectionUtils werden nur von MetaDataManager 
+benutzt und sollte deshalb im Package processing und nicht in common sein.
+
+12. CommandInterpreter: Die beiden Methoden executeList() und 
+executeList() haben mehr als 50 Zeilen. Es hat hier auch etliche 
+Codeduplikationen.
+
+13. SimpleProgressListener.progress() berechnet einen falschen Prozentwert.
+
+14. Warum ein eigenes Logging Framework wenn es doch java.util.logging 
+gibt? Warum überhaupt Logging, wenn es doch nur einfache 
+Erfolgsmeldungen auf System.out und Fehlermeldungen auf System.err gibt?
+Hier schiessen Sie mit Kanonen auf Spatzen bzw. Sie verletzen das YAGNI 
+Prinzip (dies gilt auch für die JSON als Meta Data Format).
