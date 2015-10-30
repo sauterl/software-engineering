@@ -142,7 +142,7 @@ public class CriteriaWrapper {
 		} else if (!getBefore().equals(other.getBefore()))
 			return false;
 		if (getId() == null) {
-			if (other.get(Id()) != null)
+			if (other.getId() != null)
 				return false;
 		} else if (!getId().equals(other.getId()))
 			return false;
