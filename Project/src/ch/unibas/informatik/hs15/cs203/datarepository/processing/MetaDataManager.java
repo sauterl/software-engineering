@@ -16,12 +16,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Vector;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
@@ -48,7 +44,7 @@ class MetaDataManager implements Closeable {
 	 * Singleton. This is the instance.
 	 */
 	private static MetaDataManager instance = null;
-	
+
 	private static final Logger LOG = Logger.getLogger(MetaDataManager.class);
 
 	/**
@@ -162,7 +158,8 @@ class MetaDataManager implements Closeable {
 
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
-		LOG.config(String.format("Intialicing with repository path %s", repoPath));
+		LOG.config(String.format("Intialicing with repository path %s",
+				repoPath));
 		if (!tryLockMetaDataFile(0)) {
 			throw new RuntimeException(
 					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
@@ -172,96 +169,31 @@ class MetaDataManager implements Closeable {
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		MetaData[] entries = convertCollectionToMeta(Arrays.asList(metaDataFile
-				.getJsonObject(repositoryKey).getSet(datasetsKey)));
+		final MetaData[] entries = convertCollectionToMeta(Arrays
+				.asList(metaDataFile.getJsonObject(repositoryKey).getSet(
+						datasetsKey)));
 		initStorage(entries);
 	}
-	
+
 	/**
 	 * Adds and writes the specified {@link MetaData} to the meta data file.<br />
-	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to write
-	 * the data persistently</b><br />
-	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaData)} followed by
-	 * {@link MetaDataManager#writeTempMetaFile()}
+	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
+	 * write the data persistently</b><br />
+	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaData)}
+	 * followed by {@link MetaDataManager#writeTempMetaFile()}
+	 * 
 	 * @param meta
 	 * @return
-	 * @throws IOException If the writing fails.
+	 * @throws IOException
+	 *             If the writing fails.
 	 */
-	public boolean add(MetaData meta) throws IOException{
-		if(putMeta(meta) ){
+	public boolean add(final MetaData meta) throws IOException {
+		if (putMeta(meta)) {
 			writeTempMetaFile();
 			return true;
-		}else{
+		} else {
 			return false;
 		}
-	}
-	
-	/**
-	 * Puts the given meta data to the underlying {@link MetaDataStorage}.
-	 * @param meta The metadata to add.
-	 * @return TRUE if successful
-	 * @see MetaDataStorage#put(MetaData)
-	 */
-	public boolean putMeta(MetaData meta){
-		return storage.put(meta);
-	}
-	
-	/**
-	 * Returns the meta data which fulfill the criteria completely.
-	 * @param criteria
-	 * @return
-	 * @see MetaDataStorage#get(Criteria)
-	 */
-	public List<MetaData> getMatchingMeta(Criteria criteria){
-		return storage.get(criteria);
-	}
-	/**
-	 * Returns the meta data with matching ID or null.
-	 * @param id
-	 * @return
-	 * @see MetaDataStorage#get(String)
-	 */
-	public MetaData getMeta(String id){
-		return storage.get(id);
-	}
-	
-	/**
-	 * Returns all stored meta data.
-	 * @return
-	 * @see MetaDataStorage#getAll()
-	 */
-	public List<MetaData> getAllMetaData(){
-		return Arrays.asList(storage.getAll());
-	}
-	
-
-	public void writeTempMetaFile() throws IOException{
-		final FileWriter fw = new FileWriter(Paths.get(repoPath,
-				tmpLabel + metaDataFileName).toFile());
-		storageToJson();
-		fw.write(metaDataFile.toJson());
-		fw.flush();
-		fw.close();
-		releaseLock();
-		System.gc();
-	}
-	
-	private void storageToJson(){
-		MetaData[] datas = storage.getAll();
-		Json[] entries = new Json[datas.length];
-		for(int i=0; i<datas.length; i++){
-			entries[i] = createJsonMetaEntry(datas[i]);
-		}
-		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
-		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
-				entries);
-	}
-	
-	private void initStorage(MetaData[] entries) {
-		if (storage != null) {
-			throw new IllegalStateException("Cannot intialize storage twice!");
-		}
-		storage = new MetaDataStorage(entries);
 	}
 
 	/**
@@ -275,13 +207,69 @@ class MetaDataManager implements Closeable {
 	@Override
 	public void close() throws IOException {
 		releaseLock();
-		if(Files.exists(Paths.get(repoPath, tmpLabel+metaDataFileName), LinkOption.NOFOLLOW_LINKS)){
+		if (Files.exists(Paths.get(repoPath, tmpLabel + metaDataFileName),
+				LinkOption.NOFOLLOW_LINKS)) {
 			Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
 					Paths.get(repoPath, metaDataFileName),
 					StandardCopyOption.REPLACE_EXISTING,
 					StandardCopyOption.ATOMIC_MOVE);
 		}
 		instance = null;
+	}
+
+	/**
+	 * Returns all stored meta data.
+	 * 
+	 * @return
+	 * @see MetaDataStorage#getAll()
+	 */
+	public List<MetaData> getAllMetaData() {
+		return Arrays.asList(storage.getAll());
+	}
+
+	/**
+	 * Returns the meta data which fulfill the criteria completely.
+	 * 
+	 * @param criteria
+	 * @return
+	 * @see MetaDataStorage#get(Criteria)
+	 */
+	public List<MetaData> getMatchingMeta(final Criteria criteria) {
+		return storage.get(criteria);
+	}
+
+	/**
+	 * Returns the meta data with matching ID or null.
+	 * 
+	 * @param id
+	 * @return
+	 * @see MetaDataStorage#get(String)
+	 */
+	public MetaData getMeta(final String id) {
+		return storage.get(id);
+	}
+
+	/**
+	 * Puts the given meta data to the underlying {@link MetaDataStorage}.
+	 * 
+	 * @param meta
+	 *            The metadata to add.
+	 * @return TRUE if successful
+	 * @see MetaDataStorage#put(MetaData)
+	 */
+	public boolean putMeta(final MetaData meta) {
+		return storage.put(meta);
+	}
+
+	public void writeTempMetaFile() throws IOException {
+		final FileWriter fw = new FileWriter(Paths.get(repoPath,
+				tmpLabel + metaDataFileName).toFile());
+		storageToJson();
+		fw.write(metaDataFile.toJson());
+		fw.flush();
+		fw.close();
+		releaseLock();
+		System.gc();
 	}
 
 	/**
@@ -348,6 +336,13 @@ class MetaDataManager implements Closeable {
 				timestamp);
 	}
 
+	private void initStorage(final MetaData[] entries) {
+		if (storage != null) {
+			throw new IllegalStateException("Cannot intialize storage twice!");
+		}
+		storage = new MetaDataStorage(entries);
+	}
+
 	private Json parseMetaDataFile(final String file) throws IOException {
 		final JsonParser parser = new JsonParser();
 		return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
@@ -363,6 +358,17 @@ class MetaDataManager implements Closeable {
 		// EnumSet.allOf(PosixFilePermission.class));
 		// Files.delete(Paths.get(repoPath, lockFile));//throws
 		return true;
+	}
+
+	private void storageToJson() {
+		final MetaData[] datas = storage.getAll();
+		final Json[] entries = new Json[datas.length];
+		for (int i = 0; i < datas.length; i++) {
+			entries[i] = createJsonMetaEntry(datas[i]);
+		}
+		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
+		metaDataFile.getJsonObject(repositoryKey)
+				.addEntry(datasetsKey, entries);
 	}
 
 	private boolean tryLockMetaDataFile(int attempt) {
