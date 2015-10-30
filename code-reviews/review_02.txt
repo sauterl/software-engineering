@@ -1,4 +1,4 @@
-e Distribution data-repository.zip sollte nicht in Subversion 
+1. Die Distribution data-repository.zip sollte nicht in Subversion 
 eingecheckt werden. Das ist nicht nötig, da diese ja vollständig aus dem 
 Inhalt der im Subversion vorhandenen Dateien gebaut werden kann. 
 Stattdessen laden Sie die Distribution auf courses.cs.unibas.ch hoch.
