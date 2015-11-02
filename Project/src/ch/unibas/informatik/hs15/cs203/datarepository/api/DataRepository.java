@@ -78,8 +78,8 @@ public interface DataRepository
    * 
    * @param deletionCriteria
    *          Criteria of all data sets to be deleted have to fulfill.
-   * @return meta data of deleted data sets sorted by time stamps. Empty list of
-   *         nothing exported.
+   * @return meta data of deleted data sets sorted by time stamps. Empty list means
+   *         nothing being deleted..
    * @throws IllegalArgumentException
    *           in the following cases:
    *           <ul>

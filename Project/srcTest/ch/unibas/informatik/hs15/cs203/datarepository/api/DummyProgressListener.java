@@ -15,8 +15,6 @@
  */
 package ch.unibas.informatik.hs15.cs203.datarepository.api;
 
-import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
-
 class DummyProgressListener implements ProgressListener
 {
 

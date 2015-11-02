@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,11 @@ public abstract class APITestCase
     progressListener = new MockProgressListener();
     target = new File(workingDir, "target");
     target.mkdirs();
+    setStartTimeToNow();
+  }
+  
+  protected void setStartTimeToNow()
+  {
     startTime = new Date(((long) (System.currentTimeMillis() / 1000)) * 1000);
   }
   
@@ -139,12 +145,26 @@ public abstract class APITestCase
     assertNoProgressErrorAndInitialState();
   }
 
+  protected void assertDataSetNamesSorted(List<MetaData> metaDataList, String... expectedNames)
+  {
+    assertDataSetNames(metaDataList, true, expectedNames);
+  }
+  
   protected void assertDataSetNames(List<MetaData> metaDataList, String... expectedNames)
+  {
+    assertDataSetNames(metaDataList, false, expectedNames);
+  }
+  
+  private void assertDataSetNames(List<MetaData> metaDataList, boolean sorted, String... expectedNames)
   {
     List<String> names = new ArrayList<String>();
     for (MetaData metaData : metaDataList)
     {
       names.add(metaData.getName());
+    }
+    if (sorted)
+    {
+      Collections.sort(names);
     }
     assertEquals(Arrays.asList(expectedNames).toString(), names.toString());
   }
