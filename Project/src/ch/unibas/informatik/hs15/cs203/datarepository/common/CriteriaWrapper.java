@@ -147,19 +147,19 @@ public class CriteriaWrapper {
 	 * 
 	 * @return
 	 */
-	public boolean isEmpty() {
+	public boolean empty() {
 		return getId() == null && getName() == null && getText() == null
 				&& getBefore() == null && getAfter() == null;
 	}
 
 	/**
 	 * Returns true if this is a criteria query for a certain id. In other
-	 * words: returns true if and only if <tt>getId() == null</tt>
+	 * words: returns true if and only if <tt>getId() != null</tt> and all other getters return <tt>null</tt>
 	 * 
 	 * @return
 	 */
-	public boolean isIdCriteria() {
-		return getId() == null;
+	public boolean onlyID() {
+		return getId() != null && (getAfter() == null && getBefore() == null && getName() == null && getText() == null);
 	}
 
 	/*
