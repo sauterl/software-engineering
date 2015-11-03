@@ -75,11 +75,6 @@ class MetaDataManager implements Closeable {
 	 * The storage of the meta data
 	 */
 	private MetaDataStorage storage = null;
-	/**
-	 * Indicates whether this meta data manager is prepared for search queries
-	 * or not.
-	 */
-	private volatile boolean queryReady = false;
 	private static final String repositoryKey = "repository";
 	private static final String versionKey = "version";
 	private static final String nameKey = "name";
@@ -195,6 +190,26 @@ class MetaDataManager implements Closeable {
 			return false;
 		}
 	}
+	
+	/**
+	 * Removes the specified meta data and writes this change to the mea data file.<br />
+	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
+	 * write the data persistently</b><br />
+	 * This method is a shortcut for {@link MetaDataManager#removeMeta(MetaData)}
+	 * followed by {@link MetaDataManager#writeTempMetaFile()}
+	 * 
+	 * @param meta
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean remove(final MetaData meta) throws IOException{
+		if(meta.equals(removeMeta(meta))){
+			writeTempMetaFile();
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	/**
 	 * Closes this {@link MetaDataManager} and releases its resources. <b>Invoke
@@ -260,16 +275,28 @@ class MetaDataManager implements Closeable {
 	public boolean putMeta(final MetaData meta) {
 		return storage.put(meta);
 	}
+	
+	/**
+	 * Removes the given meta data from the underlying {@link MetaDataStorage}.
+	 * 
+	 * @param meta The meta data to remove.
+	 * 
+	 * @return The removed meta data or <tt>null</tt> if nothing got removed.
+	 * @see MetaDataStorage#remove(MetaData)
+	 */
+	public MetaData removeMeta(final MetaData meta){
+		return storage.remove(meta);
+	}
 
 	public void writeTempMetaFile() throws IOException {
 		final FileWriter fw = new FileWriter(Paths.get(repoPath,
 				tmpLabel + metaDataFileName).toFile());
-		storageToJson();
+		putStorageToJson();
 		fw.write(metaDataFile.toJson());
 		fw.flush();
 		fw.close();
 		releaseLock();
-		System.gc();
+//		System.gc();//is this necessary?
 	}
 
 	/**
@@ -360,7 +387,7 @@ class MetaDataManager implements Closeable {
 		return true;
 	}
 
-	private void storageToJson() {
+	private void putStorageToJson() {
 		final MetaData[] datas = storage.getAll();
 		final Json[] entries = new Json[datas.length];
 		for (int i = 0; i < datas.length; i++) {
