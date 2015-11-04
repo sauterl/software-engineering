@@ -92,7 +92,7 @@ class Verification {
 	 * If an ID has been specified and any other information has been specified, an error is thrown
 	 */
 	static void verifyNotNullCriteria(CriteriaWrapper criteria) {
-		if (criteria == null) {
+		if (criteria == null || criteria.isNull()) {
 			throw new IllegalArgumentException("The given criteria is null");
 		}
 //		if (criteria.getAfter() == null && criteria.getBefore() == null

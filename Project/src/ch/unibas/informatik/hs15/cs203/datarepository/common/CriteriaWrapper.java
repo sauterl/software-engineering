@@ -206,4 +206,8 @@ public class CriteriaWrapper {
 	public Criteria getWrappedObject(){
 		return wrapped;
 	}
+	
+	public boolean isNull(){
+		return wrapped == null;
+	}
 }
