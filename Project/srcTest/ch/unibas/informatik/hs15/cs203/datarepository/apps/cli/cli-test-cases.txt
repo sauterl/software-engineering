@@ -1,0 +1,226 @@
+# Test cases for command line client IO layer
+# Can be used for generating JUnit test code or a test method reading this file and creating a report of all failures. 
+#
+# ===============================
+# Add command test examples
+add	my-repos	hello.txt
+	SUCCESS	add(hello.txt, null, false, no-verbose)
+	Data set named 'hello.txt' has been successfully added to the repository. ID: 123
+	
+add	--move	my-repos	hello.txt
+	SUCCESS	add(hello.txt, null, true, no-verbose)
+	Data set named 'hello.txt' has been successfully added to the repository. ID: 123
+	
+add	--description	example data	--verbose	my-repos	hello.txt
+	SUCCESS	add(hello.txt, example data, false, verbose)
+	Data set named 'hello.txt' has been successfully added to the repository. ID: 123
+	
+add	--description	example data	--move	--verbose	my-repos	hello.txt
+	SUCCESS	add(hello.txt, example data, true, verbose)
+	Data set named 'hello.txt' has been successfully added to the repository. ID: 123
+	
+add	--descript	example data	my-repos	hello.txt
+	ERROR	no repository created
+	Error in 2. argument [--descript]: Unknown option.
+	
+add	--description my-repos
+	ERROR	
+	
+add	--description my-repos	hello.txt
+	ERROR	
+	
+add	--description --move	my-repos	hello.txt
+	ERROR	
+	
+add	--move	my-repos	hello.txt	to-many-parameters
+	ERROR	
+	
+add	my-repos
+	ERROR	
+	
+add
+	ERROR	
+	
+# ===============================
+# Deletion examples
+delete	my-rpos	abc12
+	SUCCESS	delete(Criteria(id:abc12))
+	
+delete	--id	abc12	my-repos
+	SUCCESS	delete(Criteria(id:abc12))
+	
+delete	--name	my-name	my-repos
+	SUCCESS	delete(Criteria(name:my-name))
+	
+delete	--text	some-text	my-repos
+	SUCCESS	delete(Criteria(text:some-txt))
+	
+delete	--name	my-name	--text	some-text	my-repos
+	SUCCESS	delete(Criteria(name:my-name, text:some-txt))
+	
+delete	--name	my-name	--before	2015-09-16	my-repos
+	SUCCESS	delete(Criteria(name:my-name, before:2015-09-16 00:00:00))
+	
+delete	--name	my-name	--before	2015-09-16	--after	2015-09-10 21:12:34	my-repos
+	SUCCESS	delete(Criteria(name:my-name, before:2015-09-16 00:00:00))
+	
+delete	--id	123	--name	my-name	my-repos
+	ERROR
+	
+delete	--id	123	my-repos	123
+	ERROR
+	
+delete	--id	my-repos
+	ERROR
+	
+delete	--blabla	my-repos
+	ERROR
+	
+delete	--blabla	blub	my-repos
+	ERROR
+	
+delete	my-repos	123	456
+	ERROR
+	
+delete	my-repos
+	ERROR
+	
+delete
+	ERROR
+	
+# ===============================
+# Export examples
+export	my-rpos	abc12	target
+	SUCCESS	export(Criteria(id:abc12), target, no-verbose)
+	
+export	--id	abc12	--verbose	my-repos	target
+	SUCCESS	export(Criteria(id:abc12), target, verbose)
+	
+export	--name	my-name	my-repos	target
+	SUCCESS	export(Criteria(name:my-name), target, no-verbose)
+	
+export	--text	some-text	my-repos	target
+	SUCCESS	export(Criteria(text:some-txt), target, no-verbose)
+	
+export	--name	my-name	--text	some-text	my-repos	target
+	SUCCESS	export(Criteria(name:my-name, text:some-txt), target, no-verbose)
+	
+export	--name	my-name	--before	2015-09-16	verbose	my-repos	target
+	SUCCESS	export(Criteria(name:my-name, before:2015-09-16 00:00:00), target, verbose)
+	
+export	--name	my-name	--before	2015-09-16	--after	2015-09-10 21:12:34	my-repos	target
+	SUCCESS	export(Criteria(name:my-name, before:2015-09-16 00:00:00), target, no-verbose)
+	
+export	--id	123	--name	my-name	my-repos	target
+	ERROR
+	
+export	--id	123	my-repos	123	target
+	ERROR
+	
+export	--id	my-repos	target
+	ERROR
+	
+export	--blabla	my-repos	target
+	ERROR
+	
+export	--blabla	blub	my-repos	target
+	ERROR
+	
+export	my-repos	123	target	456
+	ERROR
+	
+export	my-repos	target
+	ERROR
+	
+export	my-repos
+	ERROR
+	
+export
+	ERROR
+	
+# ===============================
+# List examples
+list	my-repos
+	SUCCESS	getMetaData(Criteria())
+	ID	Name	Timestamp	Number of Files	Size	Description
+	123	hello.txt	1970-01-01 01:20:34	1	11	
+	345	data	1970-01-01 01:00:11	30	23345411	example data
+	
+list	--id	123	my-repos
+	SUCCESS	getMetaData(Criteria(id:123))
+	ID	Name	Timestamp	Number of Files	Size	Description
+	123	hello.txt	1970-01-01 01:20:34	1	11	
+	345	data	1970-01-01 01:00:11	30	23345411	example data
+	
+list	--name	my-name	my-repos
+	SUCCESS	getMetaData(Criteria(name:my-name))
+	ID	Name	Timestamp	Number of Files	Size	Description
+	123	hello.txt	1970-01-01 01:20:34	1	11	
+	345	data	1970-01-01 01:00:11	30	23345411	example data
+	
+list	--text	blabla	my-repos
+	SUCCESS	getMetaData(Criteria(text:blabla))
+	ID	Name	Timestamp	Number of Files	Size	Description
+	123	hello.txt	1970-01-01 01:20:34	1	11	
+	345	data	1970-01-01 01:00:11	30	23345411	example data
+	
+list	--text	blabla	--before	2015-01-01	--after	2014-12-24 21:09:12	my-repos
+	SUCCESS	getMetaData(Criteria(text:blabla))
+	ID	Name	Timestamp	Number of Files	Size	Description
+	123	hello.txt	1970-01-01 01:20:34	1	11	
+	345	data	1970-01-01 01:00:11	30	23345411	example data
+	
+list	--id	123	--name	my-name	my-repos
+	ERROR
+	
+list	--id	123	--name	my-name	my-repos
+	ERROR
+	
+list	--name	my-name	--blabla	my-repos
+	ERROR
+	
+list	my-repos	to-many-parameters
+	ERROR
+	
+list
+	ERROR
+	
+# ===============================
+# Replace command test examples
+replace	my-repos	123	hello.txt
+	SUCCESS	replace(123, hello.txt, null, false, no-verbose)
+	
+replace	--move	--verbose	my-repos	123	hello.txt
+	SUCCESS	replace(123, hello.txt, null, true, verbose)
+	
+replace	--description	example data	--verbose	my-repos	123	hello.txt
+	SUCCESS	replace(123, hello.txt, example data, false, verbose)
+	
+replace	--description	example data	--move	--verbose	my-repos	123	hello.txt
+	SUCCESS	replace(123, hello.txt, example data, true, verbose)
+	
+replace	--descript	example data	my-repos	123	hello.txt
+	ERROR
+	
+replace	--description my-repos	123	hello.txt
+	ERROR
+	
+replace	--description my-repos	hello.txt
+	ERROR	
+	
+replace	--description --move	my-repos	hello.txt
+	ERROR	
+	
+replace	--move	my-repos	123	hello.txt	to-many-parameters
+	ERROR	
+	
+replace	my-repos	123
+	ERROR	
+	
+replace	my-repos
+	ERROR	
+	
+replace
+	ERROR	
+	
+
