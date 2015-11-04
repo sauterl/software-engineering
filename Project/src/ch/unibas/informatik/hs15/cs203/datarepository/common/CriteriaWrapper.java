@@ -198,4 +198,8 @@ public class CriteriaWrapper {
 		builder.append("]");
 		return builder.toString();
 	}
+	
+	public Criteria getWrappedObject(){
+		return wrapped;
+	}
 }

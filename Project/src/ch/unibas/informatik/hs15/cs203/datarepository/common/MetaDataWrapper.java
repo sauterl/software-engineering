@@ -143,5 +143,8 @@ public class MetaDataWrapper {
 		return true;
 	}
 	
+	public MetaData getWrappedObject(){
+		return wrapped;
+	}
 	
 }
