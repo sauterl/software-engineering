@@ -4,9 +4,12 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
@@ -44,7 +47,7 @@ class CommandInterpreter {
 	 *            The command line arguments.
 	 * @throws ParseException 
 	 */
-	public void interpret(final String[] args) throws ParseException {
+	public String interpret(final String[] args) throws ParseException {
 		final LinkedList<String> command = CommandParser.lex(args);
 		if (command.size() < 1) {
 			throw new IllegalArgumentException("Error while parsing commnd.");
@@ -58,14 +61,11 @@ class CommandInterpreter {
 				// Note how the list command already has been removed from the
 				// poll
 				// above
-				executeAdd(command);
-				break;
+				return executeAdd(command);
 			case EXPORT:
-				executeExport(command);
-				break;
+				return executeExport(command);
 			case LIST:
-				executeList(command);
-				break;
+				return executeList(command);
 			default:
 				throw new UnsupportedOperationException("Command " + cmd
 						+ " Not implemented yet");
@@ -82,7 +82,7 @@ class CommandInterpreter {
 	 * @param arguments
 	 *            The arguments of the command ADD, in tokenized list form.
 	 */
-	private void executeAdd(final LinkedList<String> arguments) {
+	private String executeAdd(final LinkedList<String> arguments) {
 		String desc = "", repoLoc = null, file = null;
 		boolean move = false;
 		final ProgressListener listener = new DummyProgressListener();
@@ -108,7 +108,15 @@ class CommandInterpreter {
 			}
 		}// endfor
 		final DataRepository repo = Factory.create(new File(repoLoc));
-		repo.add(new File(file), desc, move, listener);
+		MetaData helper=repo.add(new File(file), desc, move, listener);
+		String ret="Returned ";
+		if(helper==null){
+			ret ="Failed";
+		}else{
+			ret+=helper.getId()+" "+helper.getName();
+		}
+		return ret;
+		
 	}
 
 	/**
@@ -118,73 +126,18 @@ class CommandInterpreter {
 	 * arguments in tokenizer list form
 	 * @throws ParseException 
 	 */
-	private void executeList(final LinkedList<String> arguments) throws ParseException {
-		// TODO Auto-generated method stub
-		String curr=null,ID=null,NAME=null,TEXT=null,BEFORE=null,AFTER=null,repoLoc=null;
-		final int originSize = arguments.size();
-		for (int i = 0; i < originSize; i++) {
-			curr=arguments.poll();
-			if(curr.startsWith(Option.ID.name())){
-				ID=curr;
-			}
-			else if(curr.startsWith(Option.NAME.name())){
-				NAME=curr;
-			}else if(curr.startsWith(Option.TEXT.name())){
-				TEXT=curr;
-			}else if(curr.startsWith(Option.BEFORE.name())){
-				BEFORE=curr;
-			}else if(curr.startsWith(Option.AFTER.name())){
-				AFTER=curr;
-			}else{
-				if(originSize-i>2){
-					throw new IllegalArgumentException(
-							"Inappropriate number of arguments");
-				}else{
-					repoLoc=curr;
-				}
-			}
-
-		}
+	private String executeList(final LinkedList<String> arguments) throws IllegalArgumentException, ParseException {
+		String repoLoc = arguments.peekLast();
 		final DataRepository repo = Factory.create(new File(repoLoc));
-
-
-		Criteria cr;
-		if(ID==null && TEXT==null && BEFORE==null && AFTER==null && TEXT == null){
-			cr=Criteria.all();
-		}else if(ID==null && (TEXT!=null || BEFORE!=null || AFTER!=null || TEXT != null)){
-			Date before=null, after=null;
-			DateFormat dateFormat1 = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
-			DateFormat dateFormat2 = new SimpleDateFormat(
-					"yyyy-MM-dd");
-
-			if(BEFORE!=null){
-				if(BEFORE.length()>10){
-					before=dateFormat1.parse(BEFORE);
-				}else{
-					before=dateFormat2.parse(BEFORE);
-				}
-			}
-			if(AFTER!=null){
-				if(AFTER.length()>10){
-					after=dateFormat1.parse(AFTER);
-				}else{
-					after=dateFormat2.parse(AFTER);
-				}
-			}
-
-			cr=new Criteria(NAME, TEXT,before,after);
-		}else{
-			cr=Criteria.forId(ID);
-		}
+		LinkedList<String> Options=new LinkedList<String>(Arrays.asList(Option.ID.name(),Option.NAME.name(),Option.TEXT.name(),Option.BEFORE.name(),Option.AFTER.name()));
+		Criteria cr =arguments.size()==1?Criteria.all():criteriaParser(Options, arguments, false);
 		List<MetaData> ret=repo.getMetaData(cr);
-		System.out.println("ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n");
+		String retString="ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n";
 		for(MetaData i:ret){
-			System.out.println(i.getId()+"\t"+i.getName()
-					+"\t"+i.getTimestamp()+"\t"+i.getNumberOfFiles()+"\t"+i.getSize()+"\t"+i.getDescription()+"\n");
+			retString+=i.getId()+"\t"+i.getName()
+					+"\t"+i.getTimestamp()+"\t"+i.getNumberOfFiles()+"\t"+i.getSize()+"\t"+i.getDescription()+"\n";
 		}
-		//Use method here
-
+		return retString;
 	}
 	/**
 	 * Executes the Export command of the data repository application.The paramter
@@ -193,93 +146,71 @@ class CommandInterpreter {
 	 * arguments in tokenizer list form
 	 * @throws ParseException 
 	 */
-	private void executeExport(final LinkedList<String> arguments) throws ParseException {
+	private String executeExport(final LinkedList<String> arguments) throws IllegalArgumentException, ParseException {
 		// TODO Auto-generated method stub
-		String curr,destLoc=null,ID=null,NAME=null,TEXT=null,BEFORE=null,AFTER=null,repoLoc=null;
-		final ProgressListener listener = new DummyProgressListener();
-		boolean Identifier=false;
-		final int originSize = arguments.size();
-		for(int i=0;i<originSize;i++){
-			curr=arguments.poll();
-			if(curr.startsWith(Option.ID.name())){
-				Identifier=true;
-				ID=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
-			}
-			else if(curr.startsWith(Option.NAME.name())){
-				Identifier=true;
-				NAME=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
-			}else if(curr.startsWith(Option.TEXT.name())){
-				Identifier=true;
-				TEXT=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
-			}else if(curr.startsWith(Option.BEFORE.name())){
-				Identifier=true;
-				BEFORE=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
-			}else if(curr.startsWith(Option.AFTER.name())){
-				Identifier=true;
-				AFTER=curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
-			}else if(curr.startsWith(Option.VERBOSE.name())){
-
-			}
-			else if(!Identifier){
-				if(originSize!=3){
-					throw new IllegalArgumentException(
-							"Inappropriate number of arguments");
-				}else{
-					switch(i){
-						case 0:
-							repoLoc=curr;
-						case 1:
-							ID=curr;
-						case 2:
-							destLoc=curr;
-					}
-				}
-			} else if (originSize-i>2){
-				throw new IllegalArgumentException(
-						"Inappropriate number of arguments");
-			} else if (i == originSize - 2) {
-				repoLoc = curr;
-			} else if (i == originSize - 1) {
-				destLoc = curr;
-			} else {
-				throw new RuntimeException("Reached unexpected state.");
-			}
-		}
+		LinkedList<String> Options=new LinkedList<String>(Arrays.asList(Option.ID.name(),Option.NAME.name(),Option.TEXT.name(),Option.BEFORE.name(),Option.AFTER.name(),Option.VERBOSE.name()));
+		Criteria cr =criteriaParser(Options, arguments, true);
+		String repoLoc = arguments.get(cr.onlyID() && arguments.size()==3?arguments.size()-2:arguments.size()-3),destLoc = arguments.peekLast();
+		final ProgressListener listener = new DummyProgressListener();		
 		final DataRepository repo = Factory.create(new File(repoLoc));
+		String ret="Exported: \n";
+		for(MetaData it:repo.export(cr, new File(destLoc), listener)){
+			ret+=it.getId()+" "+it.getName()+"\n";
+		}
+		return ret;
 
-		Criteria cr;
-		if(ID==null && TEXT==null && BEFORE==null && AFTER==null && TEXT == null){
-			cr=Criteria.all();
-		}else if(ID==null && (TEXT!=null || BEFORE!=null || AFTER!=null || TEXT != null)){
-			Date before=null, after=null;
-			DateFormat dateFormat1 = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss");
-			DateFormat dateFormat2 = new SimpleDateFormat(
-					"yyyy-MM-dd");
-
-			if(BEFORE!=null){
-				if(BEFORE.length()>10){
-					before=dateFormat1.parse(BEFORE);
+	}
+	/**
+	 * It's a thing of style
+	 * @param Options
+	 * Options that can be searched for in the List ToParse
+	 * @param ToParse
+	 * List to Parse
+	 * @param ID
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws ParseException
+	 */
+	private Criteria criteriaParser(LinkedList<String> Options,LinkedList<String> ToParse,boolean ID) throws IllegalArgumentException, ParseException{
+		Criteria crit;
+		String a=ToParse.poll();
+		Map<String,String> Helper= new HashMap<String,String>();
+		for(int it=1;it< ToParse.size();it++){
+			if(Options.contains(a)){
+				if(Helper.containsKey(a)){
+					throw new IllegalArgumentException("Inappropriate number of arguments");
 				}else{
-					before=dateFormat2.parse(BEFORE);
+					Helper.put(a, ToParse.poll());
+				}
+			}else{
+				if(Options.contains(Option.ID.name()) && ID && Helper.isEmpty() && ToParse.size()>=2){
+					Helper.put(Option.ID.name(), ToParse.remove(1));
+				}else{
+					throw new IllegalArgumentException("Inappropriate number of arguments");
 				}
 			}
-			if(AFTER!=null){
-				if(AFTER.length()>10){
-					after=dateFormat1.parse(AFTER);
-				}else{
-					after=dateFormat2.parse(AFTER);
-				}
-			} 
-			cr=new Criteria(NAME, TEXT,before,after);
-		}else{
-			cr=Criteria.forId(ID);
+			a=ToParse.poll();
 		}
-
-		repo.export(cr, new File(destLoc), listener);
-
-		//Use method here
-
+		if(Helper.isEmpty() || Helper.size()>1 && Helper.containsKey(Option.ID.name())){
+			throw new IllegalArgumentException("Inappropriate number of arguments");
+		}else{
+			if(Helper.containsKey(Option.ID.name())){
+				crit=Criteria.forId(Helper.get(Option.ID.name()));
+			}else{
+				
+				DateFormat dateFormat1 = new SimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss");
+				DateFormat dateFormat2 = new SimpleDateFormat(
+						"yyyy-MM-dd");
+				
+				Date before=Helper.containsKey(Option.BEFORE.name())?Helper.get(Option.BEFORE.name()).length()>10?dateFormat1.parse(Helper.get(Option.BEFORE.name())):dateFormat2.parse(Helper.get(Option.BEFORE.name())):null;
+				Date after=Helper.containsKey(Option.AFTER.name())?Helper.get(Option.AFTER.name()).length()>10?dateFormat1.parse(Helper.get(Option.AFTER.name())):dateFormat2.parse(Helper.get(Option.AFTER.name())):null;
+				
+				crit = new Criteria(Helper.get(Option.NAME.name()), Helper.get(Option.TEXT.name()),before,after);
+			}
+		}
+		return crit;
+		
 	}
 
 
