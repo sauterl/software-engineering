@@ -79,7 +79,7 @@ public final class CollectionUtils {
 		}
 		return collections[0];
 	}
-
+	
 	/**
 	 * No constructor available since no objects are needed.
 	 */

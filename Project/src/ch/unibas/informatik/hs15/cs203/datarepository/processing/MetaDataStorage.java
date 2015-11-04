@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
-import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 
 /**
  * The {@link MetaDataStorage} class provides methods to store a list of meta
@@ -20,10 +20,10 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
  * <p>
  * The most commonly used methods of this class are:
  * <ul>
- * <li> {@link #put(MetaData)} - To add {@link MetaData} to the storage</li>
- * <li> {@link #get(Criteria)} - To get all stored {@link MetaData} matching the {@link Criteria}</li>
- * <li> {@link #get(String)} - To get a {@link MetaData} object by its ID</li>
- * <li> {@link #getAll()} - To get every single stored {@link MetaData}</li>
+ * <li> {@link #put(MetaDataWrapper)} - To add {@link MetaDataWrapper} to the storage</li>
+ * <li> {@link #get(Criteria)} - To get all stored {@link MetaDataWrapper} matching the {@link Criteria}</li>
+ * <li> {@link #get(String)} - To get a {@link MetaDataWrapper} object by its ID</li>
+ * <li> {@link #getAll()} - To get every single stored {@link MetaDataWrapper}</li>
  * </ul>
  * But there are more uses.
  * </p>
@@ -33,7 +33,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
  */
 public class MetaDataStorage {
 
-	private final TreeMap<String, MetaData> idMap = new TreeMap<String, MetaData>();
+	private final TreeMap<String, MetaDataWrapper> idMap = new TreeMap<String, MetaDataWrapper>();
 	private final TreeMap<Date, Vector<String>> timeMap = new TreeMap<Date, Vector<String>>();
 
 	/**
@@ -44,7 +44,7 @@ public class MetaDataStorage {
 		this(null);
 	}
 
-	public MetaDataStorage(final MetaData[] entries) {
+	public MetaDataStorage(final MetaDataWrapper[] entries) {
 		if (entries != null && entries.length > 0) {
 			initMap(entries);
 		}
@@ -78,12 +78,12 @@ public class MetaDataStorage {
 	 * @throws IllegalArgumentException If the given criteria is <tt>null</tt>.
 	 * @throws IllegalStateException If the storage is empty.
 	 */
-	public List<MetaData> get(final Criteria criteria) {
+	public List<MetaDataWrapper> get(final Criteria criteria) {
 		if (criteria == null) {
 			throw new IllegalArgumentException("Criteria is null");
 		}
 		validateNotEmpty();
-		final Vector<MetaData> out = new Vector<MetaData>();
+		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
 		// ALL META DATA WANDED
 		final Criteria allRef = Criteria.all();
 		if (allRef.equals(criteria)) {
@@ -121,7 +121,7 @@ public class MetaDataStorage {
 	}
 
 	/**
-	 * Returns the {@link MetaData} with specified ID. If no meta data with such
+	 * Returns the {@link MetaDataWrapper} with specified ID. If no meta data with such
 	 * an ID was found, <tt>null</tt> is returned.
 	 * 
 	 * @param id
@@ -131,20 +131,20 @@ public class MetaDataStorage {
 	 * @see TreeMap#get(Object)
 	 * @throws IllegalStateException If the storage is empty.
 	 */
-	public MetaData get(final String id) {
+	public MetaDataWrapper get(final String id) {
 		validateNotEmpty();
 		return idMap.get(id);
 	}
 
 	/**
-	 * Returns all stored {@link MetaData} objects in a single array.
+	 * Returns all stored {@link MetaDataWrapper} objects in a single array.
 	 * 
 	 * @return All stored meta data objects in a single array.
 	 * @throws IllegalStateException If the storage is empty.
 	 */
-	public MetaData[] getAll() {
+	public MetaDataWrapper[] getAll() {
 		validateNotEmpty();
-		return idMap.values().toArray(new MetaData[0]);
+		return idMap.values().toArray(new MetaDataWrapper[0]);
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class MetaDataStorage {
 	}
 
 	/**
-	 * Puts the given {@link MetaData} to this {@link MetaDataStorage}. The
+	 * Puts the given {@link MetaDataWrapper} to this {@link MetaDataStorage}. The
 	 * method's return value is a success indicator and is <tt>true</tt> if and
 	 * only if the meta data's was not previously stored, thus <tt>false</tt>
 	 * otherwise.<br />
@@ -178,7 +178,7 @@ public class MetaDataStorage {
 	 * @throws IllegalArgumentException
 	 *             If <tt>meta</tt> is <tt>null</tt>.
 	 */
-	public boolean put(final MetaData meta) {
+	public boolean put(final MetaDataWrapper meta) {
 		if (meta == null) {
 			throw new IllegalArgumentException("Cannot put meta data null.");
 		}
@@ -194,17 +194,17 @@ public class MetaDataStorage {
 	 * @param meta
 	 * @return
 	 */
-	public MetaData replace(final MetaData meta) {
+	public MetaDataWrapper replace(final MetaDataWrapper meta) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
 	/**
-	 * Removes the specified {@link MetaData} object from this storage.
+	 * Removes the specified {@link MetaDataWrapper} object from this storage.
 	 * @param meta The meta data object to remove.
 	 * @return The removed meta data or <tt>null</tt> if none got removed.
 	 * @throws IllegalStateException If an error occured while removing.
 	 */
-	public MetaData remove(final MetaData meta){
+	public MetaDataWrapper remove(final MetaDataWrapper meta){
 		if(removeTime(meta)){
 			return removeID(meta);
 		}else{
@@ -295,8 +295,8 @@ public class MetaDataStorage {
 	 * @param ids
 	 * @return
 	 */
-	private List<MetaData> getAll(final List<String> ids) {
-		final Vector<MetaData> out = new Vector<MetaData>();
+	private List<MetaDataWrapper> getAll(final List<String> ids) {
+		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
 		if (ids != null && ids.size() > 0) {
 			for (final String id : ids) {
 				out.add(idMap.get(id));
@@ -305,8 +305,8 @@ public class MetaDataStorage {
 		return out;
 	}
 
-	private void initMap(final MetaData[] entries) {
-		for (final MetaData m : entries) {
+	private void initMap(final MetaDataWrapper[] entries) {
+		for (final MetaDataWrapper m : entries) {
 			final boolean s = put(m);
 			if (!s) {
 				throw new Error("Duplicate ID while initMap: " + m.getId());
@@ -314,7 +314,7 @@ public class MetaDataStorage {
 		}
 	}
 
-	private boolean putId(final MetaData meta) {
+	private boolean putId(final MetaDataWrapper meta) {
 		if (!idMap.containsKey(meta.getId())) {
 			idMap.put(meta.getId(), meta);
 			return true;
@@ -323,7 +323,7 @@ public class MetaDataStorage {
 		}
 	}
 	
-	private MetaData removeID(final MetaData meta){
+	private MetaDataWrapper removeID(final MetaDataWrapper meta){
 		if(!idMap.containsKey(meta.getId() ) ){
 			throw new IllegalArgumentException("Cannot remove inexistent meta data with id: "+meta.getId() );
 		}else{
@@ -331,7 +331,7 @@ public class MetaDataStorage {
 		}
 	}
 
-	private boolean putTime(final MetaData meta) {
+	private boolean putTime(final MetaDataWrapper meta) {
 		final Date d = meta.getTimestamp();
 		if (!timeMap.containsKey(d)) {
 			final Vector<String> v = new Vector<String>();
@@ -348,7 +348,7 @@ public class MetaDataStorage {
 		}
 	}
 	
-	private boolean removeTime(final MetaData meta){
+	private boolean removeTime(final MetaDataWrapper meta){
 		final Date d = meta.getTimestamp();
 		if(!timeMap.containsKey(d) ){
 			// likely already removed
