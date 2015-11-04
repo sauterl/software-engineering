@@ -96,24 +96,29 @@ public class DescriptionParser {
 	public DescriptionParser(String contents) {
 		input = contents;
 	}
+	
+	public String parse(String str){
+		// TODO: implement proper cleanup
+		return parseString(str.replaceAll("\n", ""));
+	}
 
-	public String parseString(String str) throws IndexOutOfBoundsException {
+	private String parseString(String str) throws IndexOutOfBoundsException {
 		StringBuffer sb = new StringBuffer(str.length());
 		int index = str.indexOf(TAG_SIGN, 0);
-		int end = str.indexOf(TAG_SIGN, index + 1)+1;
+		int end = str.indexOf(TAG_SIGN, index+1);
 		int prev = 0;
 		while (index < str.length() && index >= 0) {
 			sb.append(str.substring(prev, index));
-			String tag = str.substring(index, end);
+			String tag = str.substring(index, end+1);
 			sb.append(parseTag(tag));
-			prev = end;
+			prev = end+1;
 			index = str.indexOf(TAG_SIGN, end + 1);
 			if(index > 0){
-				end = str.indexOf(TAG_SIGN, index + 1)+1;
+				end = str.indexOf(TAG_SIGN, index+1);
 			}
 		}
 		if(end < str.length() ){
-			sb.append(str.substring(end) );
+			sb.append(str.substring(end+1) );
 		}
 		return sb.toString();
 	}
@@ -121,15 +126,15 @@ public class DescriptionParser {
 	private String parseTag(String tag) {
 		switch (tag) {
 			case NEW_PARAGRAPH_TAG:
+				listIndex=1;
 				return "\n\n";
 			case NEW_LINE_TAG:
 				return "\n";
 			case TAB_TAG:
 				return "\t";
 			case ORDERED_LIST_ENTRY_TAG:
-				//
+				return "\n\t"+(listIndex++)+".";
 			default:
-				// TODO: Implement proper list tag
 				return "#";
 		}
 	}
