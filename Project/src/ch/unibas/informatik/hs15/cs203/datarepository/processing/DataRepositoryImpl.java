@@ -14,6 +14,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
 
@@ -142,7 +143,7 @@ class DataRepositoryImpl implements DataRepository {
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
 		ProgressListener progressListener) {
-	Verification.verifyNotNullCriteria(exportCriteria);
+	Verification.verifyNotNullCriteria(new CriteriaWrapper(exportCriteria) );
 	Verification.verifyProgressListener(progressListener);
 //	Verification.verifyAbsence(target);
 	// TODO If ID has been specified, check for existence
@@ -232,7 +233,7 @@ class DataRepositoryImpl implements DataRepository {
 				}
 				return unwrap(_res);
 			}
-			_res.addAll(mdm.getMatchingMeta(searchCriteria));
+			_res.addAll(mdm.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
 //			try{
 //			mdm.close();

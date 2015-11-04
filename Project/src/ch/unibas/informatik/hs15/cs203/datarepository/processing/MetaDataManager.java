@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
@@ -247,9 +247,9 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param criteria
 	 * @return
-	 * @see MetaDataStorage#get(Criteria)
+	 * @see MetaDataStorage#get(CriteriaWrapper)
 	 */
-	public List<MetaDataWrapper> getMatchingMeta(final Criteria criteria) {
+	public List<MetaDataWrapper> getMatchingMeta(final CriteriaWrapper criteria) {
 		return storage.get(criteria);
 	}
 

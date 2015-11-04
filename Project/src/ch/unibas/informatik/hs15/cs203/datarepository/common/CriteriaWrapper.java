@@ -22,6 +22,10 @@ public class CriteriaWrapper {
 	public CriteriaWrapper(final String id) {
 		this(Criteria.forId(id));
 	}
+	
+	public static CriteriaWrapper all(){
+		return new CriteriaWrapper(Criteria.all() );
+	}
 
 	public CriteriaWrapper(final String nameOrNull, final String textOrNull,
 			final Date afterOrNull, final Date beforeOrNull) {

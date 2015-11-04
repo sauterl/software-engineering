@@ -2,8 +2,8 @@ package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
 import java.io.File;
 
-import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 
 /**
  * Collection of static methods for veryifying Parameters. Instead of returning
@@ -91,7 +91,7 @@ class Verification {
 	 * If criteria is null or contains no information, an error is thrown.
 	 * If an ID has been specified and any other information has been specified, an error is thrown
 	 */
-	static void verifyNotNullCriteria(Criteria criteria) {
+	static void verifyNotNullCriteria(CriteriaWrapper criteria) {
 		if (criteria == null) {
 			throw new IllegalArgumentException("The given criteria is null");
 		}

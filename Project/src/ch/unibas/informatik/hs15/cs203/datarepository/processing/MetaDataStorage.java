@@ -9,19 +9,19 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 
 /**
  * The {@link MetaDataStorage} class provides methods to store a list of meta
  * data.<br />
- * Further this class also is capable of handling queries with {@link Criteria} objects.<br />
+ * Further this class also is capable of handling queries with {@link CriteriaWrapper} objects.<br />
  * 
  * <p>
  * The most commonly used methods of this class are:
  * <ul>
  * <li> {@link #put(MetaDataWrapper)} - To add {@link MetaDataWrapper} to the storage</li>
- * <li> {@link #get(Criteria)} - To get all stored {@link MetaDataWrapper} matching the {@link Criteria}</li>
+ * <li> {@link #get(CriteriaWrapper)} - To get all stored {@link MetaDataWrapper} matching the {@link CriteriaWrapper}</li>
  * <li> {@link #get(String)} - To get a {@link MetaDataWrapper} object by its ID</li>
  * <li> {@link #getAll()} - To get every single stored {@link MetaDataWrapper}</li>
  * </ul>
@@ -78,14 +78,14 @@ public class MetaDataStorage {
 	 * @throws IllegalArgumentException If the given criteria is <tt>null</tt>.
 	 * @throws IllegalStateException If the storage is empty.
 	 */
-	public List<MetaDataWrapper> get(final Criteria criteria) {
+	public List<MetaDataWrapper> get(final CriteriaWrapper criteria) {
 		if (criteria == null) {
-			throw new IllegalArgumentException("Criteria is null");
+			throw new IllegalArgumentException("CriteriaWrapper is null");
 		}
 		validateNotEmpty();
 		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
 		// ALL META DATA WANDED
-		final Criteria allRef = Criteria.all();
+		final CriteriaWrapper allRef = CriteriaWrapper.all();
 		if (allRef.equals(criteria)) {
 			return Arrays.asList(getAll());
 		}
