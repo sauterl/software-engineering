@@ -14,6 +14,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
 
 class DataRepositoryImpl implements DataRepository {
@@ -38,7 +40,7 @@ class DataRepositoryImpl implements DataRepository {
 
 		String newID = MetaDataManager.generateRandomUUID();
 		Path joinedPath = createNewDatasetFolder(newID);
-		MetaData _ret = new MetaData(newID, file.getName(), description,
+		MetaDataWrapper _ret = new MetaDataWrapper(newID, file.getName(), description,
 				RepoFileUtils.getFileCount(file),
 				RepoFileUtils.getFileSize(file), dateCutter(new Date()));
 		MetaDataManager mdm = null;
@@ -70,7 +72,7 @@ class DataRepositoryImpl implements DataRepository {
 				}
 			}
 		}
-		return _ret;
+		return _ret.getWrappedObject();
 	}
 	
 	private Date dateCutter(Date d){
@@ -100,10 +102,10 @@ class DataRepositoryImpl implements DataRepository {
 		ProgressListener progressListener){
 		try{
 		
-			List<MetaData> wholeMetadata = exportCheck(exportCriteria, target,
-		progressListener);
+			List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(exportCriteria, target,
+		progressListener));
 		long totalNumberOfBytes=0;
-		for(MetaData md:wholeMetadata){
+		for(MetaDataWrapper md:wholeMetadata){
 //			System.out.println(md.getId());
 			totalNumberOfBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+md.getId()));
 		}
@@ -131,7 +133,7 @@ class DataRepositoryImpl implements DataRepository {
 	
 		
 		//Export all datasets
-		return wholeMetadata;
+		return unwrap(wholeMetadata);
 		
 		}catch (Exception e){
 //			e.printStackTrace();
@@ -141,7 +143,7 @@ class DataRepositoryImpl implements DataRepository {
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
 		ProgressListener progressListener) {
-	Verification.verifyNotNullCriteria(exportCriteria);
+	Verification.verifyNotNullCriteria(new CriteriaWrapper(exportCriteria) );
 	Verification.verifyProgressListener(progressListener);
 //	Verification.verifyAbsence(target);
 	// TODO If ID has been specified, check for existence
@@ -153,7 +155,7 @@ class DataRepositoryImpl implements DataRepository {
 	}else{
 		throw new IllegalArgumentException("Please define a target.");
 	}
-	List<MetaData> wholeMetadata = getMetaData(exportCriteria);
+	List<MetaDataWrapper> wholeMetadata = wrap(getMetaData(exportCriteria));
 	if(exportCriteria.getId()!=null){
 		
 //		System.out.println(getMetaData(exportCriteria));
@@ -182,7 +184,7 @@ class DataRepositoryImpl implements DataRepository {
 		throw new IllegalArgumentException("The targer path given seems to bo inside the repository.");
 	}
 	
-	return wholeMetadata;
+	return unwrap(wholeMetadata);
 	}
 	
 	
@@ -212,33 +214,33 @@ class DataRepositoryImpl implements DataRepository {
 
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
-		List<MetaData> _res = new ArrayList<MetaData>();
+		List<MetaDataWrapper> _res = new ArrayList<MetaDataWrapper>();
 		MetaDataManager mdm=null;
 		try{
 			mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			if(searchCriteria==null || searchCriteria.empty()){
 				_res = mdm.getAllMetaData();
 				Collections.sort(_res, new MetaDataComparator());
-				return _res;
+				return unwrap(_res);
 			}
 			if(searchCriteria.getId()!= null && !searchCriteria.onlyID()){
 				throw new IllegalArgumentException("If you specify an ID, no other criteria can be specified");
 			}
 			if(searchCriteria.onlyID()){
-				MetaData idMatch = mdm.getMeta(searchCriteria.getId());
+				MetaDataWrapper idMatch = mdm.getMeta(searchCriteria.getId());
 				if(idMatch!= null){
 					_res.add(idMatch);
 				}
-				return _res;
+				return unwrap(_res);
 			}
-			_res.addAll(mdm.getMatchingMeta(searchCriteria));
+			_res.addAll(mdm.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
 //			try{
 //			mdm.close();
 //			}catch(IOException e){
 //				e.printStackTrace();
 //			}
-			return _res;
+			return unwrap(_res);
 		}catch(Exception e){
 //			try {
 //		mdm.close();
@@ -256,5 +258,21 @@ class DataRepositoryImpl implements DataRepository {
 				}
 			}
 		}
+	}
+	
+	private List<MetaData> unwrap(List<MetaDataWrapper> wrappedList){
+		ArrayList<MetaData> out = new ArrayList<MetaData>();
+		for(MetaDataWrapper w : wrappedList){
+			out.add(w.getWrappedObject() );
+		}
+		return out;
+	}
+
+	private List<MetaDataWrapper> wrap(List<MetaData> wrappedList){
+		ArrayList<MetaDataWrapper> out = new ArrayList<MetaDataWrapper>();
+		for(MetaData w : wrappedList){
+			out.add(new MetaDataWrapper(w) );
+		}
+		return out;
 	}
 }

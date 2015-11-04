@@ -8,8 +8,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.logging.Logger;
-import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * @author Loris
@@ -33,9 +33,9 @@ public class SimpleExistsCleanupStrategy implements CleanupStrategy {
 	@Override
 	public int clean(MetaDataStorage storage, Path repo) {
 		int counter=0;
-		MetaData[] metas = storage.getAll();
+		MetaDataWrapper[] metas = storage.getAll();
 		//cleanup repo based on id
-		for(MetaData meta : metas){
+		for(MetaDataWrapper meta : metas){
 			String id = meta.getId();
 			Path expected = Paths.get(repo.toString(), id);
 			if(!Files.exists(expected, LinkOption.NOFOLLOW_LINKS)){
