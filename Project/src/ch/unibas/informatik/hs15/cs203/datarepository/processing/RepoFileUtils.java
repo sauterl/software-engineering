@@ -47,7 +47,7 @@ class RepoFileUtils {
 
 		//copy a directory
 		copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize);
-		alreadyProcessedBytes += source.toFile().length();
+		//alreadyProcessedBytes += source.toFile().length();
 
 		for (File subfile : source.toFile().listFiles()) {
 			Path subfilePath = Paths.get(combinedPath.toString(), subfile.getName());
@@ -75,8 +75,8 @@ class RepoFileUtils {
 			long totalSize) {
 		if (source.toFile().isDirectory()) {
 			target.toFile().mkdirs();
-			alreadyProcessed += target.toFile().length();
-			progressListener.progress(alreadyProcessed, totalSize);
+			//alreadyProcessed += target.toFile().length();
+			//progressListener.progress(alreadyProcessed, totalSize);
 			return;
 		}
 		InputStream inputStream = null;
@@ -85,11 +85,12 @@ class RepoFileUtils {
 			inputStream = new FileInputStream(source.toFile());
 			outputStream = new FileOutputStream(target.toFile());
 
-			byte[] buffer = new byte[1024];
+			byte[] buffer = new byte[1000000];
 			int size = 0;
 			while ((size = inputStream.read(buffer)) != -1) {
 				outputStream.write(buffer, 0, size);
 				alreadyProcessed += size;
+				System.err.println(source.toString()+" | "+target.toString()+" | "+alreadyProcessed);	//TODO
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
@@ -122,6 +123,7 @@ class RepoFileUtils {
 				length += file.length();
 				continue;
 			}
+			//length+=directory.length();
 			length += getFileSize(file);
 		}
 		return length;
