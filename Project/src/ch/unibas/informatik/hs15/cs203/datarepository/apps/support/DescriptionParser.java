@@ -53,12 +53,12 @@ import java.io.IOException;
  * Some tabbed	text.
  * Text which will be on the same line.
  * But this not.
- * 1. First argument
- * 2. Second
- * 3. Last
+ * 	1. First argument
+ * 	2. Second
+ * 	3. Last
  * 
  * By the way:
- * 1.
+ * 	1.
  * </pre>
  * </p>
  * 
@@ -81,6 +81,7 @@ public class DescriptionParser {
 	private File file = null;
 	private String input = null;
 	private volatile boolean ready = false;
+	private int listIndex = 1;
 
 	public DescriptionParser() {
 		// for convience;
@@ -107,7 +108,9 @@ public class DescriptionParser {
 			sb.append(parseTag(tag));
 			prev = end;
 			index = str.indexOf(TAG_SIGN, end + 1);
-			end = str.indexOf(TAG_SIGN, index + 1)+1;
+			if(index > 0){
+				end = str.indexOf(TAG_SIGN, index + 1)+1;
+			}
 		}
 		if(end < str.length() ){
 			sb.append(str.substring(end) );
@@ -122,7 +125,9 @@ public class DescriptionParser {
 			case NEW_LINE_TAG:
 				return "\n";
 			case TAB_TAG:
-				return "\n";
+				return "\t";
+			case ORDERED_LIST_ENTRY_TAG:
+				//
 			default:
 				// TODO: Implement proper list tag
 				return "#";
