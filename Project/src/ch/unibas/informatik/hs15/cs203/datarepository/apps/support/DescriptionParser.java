@@ -54,6 +54,7 @@ import java.io.IOException;
  * Text which will be on the same line.
  * But this not.
  * 
+ * 
  * 	1. First argument
  * 	2. Second
  * 	3. Last
@@ -68,7 +69,7 @@ import java.io.IOException;
  * @author Loris
  *
  */
-public class DescriptionParser {
+public final class DescriptionParser {
 
 	public static final String NEW_PARAGRAPH_TAG = "$br$";
 
@@ -98,10 +99,20 @@ public class DescriptionParser {
 
 	public DescriptionParser(String contents) {
 		input = contents;
+		ready = true;
+	}
+	
+	public String parse() throws IOException{
+		if(!isReady() ){
+			throw new IllegalStateException("Parser not ready");
+		}
+		if(!checkStringMode() ){
+			input = readFile();
+		}
+		return parse(input);
 	}
 	
 	public String parse(String str){
-		// TODO: implement proper cleanup
 		return parseString(cleanUp(str));
 	}
 	
@@ -171,16 +182,16 @@ public class DescriptionParser {
 			throw new IllegalStateException(
 					"Not ready, therefore cannot read.");
 		}
-		if (!checkStringMode()) {
-			throw new IllegalStateException(
-					"Cannot read from file when in string mode");
-		}
+//		if (!checkStringMode()) {
+//			throw new IllegalStateException(
+//					"Cannot read from file when in string mode");
+//		}
 		StringBuffer sb = new StringBuffer();
 		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
-				sb.append(" ");
+				sb.append("\n");
 			}
 		} catch (IOException e) {
 			throw e;
