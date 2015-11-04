@@ -53,12 +53,15 @@ import java.io.IOException;
  * Some tabbed	text.
  * Text which will be on the same line.
  * But this not.
+ * 
  * 	1. First argument
  * 	2. Second
  * 	3. Last
  * 
  * By the way:
- * 	1.
+ * 	1. Other first argument
+ * 
+ * 
  * </pre>
  * </p>
  * 
@@ -99,7 +102,21 @@ public class DescriptionParser {
 	
 	public String parse(String str){
 		// TODO: implement proper cleanup
-		return parseString(str.replaceAll("\n", ""));
+		return parseString(cleanUp(str));
+	}
+	
+	private String cleanUp(String str){
+		String[] lines = str.split("\n");
+		StringBuffer sb = new StringBuffer(str.length() + lines.length );
+		for(String s : lines){
+			s = s.trim();
+			s.replaceAll("\n", "");
+			sb.append(s);
+			if(!s.endsWith(TAG_SIGN)){
+				sb.append(" ");
+			}
+		}
+		return sb.toString().trim();
 	}
 
 	private String parseString(String str) throws IndexOutOfBoundsException {
@@ -133,7 +150,11 @@ public class DescriptionParser {
 			case TAB_TAG:
 				return "\t";
 			case ORDERED_LIST_ENTRY_TAG:
-				return "\n\t"+(listIndex++)+".";
+				String out = "";
+				if(listIndex == 1){
+					out += "\n";
+				}
+				return out+"\t"+(listIndex++)+".";
 			default:
 				return "#";
 		}
