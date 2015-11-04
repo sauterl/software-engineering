@@ -19,11 +19,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
 import util.logging.Logger;
-import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
-import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * The {@link MetaDataManager} class manages meta data. This includes reading of
@@ -75,11 +75,6 @@ class MetaDataManager implements Closeable {
 	 * The storage of the meta data
 	 */
 	private MetaDataStorage storage = null;
-	/**
-	 * Indicates whether this meta data manager is prepared for search queries
-	 * or not.
-	 */
-	private volatile boolean queryReady = false;
 	private static final String repositoryKey = "repository";
 	private static final String versionKey = "version";
 	private static final String nameKey = "name";
@@ -169,17 +164,17 @@ class MetaDataManager implements Closeable {
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		final MetaData[] entries = convertCollectionToMeta(Arrays
+		final MetaDataWrapper[] entries = convertCollectionToMeta(Arrays
 				.asList(metaDataFile.getJsonObject(repositoryKey).getSet(
 						datasetsKey)));
 		initStorage(entries);
 	}
 
 	/**
-	 * Adds and writes the specified {@link MetaData} to the meta data file.<br />
+	 * Adds and writes the specified {@link MetaDataWrapper} to the meta data file.<br />
 	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
 	 * write the data persistently</b><br />
-	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaData)}
+	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaDataWrapper)}
 	 * followed by {@link MetaDataManager#writeTempMetaFile()}
 	 * 
 	 * @param meta
@@ -187,11 +182,31 @@ class MetaDataManager implements Closeable {
 	 * @throws IOException
 	 *             If the writing fails.
 	 */
-	public boolean add(final MetaData meta) throws IOException {
+	public boolean add(final MetaDataWrapper meta) throws IOException {
 		if (putMeta(meta)) {
 			writeTempMetaFile();
 			return true;
 		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Removes the specified meta data and writes this change to the mea data file.<br />
+	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
+	 * write the data persistently</b><br />
+	 * This method is a shortcut for {@link MetaDataManager#removeMeta(MetaDataWrapper)}
+	 * followed by {@link MetaDataManager#writeTempMetaFile()}
+	 * 
+	 * @param meta
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean remove(final MetaDataWrapper meta) throws IOException{
+		if(meta.equals(removeMeta(meta))){
+			writeTempMetaFile();
+			return true;
+		}else{
 			return false;
 		}
 	}
@@ -223,7 +238,7 @@ class MetaDataManager implements Closeable {
 	 * @return
 	 * @see MetaDataStorage#getAll()
 	 */
-	public List<MetaData> getAllMetaData() {
+	public List<MetaDataWrapper> getAllMetaData() {
 		return Arrays.asList(storage.getAll());
 	}
 
@@ -232,9 +247,9 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param criteria
 	 * @return
-	 * @see MetaDataStorage#get(Criteria)
+	 * @see MetaDataStorage#get(CriteriaWrapper)
 	 */
-	public List<MetaData> getMatchingMeta(final Criteria criteria) {
+	public List<MetaDataWrapper> getMatchingMeta(final CriteriaWrapper criteria) {
 		return storage.get(criteria);
 	}
 
@@ -245,7 +260,7 @@ class MetaDataManager implements Closeable {
 	 * @return
 	 * @see MetaDataStorage#get(String)
 	 */
-	public MetaData getMeta(final String id) {
+	public MetaDataWrapper getMeta(final String id) {
 		return storage.get(id);
 	}
 
@@ -255,21 +270,33 @@ class MetaDataManager implements Closeable {
 	 * @param meta
 	 *            The metadata to add.
 	 * @return TRUE if successful
-	 * @see MetaDataStorage#put(MetaData)
+	 * @see MetaDataStorage#put(MetaDataWrapper)
 	 */
-	public boolean putMeta(final MetaData meta) {
+	public boolean putMeta(final MetaDataWrapper meta) {
 		return storage.put(meta);
+	}
+	
+	/**
+	 * Removes the given meta data from the underlying {@link MetaDataStorage}.
+	 * 
+	 * @param meta The meta data to remove.
+	 * 
+	 * @return The removed meta data or <tt>null</tt> if nothing got removed.
+	 * @see MetaDataStorage#remove(MetaDataWrapper)
+	 */
+	public MetaDataWrapper removeMeta(final MetaDataWrapper meta){
+		return storage.remove(meta);
 	}
 
 	public void writeTempMetaFile() throws IOException {
 		final FileWriter fw = new FileWriter(Paths.get(repoPath,
 				tmpLabel + metaDataFileName).toFile());
-		storageToJson();
+		putStorageToJson();
 		fw.write(metaDataFile.toJson());
 		fw.flush();
 		fw.close();
 		releaseLock();
-		System.gc();
+//		System.gc();//is this necessary?
 	}
 
 	/**
@@ -280,15 +307,15 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param collection
 	 *            The collection of json objects to convert.
-	 * @return Either an array of {@link MetaData} objects which got converted
-	 *         from their JSON equivalents or an empty <tt>MetaData</tt> array
+	 * @return Either an array of {@link MetaDataWrapper} objects which got converted
+	 *         from their JSON equivalents or an empty <tt>MetaDataWrapper</tt> array
 	 *         if either <tt>collection</tt> was <code>null</code>or empty.
 	 */
-	private MetaData[] convertCollectionToMeta(final Collection<Json> collection) {
+	private MetaDataWrapper[] convertCollectionToMeta(final Collection<Json> collection) {
 		if (collection == null || collection.isEmpty()) {
-			return new MetaData[0];
+			return new MetaDataWrapper[0];
 		}// assert collection is neither null nor empty
-		final MetaData[] out = new MetaData[collection.size()];
+		final MetaDataWrapper[] out = new MetaDataWrapper[collection.size()];
 		int i = 0;
 		for (final Json json : collection) {
 			// could throw InexistentKeyException but json *should* be well
@@ -298,7 +325,7 @@ class MetaDataManager implements Closeable {
 		return out;
 	}
 
-	private Json createJsonMetaEntry(final MetaData data) {
+	private Json createJsonMetaEntry(final MetaDataWrapper data) {
 		final Json json = new Json();
 		json.addEntry(idKey, data.getId());
 		json.addEntry(nameKey, data.getName());
@@ -322,7 +349,7 @@ class MetaDataManager implements Closeable {
 		return out;
 	}
 
-	private MetaData extractMetaData(final Json dataset) {
+	private MetaDataWrapper extractMetaData(final Json dataset) {
 		final String id = dataset.getString(idKey);
 		final String name = dataset.getString(nameKey);
 		String description = "";
@@ -332,11 +359,11 @@ class MetaDataManager implements Closeable {
 		final int numberOfFiles = (int) dataset.getDouble(filecountKey);
 		final long size = (long) dataset.getDouble(sizeKey);
 		final Date timestamp = dataset.getDate(timestampKey);
-		return new MetaData(id, name, description, numberOfFiles, size,
+		return new MetaDataWrapper(id, name, description, numberOfFiles, size,
 				timestamp);
 	}
 
-	private void initStorage(final MetaData[] entries) {
+	private void initStorage(final MetaDataWrapper[] entries) {
 		if (storage != null) {
 			throw new IllegalStateException("Cannot intialize storage twice!");
 		}
@@ -360,8 +387,8 @@ class MetaDataManager implements Closeable {
 		return true;
 	}
 
-	private void storageToJson() {
-		final MetaData[] datas = storage.getAll();
+	private void putStorageToJson() {
+		final MetaDataWrapper[] datas = storage.getAll();
 		final Json[] entries = new Json[datas.length];
 		for (int i = 0; i < datas.length; i++) {
 			entries[i] = createJsonMetaEntry(datas[i]);
