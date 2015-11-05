@@ -1,0 +1,10 @@
+A single-line paragraph.$br$
+Some tabbed$t$text.$n$
+Text
+which will be on the same line.$n$
+But this not.$br$
+$1$ First argument$n$
+$1$ Second$n$
+$1$ Last$br$
+By the way:
+$1$ Other first argument$br$

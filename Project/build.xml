@@ -1,6 +1,7 @@
 <project name="drt" default="build" basedir=".">
 	<property name="src" location="src" />
 	<property name="srcTest" location="srcTest" />
+	<property name="assets" location="assets" />
 	<property name="classes" location="ant-classes" />
 	<property name="dist" location="dist" />
 	<property name="jar.file" value="data-repository.jar" />
@@ -41,7 +42,7 @@
 	</target>
 
 	<target name="jar" depends="compile" description="Generate JAR">
-		<jar jarfile="${jar.file}" basedir="${classes}" includes="**/*.class">
+		<jar jarfile="${jar.file}" basedir="${classes}" includes="**/*.class, ${assets}/**/*.*">
 			<manifest>
 				<attribute name="Main-Class" value="${main.class}" />
 			</manifest>
@@ -60,6 +61,6 @@
 	</target>
 
 	<target name="build" depends="dist, test" />
-	<target name="buildNotest" depends="dist" />
+	<target name="buildNoTest" depends="dist" />
 
 </project>

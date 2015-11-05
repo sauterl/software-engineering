@@ -1,0 +1,7 @@
+The specified file/folder will be added to the repository. Without the --move option a copy will
+be created. With the --move option the file/folder is moved completely into the repository. This
+allows to handle large data sets without copying the data which can lead to large time and memory
+consumption. A unique identifier is created for the data set. It is part of the success message.$br$
+The repository folder will be created if it does not exist.$br$
+If the same file/folder is added twice to the same repository it will be stored as two different data
+sets.

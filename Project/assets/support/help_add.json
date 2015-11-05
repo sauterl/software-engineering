@@ -1,0 +1,12 @@
+{
+	"name":"add",
+	"synopsis":"data-repository add [--description <description>] [--move] [--verbose] <repository path> <file/folder>",
+	"params":[
+		"<repository path> Absolute or relative path to the repository.",
+		"<file/folder> Absolute or relative path to the file or folder defining the data set to be added.",
+		"--description <description> A description of the data set. The maximum length is restricted to 1000 characters. It does not contain any ISO control character like TAB, CR, or LF.",
+		"--move The data set is moved into the repository. Otherwise it is copied.",
+		"--verbose Shows progress information in case of copying mode. The number of bytes already copied versus the total number of bytes to be copied will be shown."
+	],
+	"desc":"add.dsc"
+}
