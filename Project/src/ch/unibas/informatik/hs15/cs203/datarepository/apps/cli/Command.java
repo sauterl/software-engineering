@@ -14,8 +14,19 @@ enum Command {
 	 * {@link Option#VERBOSE} Mandatory argument count: 2
 	 */
 	ADD(2, Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
-
-	REPLACE, DELETE,
+	/**
+	 * The REPLACE command, Appropriate {@link Option}s are:
+	 * {@link Option#DESCRIPTION}, {@link Option#MOVE} and
+	 * {@link Option#VERBOSE} Mandatory argument count: 3
+	 */
+	REPLACE(3,Option.DESCRIPTION,Option.MOVE,Option.VERBOSE,Option.ID),
+	/**
+	 * The DELETE command,  Appropriate {@link Option}s are:
+	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
+	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
+	 *  Mandatory argument count: 1
+	 */
+	DELETE(1,Option.ID,Option.TEXT,Option.BEFORE,Option.AFTER,Option.NAME),
 	/**
 	 * The EXPORT command. Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
@@ -30,7 +41,12 @@ enum Command {
 	 * {@link Option#NAME} Mandatory argument count: 1
 	 */
 	LIST(1,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
-	HELP;
+	
+	/**
+	 * The HELP command
+	 * Mandatory argument count: 0
+	 */
+	HELP(0);
 
 	/**
 	 * Parses a given {@link String} to a matching {@link Command}. Unequal

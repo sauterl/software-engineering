@@ -1,6 +1,7 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,8 +47,9 @@ class CommandInterpreter {
 	 * @param args
 	 *            The command line arguments.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
-	public String interpret(final String[] args) throws ParseException {
+	public String interpret(final String[] args) throws ParseException, IOException,IllegalArgumentException {
 		final LinkedList<String> command = CommandParser.lex(args);
 		if (command.size() < 1) {
 			throw new IllegalArgumentException("Error while parsing commnd.");
@@ -66,10 +68,63 @@ class CommandInterpreter {
 				return executeExport(command);
 			case LIST:
 				return executeList(command);
+			case DELETE:
+				return executeDelete(command);
+			case HELP:
+				return executeHelp(command);
+			case REPLACE:
+				return executeReplace(command);
 			default:
 				throw new UnsupportedOperationException("Command " + cmd
 						+ " Not implemented yet");
 		}
+	}
+	/**
+	 * executes the replace command
+	 * @param arguments
+	 * @return
+	 * @throws IOException 
+	 */
+	private String executeReplace(LinkedList<String> arguments) throws IOException {
+		String file =  arguments.removeLast();
+		String iD = arguments.removeLast();
+		String repoLoc = arguments.removeLast();
+		String description = arguments.size()>=2 && arguments.peek().equals(Option.DESCRIPTION)? arguments.get(1):"";
+		boolean move = arguments.contains(Option.VERBOSE);
+		final ProgressListener listener = arguments.contains(Option.VERBOSE)?new DummyProgressListener():null;	
+		File add = new File(file);add.createNewFile();
+		MetaData ret= Factory.create(new File(repoLoc)).replace(iD, add, description, move, listener);
+		return "Data set with the ID: '"+ iD +"' has been successfully replaced with the file"+ret.getName()+". ID: "+ret.getId();
+	}
+	/**
+	 * execute help command
+	 * @param arguments
+	 * @return
+	 */
+	private String executeHelp(LinkedList<String> arguments) {
+		final DataRepository repo = Factory.create(new File(""));
+		// Need help command;
+		return null;
+	}
+	/**
+	 * 
+	 * @param arguments
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws ParseException
+	 */
+	private String executeDelete(LinkedList<String> arguments) throws IllegalArgumentException, ParseException {
+		String repoLoc= arguments.size()==2?arguments.peekFirst():arguments.peekLast();
+		LinkedList<String> Options=new LinkedList<String>(Arrays.asList(Option.ID.name(),Option.NAME.name(),Option.TEXT.name(),Option.BEFORE.name(),Option.AFTER.name()));
+		Criteria crit = criteriaParser(Options, arguments, true);
+		final ProgressListener listener = arguments.contains(Option.VERBOSE)?new DummyProgressListener():null;	
+		List<MetaData> ret = Factory.create(new File(repoLoc)).delete(crit);
+		String retStr= "The following data sets have been deleted: ";
+		if(!ret.isEmpty()){
+		for(MetaData it:ret){
+			retStr+=it.getId()+(retStr.endsWith(" ")?"":",");
+		}}
+		return retStr;
 	}
 
 	/**
@@ -81,8 +136,9 @@ class CommandInterpreter {
 	 * 
 	 * @param arguments
 	 *            The arguments of the command ADD, in tokenized list form.
+	 * @throws IOException 
 	 */
-	private String executeAdd(final LinkedList<String> arguments) {
+	private String executeAdd(final LinkedList<String> arguments) throws IOException {
 		String desc = "", repoLoc = null, file = null;
 		boolean move = false;
 		final ProgressListener listener = new DummyProgressListener();
@@ -108,15 +164,17 @@ class CommandInterpreter {
 			}
 		}// endfor
 		final DataRepository repo = Factory.create(new File(repoLoc));
-		MetaData helper=repo.add(new File(file), desc, move, listener);
-		String ret="Returned ";
+		File add = new File(file);
+		add.createNewFile();
+		MetaData helper=repo.add(add, desc, move, listener);
+		String ret="";
 		if(helper==null){
 			ret ="Failed";
 		}else{
-			ret+=helper.getId()+" "+helper.getName();
+			ret+="Data set named '"+ helper.getName() +"' has been successfully added to the repository. ID: "+helper.getId();
 		}
 		return ret;
-		
+
 	}
 
 	/**
@@ -151,7 +209,7 @@ class CommandInterpreter {
 		LinkedList<String> Options=new LinkedList<String>(Arrays.asList(Option.ID.name(),Option.NAME.name(),Option.TEXT.name(),Option.BEFORE.name(),Option.AFTER.name(),Option.VERBOSE.name()));
 		Criteria cr =criteriaParser(Options, arguments, true);
 		String repoLoc = arguments.get(cr.onlyID() && arguments.size()==3?arguments.size()-2:arguments.size()-3),destLoc = arguments.peekLast();
-		final ProgressListener listener = new DummyProgressListener();		
+		final ProgressListener listener = arguments.contains(Option.VERBOSE)?new DummyProgressListener():null;		
 		final DataRepository repo = Factory.create(new File(repoLoc));
 		String ret="Exported: \n";
 		for(MetaData it:repo.export(cr, new File(destLoc), listener)){
@@ -173,12 +231,14 @@ class CommandInterpreter {
 	 */
 	private Criteria criteriaParser(LinkedList<String> Options,LinkedList<String> ToParse,boolean ID) throws IllegalArgumentException, ParseException{
 		Criteria crit;
-		String a=ToParse.poll();
+
 		Map<String,String> Helper= new HashMap<String,String>();
+		String a=ToParse.poll();
 		for(int it=1;it< ToParse.size();it++){
+		
 			if(Options.contains(a)){
 				if(Helper.containsKey(a)){
-					throw new IllegalArgumentException("Inappropriate number of arguments");
+					throw new IllegalArgumentException("We already defined a value for this key");
 				}else{
 					Helper.put(a, ToParse.poll());
 				}
@@ -186,31 +246,31 @@ class CommandInterpreter {
 				if(Options.contains(Option.ID.name()) && ID && Helper.isEmpty() && ToParse.size()>=2){
 					Helper.put(Option.ID.name(), ToParse.remove(1));
 				}else{
-					throw new IllegalArgumentException("Inappropriate number of arguments");
+					throw new IllegalArgumentException("We don't accept this key");
 				}
 			}
 			a=ToParse.poll();
 		}
-		if(Helper.isEmpty() || Helper.size()>1 && Helper.containsKey(Option.ID.name())){
+		if(Helper.isEmpty() && !ID || Helper.size()>1 && Helper.containsKey(Option.ID.name())){
 			throw new IllegalArgumentException("Inappropriate number of arguments");
 		}else{
 			if(Helper.containsKey(Option.ID.name())){
 				crit=Criteria.forId(Helper.get(Option.ID.name()));
 			}else{
-				
+
 				DateFormat dateFormat1 = new SimpleDateFormat(
 						"yyyy-MM-dd HH:mm:ss");
 				DateFormat dateFormat2 = new SimpleDateFormat(
 						"yyyy-MM-dd");
-				
+
 				Date before=Helper.containsKey(Option.BEFORE.name())?Helper.get(Option.BEFORE.name()).length()>10?dateFormat1.parse(Helper.get(Option.BEFORE.name())):dateFormat2.parse(Helper.get(Option.BEFORE.name())):null;
 				Date after=Helper.containsKey(Option.AFTER.name())?Helper.get(Option.AFTER.name()).length()>10?dateFormat1.parse(Helper.get(Option.AFTER.name())):dateFormat2.parse(Helper.get(Option.AFTER.name())):null;
-				
+
 				crit = new Criteria(Helper.get(Option.NAME.name()), Helper.get(Option.TEXT.name()),before,after);
 			}
 		}
 		return crit;
-		
+
 	}
 
 

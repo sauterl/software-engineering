@@ -52,7 +52,7 @@ final class CommandParser {
 	 *         linked list represents the (expected) order of the command
 	 *         options and arguments.
 	 */
-	public final static LinkedList<String> lex(final String[] args) {
+	public final static LinkedList<String> lex(final String[] args) throws IllegalArgumentException {
 		// TODO Replace illegal argument with more accurate exceptions
 		checkNullParam(args);
 		if (args.length < 1) {
@@ -64,7 +64,7 @@ final class CommandParser {
 		tokens.add(cmd.name());
 		for (int i = 1; i < args.length; i++) {
 			if (Option.isLikelyOption(args[i])) {// test for option
-				final Option opt = parseOption(args[i]);
+				final Option opt = parseOption(args[i],i);
 				if (opt.isFlag()) {// has option a argument
 					tokens.add(opt.name());
 				} else {
@@ -92,7 +92,7 @@ final class CommandParser {
 		return tokens;
 	}
 
-	private static void checkNullParam(final String[] args) {
+	private static void checkNullParam(final String[] args)  throws IllegalArgumentException{
 		if (args == null) {
 			throw new IllegalArgumentException(
 					"Null is not a valid string array to tokenize.");
@@ -105,7 +105,7 @@ final class CommandParser {
 		return out;
 	}
 
-	private static Command parseCommand(final String str) {
+	private static Command parseCommand(final String str) throws IllegalArgumentException {
 		final Command out = Command.parse(str);
 		if (out == null) {
 			throw new IllegalArgumentException("Unknown command: " + str);
@@ -113,16 +113,16 @@ final class CommandParser {
 		return out;
 	}
 
-	private static Option parseOption(final String option) {
+	private static Option parseOption(final String option,int index) throws IllegalArgumentException{
 		final Option opt = Option.parse(option);
 		if (opt == null) {
-			throw new IllegalArgumentException("Unkown option: " + option);
+			throw new IllegalArgumentException("Error in "+(index+1)+". argument ["+option+"]: Unknown option.");
 		}
 		return opt;
 	}
 
 	private static String parseOptionsArgument(final Option opt,
-			final String arg) {
+			final String arg) throws IllegalArgumentException {
 		if (opt == null || arg == null || arg.length() == 0) {
 			throw new IllegalArgumentException(String.format(
 					"Illegal argument for option %s: %s", opt.name(), arg));

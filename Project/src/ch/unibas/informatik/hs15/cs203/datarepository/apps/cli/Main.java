@@ -4,6 +4,7 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.logging.Level;
 
@@ -46,11 +47,10 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(final String[] args){
-		int exitStatus = 0;
-		try {
-			System.out.println(execute(args, FACTORY));
-
-		} catch (final Throwable t) {
+		String ret="1";
+		try{
+		ret=execute(args, FACTORY);
+		}catch (final Throwable t) {
 			//eror to stderr
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage(): "Unkown error of type: "+t.getClass().getSimpleName());
@@ -61,21 +61,19 @@ public class Main {
 //			System.out.println();
 			//log error if logging enabled
 			LOG.log(LevelX.FATAL, "A fatal error has occurred. See stacktrace for further detail: ", t);
-			exitStatus = 1;
+
 		}
-		System.exit(exitStatus);
+		System.out.println(ret);
+		System.exit(ret.charAt(0)=='1'?1:0);
 	}
 	
-	static String execute(String[] args, DataRepositoryFactory factory) {
+	static String execute(String[] args, DataRepositoryFactory factory) throws IllegalArgumentException {
 		final CommandInterpreter interpreter = new CommandInterpreter();
-		try {
-			interpreter.interpret(args);
-			
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		try{
+		return interpreter.interpret(args);}
+		catch(ParseException | IOException e){
+		return "1";
 		}
-		return null;
-		}
+	}
 
 }
