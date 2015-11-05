@@ -252,7 +252,7 @@ class CommandInterpreter {
 			a=ToParse.poll();
 		}
 		if(Helper.isEmpty() && !ID || Helper.size()>1 && Helper.containsKey(Option.ID.name())){
-			throw new IllegalArgumentException("Inappropriate number of arguments");
+			throw new IllegalArgumentException("Inappropria te number of arguments");
 		}else{
 			if(Helper.containsKey(Option.ID.name())){
 				crit=Criteria.forId(Helper.get(Option.ID.name()));
