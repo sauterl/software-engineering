@@ -1,8 +1,8 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.support;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
@@ -43,12 +43,21 @@ class HelpParser {
 		return file != null;
 	}
 	
-	public String getName(){
+	private String getName(){
 		return file.getString(NAME_KEY);
 	}
 	
-	public String getSynopsis(){
+	private String getSynopsis(){
 		return file.getString(SYNOPSIS_KEY);
+	}
+	
+	private String[] getParams(){
+		return new String[]{"Not implemented yet"};
+//		ArrayList<String> out = new ArrayList<String>();
+//		Json[] lines = file.getSet(PARAMS_KEY);
+//		for(Json j : lines){
+//			
+//		}
 	}
 	
 	public File getDescriptionFile(){
