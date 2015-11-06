@@ -8,5 +8,5 @@
 		"--move The data set is moved into the repository. Otherwise it is copied.",
 		"--verbose Shows progress information in case of copying mode. The number of bytes already copied versus the total number of bytes to be copied will be shown."
 	],
-	"desc":"add.dsc"
+	"desc":"add.desc"
 }
