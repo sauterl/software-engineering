@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.support;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
  * Any other control character will be ignored.
  * <p>
  * <h3>Example</h3> The source <tt>.desc</tt> file:
- * 
+ *
  * <pre>
  * A single-line paragraph.$br$
  * Some tabbed$t$text.$n$
@@ -43,34 +43,34 @@ import java.io.IOException;
  * By the way:
  * $1$ Other first argument$br$
  * </pre>
- * 
+ *
  * Using this {@link DescriptionParser} on a file with that content, the
  * following output will be produced:
- * 
+ *
  * <pre>
  * A single-line paragraph.
- * 
+ *
  * Some tabbed	text.
  * Text which will be on the same line.
  * But this not.
- * 
- * 
+ *
+ *
  * 	1. First argument
  * 	2. Second
  * 	3. Last
- * 
+ *
  * By the way:
  * 	1. Other first argument
- * 
- * 
+ *
+ *
  * </pre>
  * </p>
- * 
+ *
  * @author Loris
  *
  */
 public final class DescriptionParser {
-// TODO writer javadoc
+	// TODO writer javadoc
 	public static final String NEW_PARAGRAPH_TAG = "$br$";
 
 	public static final String ORDERED_LIST_ENTRY_TAG = "$1$";
@@ -91,70 +91,88 @@ public final class DescriptionParser {
 		// for convience;
 	}
 
-	public DescriptionParser(File file) throws FileNotFoundException {
+	public DescriptionParser(final File file) throws FileNotFoundException {
 		this.file = file;
 		reader = new BufferedReader(new FileReader(file));
 		ready = true;
 	}
 
-	public DescriptionParser(String contents) {
+	public DescriptionParser(final String contents) {
 		input = contents;
 		ready = true;
 	}
-	
-	public String parse() throws IOException{
-		if(!isReady() ){
-			throw new IllegalStateException("Parser not ready");
-		}
-		if(!checkStringMode() ){
-			input = readFile();
-		}
-		return parse(input);
+
+	private boolean checkStringMode() {
+		return (file == null && reader == null) && input != null;
 	}
-	
-	public String parse(String str){
-		return parseString(cleanUp(str));
-	}
-	
-	private String cleanUp(String str){
-		String[] lines = str.split("\n");
-		StringBuffer sb = new StringBuffer(str.length() + lines.length );
-		for(String s : lines){
+
+	private String cleanUp(final String str) {
+		final String[] lines = str.split("\n");
+		final StringBuffer sb = new StringBuffer(str.length() + lines.length);
+		for (String s : lines) {
 			s = s.trim();
 			s.replaceAll("\n", "");
 			sb.append(s);
-			if(!s.endsWith(TAG_SIGN)){
+			if (!s.endsWith(TAG_SIGN)) {
 				sb.append(" ");
 			}
 		}
 		return sb.toString().trim();
 	}
 
-	private String parseString(String str) throws IndexOutOfBoundsException {
-		StringBuffer sb = new StringBuffer(str.length());
+	/**
+	 * Returns <tt>true</tt> if this {@link DescriptionParser} is ready, thus
+	 * {@link #parse()} can be invoked. <br />
+	 * <i>If someone reads this comment, please be kind and send an email to
+	 * <code>loris . sauter [a-t] unibas . ch</code> with subject
+	 * <tt>coffee</tt>. Thank you very much!</i>
+	 *
+	 * @return see above.
+	 */
+	public boolean isReady() {
+		return ready;
+	}
+
+	public String parse() throws IOException {
+		if (!isReady()) {
+			throw new IllegalStateException("Parser not ready");
+		}
+		if (!checkStringMode()) {
+			input = readFile();
+		}
+		return parse(input);
+	}
+
+	public String parse(final String str) {
+		return parseString(cleanUp(str));
+	}
+
+	private String parseString(final String str)
+			throws IndexOutOfBoundsException {
+		final StringBuffer sb = new StringBuffer(str.length());
 		int index = str.indexOf(TAG_SIGN, 0);
-		int end = str.indexOf(TAG_SIGN, index+1);
+		int end = str.indexOf(TAG_SIGN, index + 1);
 		int prev = 0;
 		while (index < str.length() && index >= 0) {
 			sb.append(str.substring(prev, index));
-			String tag = str.substring(index, end+1);
+			final String tag = str.substring(index, end + 1);
 			sb.append(parseTag(tag));
-			prev = end+1;
+			prev = end + 1;
 			index = str.indexOf(TAG_SIGN, end + 1);
-			if(index > 0){
-				end = str.indexOf(TAG_SIGN, index+1);
+			if (index > 0) {
+				end = str.indexOf(TAG_SIGN, index + 1);
 			}
 		}
-		if(end < str.length() ){
-			sb.append(str.substring(end+1) );
+		if (end < str.length()) {
+			sb.append(str.substring(end + 1));
 		}
 		return sb.toString();
 	}
 
-	private String parseTag(String tag) {
+	private String parseTag(final String tag) {
 		switch (tag) {
 			case NEW_PARAGRAPH_TAG:
-				listIndex=1;
+				listIndex = 1;
 				return "\n\n";
 			case NEW_LINE_TAG:
 				return "\n";
@@ -162,10 +180,10 @@ public final class DescriptionParser {
 				return "\t";
 			case ORDERED_LIST_ENTRY_TAG:
 				String out = "";
-				if(listIndex == 1){
+				if (listIndex == 1) {
 					out += "\n";
 				}
-				return out+"\t"+(listIndex++)+".";
+				return out + "\t" + (listIndex++) + ".";
 			default:
 				return "#";
 		}
@@ -173,7 +191,7 @@ public final class DescriptionParser {
 
 	/**
 	 * Closes the reader anyway!
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -182,36 +200,28 @@ public final class DescriptionParser {
 			throw new IllegalStateException(
 					"Not ready, therefore cannot read.");
 		}
-//		if (!checkStringMode()) {
-//			throw new IllegalStateException(
-//					"Cannot read from file when in string mode");
-//		}
-		StringBuffer sb = new StringBuffer();
+		// if (!checkStringMode()) {
+		// throw new IllegalStateException(
+		// "Cannot read from file when in string mode");
+		// }
+		final StringBuffer sb = new StringBuffer();
 		String line;
 		try {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
 				sb.append("\n");
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw e;
 		} finally {
 			try {
 				reader.close();
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				// doing nothing for time being.
 			}
 
 		}
 		return sb.toString();
-	}
-
-	public boolean isReady() {
-		return ready;
-	}
-
-	private boolean checkStringMode() {
-		return (file == null && reader == null) && input != null;
 	}
 
 }

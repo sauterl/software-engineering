@@ -8,7 +8,7 @@ import util.logging.Logger;
 
 /**
  * Generates ManPages.
- * 
+ *
  * @author Loris
  *
  */
@@ -20,41 +20,27 @@ public class ManPageGenerator {
 	private static final String PARAMS_TITLE = "PARAMETERS and OPTIONS";
 	private static final String DESC_TITLE = "DESCRIPTION";
 
-	private String command;
+	private final String command;
 
 	private HelpParser helpParser = null;
 
 	private DescriptionParser descParser = null;
 
-	public ManPageGenerator(String command) {
+	public ManPageGenerator(final String command) {
 		this.command = command;
 		LOG.config("Set up for command: " + command);
-		init();
-	}
-
-	protected void init() {
-		LOG.debug("Initialization");
-		readHelpFile();
-		readDescFile();
-	}
-	
-	public String getManPage() throws IOException{
-		if(command == null){
-			return createDefaultHelpPage();
-		}else if(command.equalsIgnoreCase("help")){
-			return createHelpPage();
-		}else{
-			return buildManPage();
+		if (command != null) {
+			init();
 		}
 	}
 
 	private String buildManPage() throws IOException {
 		// TODO safety check
 		LOG.debug("Building man page");
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		// sb.append(String.format(TITLE_FORMAT, helpParser.getName() ));
 		// newParagraph(sb);
-		String cap = helpParser.getShort();
+		final String cap = helpParser.getShort();
 		if (cap != null) {
 			sb.append(cap);
 			newParagraph(sb);
@@ -79,81 +65,26 @@ public class ManPageGenerator {
 
 	private String buildParams() {
 		LOG.debug("Building params");
-		StringBuilder sb = new StringBuilder();
-		String[] lines = helpParser.getParamsLines();
-		for (String l : lines) {
+		final StringBuilder sb = new StringBuilder();
+		final String[] lines = helpParser.getParamsLines();
+		for (final String l : lines) {
 			sb.append(l);
 			newLine(sb);
 		}
 		return sb.toString();
 	}
 
-	private void newLine(StringBuilder sb) {
-		sb.append("\n");
-	}
-
-	private void newParagraph(StringBuilder sb) {
-		sb.append("\n\n");
-	}
-
-	private void readHelpFile() {
-		helpParser = new HelpParser(command);
-		try {
-			helpParser.readFile();
-			LOG.info("Read help file");
-		} catch (IOException e) {
-			LOG.error("Error while reading helpfile", e);
-		}
-	}
-
-	private void readDescFile() {
-		if (!checkHelpParserReady()) {
-			throw new IllegalStateException("HelpParser not ready");
-		}
-		try {
-			descParser = new DescriptionParser(helpParser.getDescriptionFile());
-			LOG.info("Read desc file");
-		} catch (FileNotFoundException e) {
-			LOG.error("Error while reading descfile", e);
-		}
+	private boolean checkDescParserReady() {
+		return descParser != null && descParser.isReady();
 	}
 
 	private boolean checkHelpParserReady() {
 		return helpParser != null && helpParser.hasContents();
 	}
 
-	private boolean checkDescParserReady() {
-		return descParser != null && descParser.isReady();
-	}
-
-	private String createHelpPage() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(
-				"Provides information about data repository or the given command.");
-		newParagraph(sb);
-		// SYNOPSIS
-		sb.append(SYNOPSIS_TITLE);
-		newLine(sb);
-		sb.append("data-repository [help] [command name]");
-		newParagraph(sb);
-		// DESC
-		sb.append(DESC_TITLE);
-		newLine(sb);
-		sb.append(
-				"Prints onto standard output the version of the software in the rst line followed by a list of all"
-						+ "commands if the parameter [command name] is missing. For each command the name and a short"
-						+ "description (should t in one line) is printed. The user is also informed how to get more information"
-						+ "for a command.\n\n"
-						+ "If the command name is specied a complete synopsis and brief description of the command is"
-						+ "printed onto standard output.\n\n"
-						+ "In case of no command, options, or parameters the short help information will also be printed.");
-		newLine(sb);
-		return sb.toString();
-	}
-	
-	private String createDefaultHelpPage(){
-		StringBuilder sb = new StringBuilder();
-		sb.append("Version: "+Version.VERSION);
+	private String createDefaultHelpPage() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Version: " + Version.VERSION);
 		newParagraph(sb);
 		sb.append("\t");
 		sb.append("add");
@@ -183,10 +114,83 @@ public class ManPageGenerator {
 		sb.append("\t");
 		sb.append("help");
 		sb.append(": ");
-		sb.append("Gives information about the application or specified command.");
+		sb.append(
+				"Gives information about the application or specified command.");
 		newLine(sb);
 		newLine(sb);
-		sb.append("Use data-repository help [command name] to get more information about a command");
+		sb.append(
+				"Use data-repository help [command name] to get more information about a command");
 		return sb.toString();
+	}
+
+	private String createHelpPage() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(
+				"Provides information about data repository or the given command.");
+		newParagraph(sb);
+		// SYNOPSIS
+		sb.append(SYNOPSIS_TITLE);
+		newLine(sb);
+		sb.append("data-repository [help] [command name]");
+		newParagraph(sb);
+		// DESC
+		sb.append(DESC_TITLE);
+		newLine(sb);
+		sb.append(
+				"Prints onto standard output the version of the software in the rst line followed by a list of all"
+						+ "commands if the parameter [command name] is missing. For each command the name and a short"
+						+ "description (should t in one line) is printed. The user is also informed how to get more information"
+						+ "for a command.\n\n"
+						+ "If the command name is specied a complete synopsis and brief description of the command is"
+						+ "printed onto standard output.\n\n"
+						+ "In case of no command, options, or parameters the short help information will also be printed.");
+		newLine(sb);
+		return sb.toString();
+	}
+
+	public String getManPage() throws IOException {
+		if (command == null) {
+			return createDefaultHelpPage();
+		} else if (command.equalsIgnoreCase("help")) {
+			return createHelpPage();
+		} else {
+			return buildManPage();
+		}
+	}
+
+	protected void init() {
+		LOG.debug("Initialization");
+		readHelpFile();
+		readDescFile();
+	}
+
+	private void newLine(final StringBuilder sb) {
+		sb.append("\n");
+	}
+
+	private void newParagraph(final StringBuilder sb) {
+		sb.append("\n\n");
+	}
+
+	private void readDescFile() {
+		if (!checkHelpParserReady()) {
+			throw new IllegalStateException("HelpParser not ready");
+		}
+		try {
+			descParser = new DescriptionParser(helpParser.getDescriptionFile());
+			LOG.info("Read desc file");
+		} catch (final FileNotFoundException e) {
+			LOG.error("Error while reading descfile", e);
+		}
+	}
+
+	private void readHelpFile() {
+		helpParser = new HelpParser(command);
+		try {
+			helpParser.readFile();
+			LOG.info("Read help file");
+		} catch (final IOException e) {
+			LOG.error("Error while reading helpfile", e);
+		}
 	}
 }

@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 /**
  * Contains classes which provide / produce basic user support.
+ * 
  * @author Loris
  *
  */

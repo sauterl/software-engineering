@@ -1,7 +1,7 @@
 Lists the meta data as a TAB-separated table onto the standard output. This is a tabular text
 format where each row is separated by a newline character. Cells in a row are separated by TAB
 characters.$br$
-$t$+ The first row contains always the following header names:$br$
+$t$+ The first row contains always the following header names:$n$
 $t$$t$ID$n$
 $t$$t$NAME$n$
 $t$$t$TIMESTAMP$n$
