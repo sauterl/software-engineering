@@ -259,7 +259,24 @@ class CommandInterpreter {
 		}
 		return out;
 	}
+	/*
+	 * WHAT IS THIS FOR CODE?
+		if(helper.isEmpty() && !ID || helper.size()>1 && helper.containsKey(Option.ID.name())){
+			throw new IllegalArgumentException("Inappropriate number of arguments");
+		}else{
+			if(helper.containsKey(Option.ID.name())){
+				crit=Criteria.forId(helper.get(Option.ID.name()));
+			}else{
 
+				DateFormat dateFormat1 = new SimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss");
+				DateFormat dateFormat2 = new SimpleDateFormat(
+						"yyyy-MM-dd");
+
+				Date before=helper.containsKey(Option.BEFORE.name())?helper.get(Option.BEFORE.name()).length()>10?dateFormat1.parse(helper.get(Option.BEFORE.name())):dateFormat2.parse(helper.get(Option.BEFORE.name())):null;
+				Date after=helper.containsKey(Option.AFTER.name())?helper.get(Option.AFTER.name()).length()>10?dateFormat1.parse(helper.get(Option.AFTER.name())):dateFormat2.parse(helper.get(Option.AFTER.name())):null;
+			}
+			*/
 	/**
 	 * Executes the List command of the data repository application.The paramter
 	 * <code>arguments</code> are the arguments without the command itself
