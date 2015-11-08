@@ -250,7 +250,7 @@ class CommandInterpreter {
 		}
 		if (out == null) {
 			throw new RuntimeException(
-					"An unexpected error occured on executing help. [Empty return]");
+					"An unexpected error occured on executing help. [Empty getManPage()]");
 		}
 		return out;
 	}
