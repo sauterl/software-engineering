@@ -29,7 +29,7 @@ public class ManPageGenerator {
 	public ManPageGenerator(final String command) {
 		this.command = command;
 		LOG.config("Set up for command: " + command);
-		if (command != null) {
+		if (command != null && !command.equalsIgnoreCase("help")) {
 			init();
 		}
 	}
@@ -137,11 +137,11 @@ public class ManPageGenerator {
 		sb.append(DESC_TITLE);
 		newLine(sb);
 		sb.append(
-				"Prints onto standard output the version of the software in the rst line followed by a list of all"
+				"Prints onto standard output the version of the software in the first line followed by a list of all"
 						+ "commands if the parameter [command name] is missing. For each command the name and a short"
-						+ "description (should t in one line) is printed. The user is also informed how to get more information"
+						+ "description (should fit in one line) is printed. The user is also informed how to get more information"
 						+ "for a command.\n\n"
-						+ "If the command name is specied a complete synopsis and brief description of the command is"
+						+ "If the command name is specified a complete synopsis and brief description of the command is"
 						+ "printed onto standard output.\n\n"
 						+ "In case of no command, options, or parameters the short help information will also be printed.");
 		newLine(sb);
@@ -149,6 +149,7 @@ public class ManPageGenerator {
 	}
 
 	public String getManPage() throws IOException {
+		LOG.debug("Request manpage for: "+(command == null ? "null" : command));
 		if (command == null) {
 			return createDefaultHelpPage();
 		} else if (command.equalsIgnoreCase("help")) {
