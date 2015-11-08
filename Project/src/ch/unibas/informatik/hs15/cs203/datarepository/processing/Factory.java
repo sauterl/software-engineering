@@ -4,14 +4,16 @@ import java.io.File;
 import java.io.IOException;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.DataRepositoryFactory;
 
 /**
  * Static factory for creating a {@link DataRepository}.
  * 
  * @author Franz-Josef Elmer
+ * @version 2 Edited by loris.sauter to achieve new requirements (ClientTest)
  * 
  */
-public class Factory {
+public class Factory{
 	/**
 	 * Creates a {@link DataRepository} for the specified repository folder. The
 	 * repository folder will be created if it does not exit.
@@ -54,6 +56,7 @@ public class Factory {
 		return _ret;
 	}
 
-	private Factory() {
+	public Factory() {
+		// doing nothing
 	}
 }

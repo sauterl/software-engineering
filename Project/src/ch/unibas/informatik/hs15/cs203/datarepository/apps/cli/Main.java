@@ -29,20 +29,10 @@ public class Main {
 	private static final DataRepositoryFactory FACTORY = new DataRepositoryFactory() {
 		@Override
 		public DataRepository create(final File repositoryFolder) {
-			return Factory.create(repositoryFolder);
+			Factory factory = new Factory();
+			return factory.create(repositoryFolder);
 		}
 	};
-
-	static String execute(final String[] args,
-			final DataRepositoryFactory factory)
-					throws IllegalArgumentException {
-		final CommandInterpreter interpreter = new CommandInterpreter();
-		try {
-			return interpreter.interpret(args);
-		} catch (ParseException | IOException e) {
-			return "1";
-		}
-	}
 
 	/**
 	 * The main entry to this command line tool. See <a href=
@@ -52,11 +42,10 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		String ret = "1";
-		try {
-			ret = execute(args, FACTORY);
-		} catch (final Throwable t) {
-			// eror to stderr
+		int out = 1;
+		String print = Client.execute(args, FACTORY);
+		if(Client.hasError() ){
+			Throwable t = Client.getError();
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage()
 					: "Unkown error of type: " + t.getClass().getSimpleName());
@@ -65,10 +54,11 @@ public class Main {
 			LOG.log(LevelX.FATAL,
 					"A fatal error has occurred. See stacktrace for further detail: ",
 					t);
-
+		}else{
+			out = 0;
+			System.out.println(print);
 		}
-		System.out.println(ret);
-		System.exit(ret.charAt(0) == '1' ? 1 : 0);
+		System.exit(out);
 	}
 
 }

@@ -32,12 +32,24 @@ import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
  *
  */
 class CommandInterpreter {
+	
+	private DataRepositoryFactory factory;
 
 	/**
 	 * Creates a new {@link CommandInterpreter}. Currently nothing more happens.
+	 * @deprecated Since {@link #CommandInterpreter(DataRepositoryFactory)} was introduced
 	 */
+	@Deprecated
 	public CommandInterpreter() {
 
+	}
+	
+	/**
+	 * Constructs a new CommandInterpreter which uses the given factory.
+	 * @param factory The factory the command interpreter should use.
+	 */
+	public CommandInterpreter(DataRepositoryFactory factory){
+		this.factory = factory;
 	}
 
 	/**
@@ -55,10 +67,6 @@ class CommandInterpreter {
 	private CriteriaWrapper criteriaParser(final LinkedList<String> options,
 			final LinkedList<String> toParse, final boolean ID)
 					throws IllegalArgumentException, ParseException {
-		/*
-		 * EDIT by loris.sauter ################# + injected wrapper +
-		 * refractored TO FIT JAVA CONVENTIONS
-		 */
 		CriteriaWrapper crit;
 
 		final Map<String, String> helper = new HashMap<String, String>();
@@ -157,7 +165,7 @@ class CommandInterpreter {
 				}
 			}
 		} // endfor
-		final DataRepository repo = Factory.create(new File(repoLoc));
+		final DataRepository repo = factory.create(new File(repoLoc));
 		final File add = new File(file);
 		add.createNewFile();
 		final MetaData helper = repo.add(add, desc, move, listener);
@@ -188,9 +196,7 @@ class CommandInterpreter {
 				Option.ID.name(), Option.NAME.name(), Option.TEXT.name(),
 				Option.BEFORE.name(), Option.AFTER.name()));
 		final CriteriaWrapper crit = criteriaParser(Options, arguments, true);
-		final ProgressListener listener = arguments.contains(Option.VERBOSE)
-				? new DummyProgressListener() : null;
-		final List<MetaData> ret = Factory.create(new File(repoLoc))
+		final List<MetaData> ret = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
 		String retStr = "The following data sets have been deleted: ";
 		if (!ret.isEmpty()) {
@@ -212,7 +218,6 @@ class CommandInterpreter {
 	 */
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
-		// TODO Auto-generated method stub
 		final LinkedList<String> Options = new LinkedList<String>(
 				Arrays.asList(Option.ID.name(), Option.NAME.name(),
 						Option.TEXT.name(), Option.BEFORE.name(),
@@ -224,7 +229,7 @@ class CommandInterpreter {
 				destLoc = arguments.peekLast();
 		final ProgressListener listener = arguments.contains(Option.VERBOSE)
 				? new DummyProgressListener() : null;
-		final DataRepository repo = Factory.create(new File(repoLoc));
+		final DataRepository repo = factory.create(new File(repoLoc));
 		String ret = "Exported: \n";
 		for (final MetaData it : repo.export(cr.getWrappedObject(),
 				new File(destLoc), listener)) {
@@ -288,7 +293,7 @@ class CommandInterpreter {
 	private String executeList(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.peekLast();
-		final DataRepository repo = Factory.create(new File(repoLoc));
+		final DataRepository repo = factory.create(new File(repoLoc));
 		final LinkedList<String> Options = new LinkedList<String>(Arrays.asList(
 				Option.ID.name(), Option.NAME.name(), Option.TEXT.name(),
 				Option.BEFORE.name(), Option.AFTER.name()));
@@ -324,7 +329,7 @@ class CommandInterpreter {
 				? new DummyProgressListener() : null;
 		final File add = new File(file);
 		add.createNewFile();
-		final MetaData ret = Factory.create(new File(repoLoc)).replace(iD, add,
+		final MetaData ret = factory.create(new File(repoLoc)).replace(iD, add,
 				description, move, listener);
 		return "Data set with the ID: '" + iD
 				+ "' has been successfully replaced with the file"
@@ -350,7 +355,6 @@ class CommandInterpreter {
 			// this is a shortcut for that case.
 			return executeHelp(null);
 		}
-		// TODO change if done.
 		final Command cmd = Command.parse(command.poll());// no null check since
 		// check
 		// already done in lex
