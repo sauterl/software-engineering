@@ -1,0 +1,26 @@
+{
+    "short": "Lists data set(s) in the repository",
+    "name": "list",
+    "synopsis": "data-repository list [--id <identifier>] [--name <name>] [--text <text snippet>] [--before <time stamp>] [--after <time stamp>] <repository path>",
+    "params": [
+        {
+            "--id <identifier>": "Data set identifier."
+        },
+        {
+            "--name <name>": "Data set name."
+        },
+        {
+            "--text <text snippet>": "Text contained in name or description."
+        },
+        {
+            "--before <time stamp>": "Time stamp in the format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS."
+        },
+        {
+            "--after <time stamp>": "Time stamp in the format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS."
+        },
+        {
+            "<repository path>": "Absolute or relative path to the repository."
+        }
+    ],
+    "desc": "list.desc"
+}

@@ -1,0 +1,21 @@
+Copies data sets to the destination folder specified by an absolute or relative path. The exported
+files/folders have the original name. An error occurs if there is already a file/folder of the same
+name in the destination folder.$br$
+There are three ways to specify the set of data sets to be deleted:$n$
+$1$No options have been specified: The parameter <data set identifier> is mandatory and
+specifies the data set to be exported. An error occurs if no data set with specified identifier
+exists.$n$
+$1$Option --id has been specified: The specified data set will be exported. All other options
+and the parameter <data set identifier> are not allowed. An error occurs if no data set
+with specified identifier exists.$n$
+$1$One or several of the following options restrict the set of data sets to be deleted:$br$
+$t$--name Name of the data set.$n$
+$t$--text Text snippet appearing in either the name or the description of the data set.$n$
+$t$--before Data sets with a timestamp before the specified timestamp.$n$
+$t$--after Data sets with a timestamp after the specified timestamp.$br$
+Data sets fulfilling all conditions are exported if all data sets have dierent names. If at least
+two data sets have the same name an error occurs. The error message lists the identifiers
+of all data sets which could not be exported because of same name. The parameter <data
+set identifier> is not allowed. The success message tells which data sets (by identifier
+and name) have been exported. It is valid that no data set is exported which lead also to a
+success message.

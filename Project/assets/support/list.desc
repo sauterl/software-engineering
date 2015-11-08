@@ -1,0 +1,28 @@
+Lists the meta data as a TAB-separated table onto the standard output. This is a tabular text
+format where each row is separated by a newline character. Cells in a row are separated by TAB
+characters.$br$
+$t$+ The first row contains always the following header names:$br$
+$t$$t$ID$n$
+$t$$t$NAME$n$
+$t$$t$TIMESTAMP$n$
+$t$$t$NUMBER OF FILES$n$
+$t$$t$SIZE$n$
+$t$$t$DESCRIPTION$n$
+$t$+ The name is the original file/folder name.$n$
+$t$+ The table is sorted in accordance to the timestamp.$n$
+$t$+ If no description has been specified in the add command an empty string is printed.$n$
+$t$+ The number of files also includes directories.$n$
+$t$+ The size is the sum of the sizes of all files in bytes.$n$
+$t$+ The timestamp is defined by the date and time of adding/replacing the data set. It is shown
+in the following format: YYYY-MM-DD HH:MM:SS.$n$
+$t$+ In case of an empty or non-existing repository only the header line is printed.$n$
+$t$+ The result will be filtered by the provided options:$br$
+$t$$t$--id Shows only the data set with specified identifier.$n$
+$t$$t$--name Shows only data sets with specified name.
+$t$$t$--text Shows only data sets where the name or the description contains the specified text
+snippet.$n$
+$t$$t$--before Shows only data sets with a timestamp before the specified timestamp.$n$
+$t$$t$--after Shows only data sets with a timestamp after the specified timestamp.$n$
+$t$+ In case of option --id other options will lead to an error.$n$
+$t$+ Each option restricts the result. That is, only data sets fulfilling all options are shown.$n$
+$t$+ If no option is present all data sets are listed.

@@ -1,0 +1,3 @@
+Replaces the data set of specified identifier completely by the specified file/folder. If no description
+has been specified the old description is kept. This command behaves like a sequence of a delete
+and add command.

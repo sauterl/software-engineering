@@ -1,0 +1,16 @@
+Delete data sets completely from the repository.$n$
+There are three ways to specify the set of data sets to be deleted:$br$
+$1$No options have been specified: The parameter <data set identifier> is mandatory and
+specifies the data set to be deleted. An error occurs if no data set with specified identifier
+exists.$n$
+$1$Option --id has been specified: The specified data set will be deleted. All other options and
+the parameter <data set identifier> are not allowed. An error occurs if no data set with
+specified identifier exists.$n$
+$1$One or several of the following options restrict the set of data sets to be deleted:$br$
+$t$--name Name of the data set.$n$
+$t$--text Text snippet appearing in either the name or the description of the data set.$n$
+$t$--before Data sets with a timestamp before the specified timestamp.$n$
+$t$--after Data sets with a timestamp after the specified timestamp.$br$
+Data sets fulfilling all conditions are deleted. The parameter <data set identifier> is not
+allowed. The success message tells how many data sets have been deleted. It is valid that no
+data set is deleted which lead also to a success message.

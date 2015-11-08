@@ -1,0 +1,35 @@
+{
+    "short": "Exports data set(s) out of the repository",
+    "name": "export",
+    "synopsis": "data-repository export [--id <identifier>] [--name <name>] [--text <text snippet>] [--before <time stamp>] [--after <time stamp>] [--verbose] <repository path> [<data set identifier>] <destination folder>",
+    "params": [
+        {
+            "--id <identifier>": "Data set identifier."
+        },
+        {
+            "--name <name>": "Data set name."
+        },
+        {
+            "--text <text snippet>": "Text contained in name or description."
+        },
+        {
+            "--before <time stamp>": "Time stamp in the format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS."
+        },
+        {
+            "--after <time stamp>": "Time stamp in the format YYYY-MM-DD or YYYY-MM-DD HH:MM:SS."
+        },
+        {
+            "--verbose": "Shows progress information in case of copying mode. The number of bytes already copied versus the total number of bytes to be copied will be shown."
+        },
+        {
+            "<repository path>": "Absolute or relative path to the repository."
+        },
+        {
+            "<data set identifier>": "Identifier of the data set to be deleted. This parameter has to appear if no option has been specified. If an option has been specified it is not allowed."
+        },
+        {
+            "<destination folder>": "Path to the destination folder."
+        }
+    ],
+    "desc": "export.desc"
+}

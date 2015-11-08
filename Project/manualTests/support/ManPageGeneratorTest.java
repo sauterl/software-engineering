@@ -7,6 +7,6 @@ import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenera
 public class ManPageGeneratorTest {
 	public static void main(String[] args) throws IOException{
 		ManPageGenerator gen = new ManPageGenerator("add");
-		System.out.println(gen.buildManPage());
+		System.out.println(gen.getManPage());
 	}
 }
