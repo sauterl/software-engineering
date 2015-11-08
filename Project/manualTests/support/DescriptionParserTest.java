@@ -30,6 +30,8 @@ public class DescriptionParserTest {
 		System.out.println("---\nTest via file");
 		DescriptionParser p2 = new DescriptionParser(new File(DescriptionParserTest.class.getClassLoader().getResource("support/test.desc").getPath()));
 		System.out.println(p2.parse() );
+		DescriptionParser real = new DescriptionParser(new File(DescriptionParserTest.class.getClassLoader().getResource("support/add.desc").getPath()) );
+		System.out.println(real.parse() );
 	}
 
 }
