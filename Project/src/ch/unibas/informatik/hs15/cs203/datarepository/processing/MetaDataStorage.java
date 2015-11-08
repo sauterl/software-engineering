@@ -1,8 +1,10 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.processing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +84,9 @@ public class MetaDataStorage {
 		if (criteria == null) {
 			throw new IllegalArgumentException("CriteriaWrapper is null");
 		}
-		validateNotEmpty();
+		if(isEmpty()){
+			return new ArrayList<MetaDataWrapper>();
+		}
 		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
 		// ALL META DATA WANDED
 		final CriteriaWrapper allRef = CriteriaWrapper.all();
@@ -143,7 +147,9 @@ public class MetaDataStorage {
 	 * @throws IllegalStateException If the storage is empty.
 	 */
 	public MetaDataWrapper[] getAll() {
-		validateNotEmpty();
+		if(isEmpty()){
+			return new MetaDataWrapper[0];
+		}
 		return idMap.values().toArray(new MetaDataWrapper[0]);
 	}
 	
@@ -155,7 +161,9 @@ public class MetaDataStorage {
 	 * @throws IllegalStateException If the storage is empty.
 	 */
 	public Set<String> getAllIDs(){
-		validateNotEmpty();
+		if(isEmpty()){
+			return new HashSet<String>();
+		}
 		return idMap.keySet();
 	}
 

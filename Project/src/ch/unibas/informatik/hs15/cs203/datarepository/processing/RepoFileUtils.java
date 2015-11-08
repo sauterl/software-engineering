@@ -13,11 +13,11 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
 /**
  * Collection of static methods for copying files and analyzing them
+ * 
  * @author Silvan
- *
+ * 
  */
 class RepoFileUtils {
-	
 
 	/**
 	 * Utilizes renameTo for maximum efficiency
@@ -27,13 +27,17 @@ class RepoFileUtils {
 				.toString());
 		source.toFile().renameTo(newTarget.toFile());
 	}
-	
+
 	/**
-	 * Example usage: If you want to copy /mydata/ to /target/mydata, then source would be /mydata/ and target /target/
+	 * Example usage: If you want to copy /mydata/ to /target/mydata, then
+	 * source would be /mydata/ and target /target/
 	 * 
-	 * @param originalSize Size of the orginial File. Doesn't get changed while traversing the filetree
+	 * @param originalSize
+	 *            Size of the orginial File. Doesn't get changed while
+	 *            traversing the filetree
 	 * 
-	 * @throws IOException If an error happens while moving the file
+	 * @throws IOException
+	 *             If an error happens while moving the file
 	 */
 	static void copyRecursively(Path source, Path target, ProgressListener pl,
 			long alreadyProcessedBytes, long originalSize) throws IOException {
@@ -45,23 +49,24 @@ class RepoFileUtils {
 			return;
 		}
 
-		//copy a directory
+		// copy a directory
 		copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize);
-		//alreadyProcessedBytes += source.toFile().length();
+		// alreadyProcessedBytes += source.toFile().length();
 
 		for (File subfile : source.toFile().listFiles()) {
-			Path subfilePath = Paths.get(combinedPath.toString(), subfile.getName());
+			Path subfilePath = Paths.get(combinedPath.toString(),
+					subfile.getName());
 			if (subfile.isFile()) {
-				copy(subfile.toPath(), subfilePath, pl, alreadyProcessedBytes, originalSize);
+				copy(subfile.toPath(), subfilePath, pl, alreadyProcessedBytes,
+						originalSize);
 				alreadyProcessedBytes += subfile.length();
 				continue;
 			}
-			copyRecursively(subfile.toPath(), combinedPath, pl, alreadyProcessedBytes,
-					originalSize);
+			copyRecursively(subfile.toPath(), combinedPath, pl,
+					alreadyProcessedBytes, originalSize);
 			alreadyProcessedBytes += RepoFileUtils.getFileSize(subfile);
 		}
 	}
-	
 
 	/**
 	 * Copies source to target. If source is a directory, just calls mkdirs Else
@@ -73,10 +78,13 @@ class RepoFileUtils {
 	static void copy(Path source, Path target,
 			ProgressListener progressListener, long alreadyProcessed,
 			long totalSize) {
+		if(target.toFile().exists()){
+			throw new IllegalArgumentException("The file you want to copy to already exists");
+		}
 		if (source.toFile().isDirectory()) {
 			target.toFile().mkdirs();
-			//alreadyProcessed += target.toFile().length();
-			//progressListener.progress(alreadyProcessed, totalSize);
+			// alreadyProcessed += target.toFile().length();
+			// progressListener.progress(alreadyProcessed, totalSize);
 			return;
 		}
 		InputStream inputStream = null;
@@ -90,11 +98,12 @@ class RepoFileUtils {
 			while ((size = inputStream.read(buffer)) != -1) {
 				outputStream.write(buffer, 0, size);
 				alreadyProcessed += size;
-				System.err.println(source.toString()+" | "+target.toString()+" | "+alreadyProcessed);	//TODO
+				System.err.println(source.toString() + " | "
+						+ target.toString() + " | " + alreadyProcessed); // TODO
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
-//			ex.printStackTrace();
+			// ex.printStackTrace();
 			throw new IllegalArgumentException("Error while moving file");
 		} finally {
 			try {
@@ -105,8 +114,7 @@ class RepoFileUtils {
 			}
 		}
 	}
-	
-	
+
 	/**
 	 * Traverses the directory to give total size. If the file is a simple file,
 	 * returns length
@@ -123,12 +131,12 @@ class RepoFileUtils {
 				length += file.length();
 				continue;
 			}
-			//length+=directory.length();
+			// length+=directory.length();
 			length += getFileSize(file);
 		}
 		return length;
 	}
-	
+
 	/**
 	 * If the file is a directory: Iterates recursively over the given dir and
 	 * counts number of files and dirs inside the file; If the file is a file:
@@ -156,5 +164,28 @@ class RepoFileUtils {
 			}
 		}
 		return count;
+	}
+
+	public static void deleteRecursively(Path source) {
+		System.out.println("deleting |"+source.toString());
+		if (!source.toFile().exists()) {
+			throw new IllegalArgumentException(
+					"The given file to delete does not exist");
+		}
+		if (source.toFile().isFile()) {
+			source.toFile().delete();
+			return;
+		}
+		File[] files = source.toFile().listFiles();
+		if (null != files) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteRecursively(file.toPath());
+				} else {
+					file.delete();
+				}
+			}
+		}
+		source.toFile().delete();
 	}
 }

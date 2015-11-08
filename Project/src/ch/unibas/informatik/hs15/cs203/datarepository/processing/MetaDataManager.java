@@ -143,10 +143,13 @@ class MetaDataManager implements Closeable {
 	 *             If one of the above mentioned cases occurs.
 	 */
 	public static MetaDataManager getMetaDataManager(final String repoPath)
-			throws IOException {
+			throws IllegalArgumentException {
+		try{
 		if (instance == null) {
 			LOG.debug("Created new instance");
 			instance = new MetaDataManager(repoPath);
+		}}catch(Exception e){
+			throw new IllegalArgumentException("There was an error accessing the metadata Storage. "+e.getMessage());
 		}
 		return instance;
 	}
@@ -220,8 +223,9 @@ class MetaDataManager implements Closeable {
 	 * temporary written meta data gets moved to stay permanently.
 	 */
 	@Override
-	public void close() throws IOException {
-		releaseLock();
+	public void close() throws IllegalArgumentException {
+		try{
+			releaseLock();
 		if (Files.exists(Paths.get(repoPath, tmpLabel + metaDataFileName),
 				LinkOption.NOFOLLOW_LINKS)) {
 			Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
@@ -230,6 +234,9 @@ class MetaDataManager implements Closeable {
 					StandardCopyOption.ATOMIC_MOVE);
 		}
 		instance = null;
+		}catch(Exception e){
+			throw new IllegalArgumentException("There was an error while writing Metadata. "+e.getMessage());
+		}
 	}
 
 	/**

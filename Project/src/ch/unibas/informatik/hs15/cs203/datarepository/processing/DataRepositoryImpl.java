@@ -40,42 +40,39 @@ class DataRepositoryImpl implements DataRepository {
 
 		String newID = MetaDataManager.generateRandomUUID();
 		Path joinedPath = createNewDatasetFolder(newID);
-		MetaDataWrapper _ret = new MetaDataWrapper(newID, file.getName(), description,
-				RepoFileUtils.getFileCount(file),
+		MetaDataWrapper _ret = new MetaDataWrapper(newID, file.getName(),
+				description, RepoFileUtils.getFileCount(file),
 				RepoFileUtils.getFileSize(file), dateCutter(new Date()));
 		MetaDataManager mdm = null;
 		try {
-			mdm = MetaDataManager
-					.getMetaDataManager(repositoryFolder.getAbsolutePath());
-			//Write temporary metadata
+			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
+					.getAbsolutePath());
+			// Write temporary metadata
 			mdm.add(_ret);
 
 			progressListener.start();
-			progressListener.progress(0, RepoFileUtils.getFileSize(file));
+			progressListener.progress(0, _ret.getSize());
 			if (move) {
 				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
-				progressListener.progress(RepoFileUtils.getFileSize(joinedPath.toFile()), RepoFileUtils.getFileSize(joinedPath.toFile()));
+				progressListener.progress(
+						RepoFileUtils.getFileSize(joinedPath.toFile()),
+						RepoFileUtils.getFileSize(joinedPath.toFile()));
 			} else {
 				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
-						joinedPath, progressListener, 0,
-						RepoFileUtils.getFileSize(file));
+						joinedPath, progressListener, 0, _ret.getSize());
 			}
 			progressListener.finish();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("File could not be moved/copied");
-		}finally{
-			if(mdm != null){
-				try {
-					mdm.close();
-				} catch (IOException e) {
-					throw new RuntimeException("An IOException occurred while closing the MetaDataManger",e);
-				}
+		} finally {
+			if (mdm != null) {
+				mdm.close();
 			}
 		}
 		return _ret.getWrappedObject();
 	}
-	
-	private Date dateCutter(Date d){
+
+	private Date dateCutter(Date d) {
 		return Json.iso8601ToDate(Json.dateToISO8601(d));
 	}
 
@@ -93,117 +90,134 @@ class DataRepositoryImpl implements DataRepository {
 
 	@Override
 	public List<MetaData> delete(Criteria deletionCriteria) {
-		// TODO Auto-generated method stub
-		return null;
+		CriteriaWrapper deletionTests = new CriteriaWrapper(deletionCriteria);
+		if (deletionTests.equals(CriteriaWrapper.all())) {
+			throw new IllegalArgumentException("Invalid parameters");
+		}
+		List<MetaDataWrapper> wholeMetadata = null;
+		MetaDataManager mdm = MetaDataManager
+				.getMetaDataManager(repositoryFolder.getAbsolutePath());
+		try {
+			Verification.verifyNotNullCriteria(new CriteriaWrapper(
+					deletionCriteria));
+			wholeMetadata = wrap(getMetaData(deletionCriteria));
+			if (deletionCriteria.getId() != null) {
+				if (wholeMetadata.size() == 0) {
+					throw new IllegalArgumentException(
+							"The specified ID does not correspond to a dataset within the repository");
+				}
+			}
+			for (MetaDataWrapper md : wholeMetadata) {
+				File source = new File(repositoryFolder.getAbsolutePath() + "/"
+						+ md.getId());
+				RepoFileUtils.deleteRecursively(source.getAbsoluteFile()
+						.toPath());
+				mdm.remove(md);
+			}
+			mdm.close();
+		} catch (Exception e) {
+			mdm.close();
+			throw new IllegalArgumentException(
+					"Something happenened while deleting the files. "
+							+ e.getMessage());
+		}
+		return unwrap(wholeMetadata);
 	}
 
 	@Override
-	public List<MetaData> export(Criteria exportCriteria, File target,	
-		ProgressListener progressListener){
-		try{
-		
-			List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(exportCriteria, target,
-		progressListener));
-		long totalNumberOfBytes=0;
-		for(MetaDataWrapper md:wholeMetadata){
-//			System.out.println(md.getId());
-			totalNumberOfBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+md.getId()));
-		}
-		
-		long copiedBytes=0;
-		progressListener.start();
-		progressListener.progress(copiedBytes, totalNumberOfBytes);
-		for(int c=0;c<wholeMetadata.size();c++){
-//			System.out.println(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
-			File source = new File(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
-//			System.out.println(target.getAbsolutePath());
-			File fullTarget=new File(target.getAbsolutePath());
-			
-			try {
-		RepoFileUtils.copyRecursively(source.getAbsoluteFile().toPath(), fullTarget.getAbsoluteFile().toPath(), progressListener, copiedBytes, totalNumberOfBytes);
-		} catch (IOException e) {
+	public List<MetaData> export(Criteria exportCriteria, File target,
+			ProgressListener progressListener) {
+		try {
+
+			List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(
+					exportCriteria, target, progressListener));
+			long totalNumberOfBytes = 0;
+			for (MetaDataWrapper md : wholeMetadata) {
+				// System.out.println(md.getId());
+				totalNumberOfBytes += RepoFileUtils.getFileSize(new File(
+						repositoryFolder.getAbsolutePath() + "/" + md.getId()));
+			}
+
+			long copiedBytes = 0;
+			progressListener.start();
+			progressListener.progress(copiedBytes, totalNumberOfBytes);
+			for (int c = 0; c < wholeMetadata.size(); c++) {
+				// System.out.println(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
+				File source = new File(repositoryFolder.getAbsolutePath() + "/"
+						+ wholeMetadata.get(c).getId() + "/"
+						+ wholeMetadata.get(c).getName());
+				// System.out.println(target.getAbsolutePath());
+				File fullTarget = new File(target.getAbsolutePath());
+
+				try {
+					RepoFileUtils.copyRecursively(source.getAbsoluteFile()
+							.toPath(), fullTarget.getAbsoluteFile().toPath(),
+							progressListener, copiedBytes, totalNumberOfBytes);
+				} catch (IOException e) {
+					progressListener.finish();
+					throw new IllegalArgumentException(
+							"Something happend while copying");
+				}
+				copiedBytes += RepoFileUtils.getFileSize(new File(
+						repositoryFolder.getAbsolutePath() + "/"
+								+ wholeMetadata.get(c).getId()));
+			}
 			progressListener.finish();
-		throw new IllegalArgumentException("Something happend while copying");
-		}
-			copiedBytes+=RepoFileUtils.getFileSize(new File(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()));
-		}
-		progressListener.finish();
-		
-		
-	
-		
-		//Export all datasets
-		return unwrap(wholeMetadata);
-		
-		}catch (Exception e){
-//			e.printStackTrace();
+
+			return unwrap(wholeMetadata);
+
+		} catch (Exception e) {
 			throw e;
 		}
 	}
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
-		ProgressListener progressListener) {
-	Verification.verifyNotNullCriteria(new CriteriaWrapper(exportCriteria) );
-	Verification.verifyProgressListener(progressListener);
-//	Verification.verifyAbsence(target);
-	// TODO If ID has been specified, check for existence
-	if(target!=null){
-	if(!target.exists()){
-//		System.out.println("Hello");
-		throw new IllegalArgumentException("The target path enterd couldn't be found");
-	}
-	}else{
-		throw new IllegalArgumentException("Please define a target.");
-	}
-	List<MetaDataWrapper> wholeMetadata = wrap(getMetaData(exportCriteria));
-	if(exportCriteria.getId()!=null){
-		
-//		System.out.println(getMetaData(exportCriteria));
-		
-		if(wholeMetadata.size()==0){
-			throw new IllegalArgumentException("The specified ID does not correspond to a dataset within the repository");
-		}	
-		//Export dataset with given ID
-	}
-	
-	//Check duplicates
-	HashSet<String> names = new HashSet<String>();
-	
-	long size=0;
-//	System.out.println(wholeMetadata.size());
-	for(int c=0;c<wholeMetadata.size();c++){
-//		System.out.println(wholeMetadata.get(c).getName());
-		if(!names.add(wholeMetadata.get(c).getName())){
-			throw new IllegalArgumentException("The given export Criteria matches datasets with identical names");
+			ProgressListener progressListener) {
+		Verification.verifyNotNullCriteria(new CriteriaWrapper(exportCriteria));
+		Verification.verifyProgressListener(progressListener);
+		// Verification.verifyAbsence(target);
+		// TODO If ID has been specified, check for existence
+		if (target != null) {
+			if (!target.exists()) {
+				throw new IllegalArgumentException(
+						"The target path enterd couldn't be found");
+			}
+			if(target.isFile()){
+				throw new IllegalArgumentException("The given target points to a file, not a directory");
+			}
+		} else {
+			throw new IllegalArgumentException("Please define a target.");
 		}
-		File ft=new File(target.getAbsolutePath()+"/"+wholeMetadata.get(c).getName());
-		Verification.verifyAbsence(ft);
+		List<MetaDataWrapper> wholeMetadata = wrap(getMetaData(exportCriteria));
+		if (exportCriteria.getId() != null) {
+			if (wholeMetadata.size() == 0) {
+				throw new IllegalArgumentException(
+						"The specified ID does not correspond to a dataset within the repository");
+			}
+			return unwrap(wholeMetadata);
+		}
+
+		// Check duplicates
+		HashSet<String> names = new HashSet<String>();
+
+		for (int c = 0; c < wholeMetadata.size(); c++) {
+			if (!names.add(wholeMetadata.get(c).getName())) {
+				throw new IllegalArgumentException(
+						"The given export Criteria matches datasets with identical names");
+			}
+			File ft = new File(target.getAbsolutePath() + "/"
+					+ wholeMetadata.get(c).getName());
+			Verification.verifyAbsence(ft);
+		}
+
+		if (target.getAbsolutePath().startsWith(
+				repositoryFolder.getAbsolutePath())) {
+			throw new IllegalArgumentException(
+					"The targer path given seems to be inside the repository.");
+		}
+
+		return unwrap(wholeMetadata);
 	}
-	
-	if(target.getAbsolutePath().startsWith(repositoryFolder.getAbsolutePath())){
-		throw new IllegalArgumentException("The targer path given seems to bo inside the repository.");
-	}
-	
-	return unwrap(wholeMetadata);
-	}
-	
-	
-//	/**
-//	 * This method returns the size of a {@link File}. This can be either a file ore a folder in the filesystem. The size is returned in bytes and evaluated recoursivly.
-//	 * @param data The File ore Folder
-//	 * @return The size of the File or Folder in Bytes
-//	 */
-//	private long getBytesOf(File data) {
-//	long size = 0;
-//	for (File f : data.listFiles()) {
-//		if (f.isFile()) {
-//			size+=f.length();
-//		} else {
-//			size+=getBytesOf(f);
-//		}
-//	}
-//	return size;
-//	}
 
 	@Override
 	public MetaData replace(String id, File file, String description,
@@ -214,64 +228,57 @@ class DataRepositoryImpl implements DataRepository {
 
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
+		if (searchCriteria == null) {
+			throw new IllegalArgumentException(
+					"Search Criteria must not be null");
+		}
 		List<MetaDataWrapper> _res = new ArrayList<MetaDataWrapper>();
-		MetaDataManager mdm=null;
-		try{
-			mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
-			if(searchCriteria==null || searchCriteria.empty()){
+		MetaDataManager mdm = null;
+		try {
+			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
+					.getAbsolutePath());
+			if (searchCriteria.empty()) {
 				_res = mdm.getAllMetaData();
 				Collections.sort(_res, new MetaDataComparator());
 				return unwrap(_res);
 			}
-			if(searchCriteria.getId()!= null && !searchCriteria.onlyID()){
-				throw new IllegalArgumentException("If you specify an ID, no other criteria can be specified");
+			if (searchCriteria.getId() != null && !searchCriteria.onlyID()) {
+				throw new IllegalArgumentException(
+						"If you specify an ID, no other criteria can be specified");
 			}
-			if(searchCriteria.onlyID()){
+			if (searchCriteria.onlyID()) {
 				MetaDataWrapper idMatch = mdm.getMeta(searchCriteria.getId());
-				if(idMatch!= null){
+				if (idMatch != null) {
 					_res.add(idMatch);
 				}
 				return unwrap(_res);
 			}
-			_res.addAll(mdm.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
+			_res.addAll(mdm
+					.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
-//			try{
-//			mdm.close();
-//			}catch(IOException e){
-//				e.printStackTrace();
-//			}
+			mdm.close();
 			return unwrap(_res);
-		}catch(Exception e){
-//			try {
-//		mdm.close();
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-////			throw new IllegalArgumentException(e1.getMessage());
-//		}
+		} catch (Exception e) {
 			throw new IllegalArgumentException(e.getMessage());
-		}finally{
-			if(mdm!=null){
-				try{
-					mdm.close();
-				}catch(IOException e){
-					throw new RuntimeException(e.getMessage(), e);
-				}
+		} finally {
+			if (mdm != null) {
+				mdm.close();
 			}
 		}
 	}
-	
-	private List<MetaData> unwrap(List<MetaDataWrapper> wrappedList){
+
+	private List<MetaData> unwrap(List<MetaDataWrapper> wrappedList) {
 		ArrayList<MetaData> out = new ArrayList<MetaData>();
-		for(MetaDataWrapper w : wrappedList){
-			out.add(w.getWrappedObject() );
+		for (MetaDataWrapper w : wrappedList) {
+			out.add(w.getWrappedObject());
 		}
 		return out;
 	}
 
-	private List<MetaDataWrapper> wrap(List<MetaData> wrappedList){
+	private List<MetaDataWrapper> wrap(List<MetaData> wrappedList) {
 		ArrayList<MetaDataWrapper> out = new ArrayList<MetaDataWrapper>();
-		for(MetaData w : wrappedList){
-			out.add(new MetaDataWrapper(w) );
+		for (MetaData w : wrappedList) {
+			out.add(new MetaDataWrapper(w));
 		}
 		return out;
 	}

@@ -147,16 +147,6 @@ public class CriteriaWrapper {
 	}
 
 	/**
-	 * Returns true if this is an empty criteria, so all fields are set to null.
-	 * 
-	 * @return
-	 */
-	public boolean empty() {
-		return getId() == null && getName() == null && getText() == null
-				&& getBefore() == null && getAfter() == null;
-	}
-
-	/**
 	 * Returns true if this is a criteria query for a certain id. In other
 	 * words: returns true if and only if <tt>getId() != null</tt> and all other getters return <tt>null</tt>
 	 * 
