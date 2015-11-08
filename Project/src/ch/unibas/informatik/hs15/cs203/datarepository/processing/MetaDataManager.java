@@ -213,6 +213,24 @@ class MetaDataManager implements Closeable {
 			return false;
 		}
 	}
+	
+	/**
+	 * Runs {@link CleanupStrategy#clean(MetaDataStorage, Path)} of the specified strategy.
+	 * <br /> 
+	 * The internal storage is passed to the strategy as well as the repository path, with which this {@link MetaDataManager} was
+	 * initialized.<br />
+	 * <b>Note: After the clean up, the meta data file gets written temporarily and thus this manager needs to be {@link #close()}d
+	 * for a persistent cleaned meta data file.</b>
+	 * @param strategy The cleanup strategy to use.
+	 * @return The amount of altered entries.
+	 * @throws IOException If an error occurred while writing the temporary meta data file.
+	 * @see CleanupStrategy#clean(MetaDataStorage, Path)
+	 */
+	public int runCleanUp(CleanupStrategy strategy) throws IOException{
+		int out = strategy.clean(storage, Paths.get(repoPath));
+		writeTempMetaFile();
+		return out;
+	}
 
 	/**
 	 * Closes this {@link MetaDataManager} and releases its resources. <b>Invoke

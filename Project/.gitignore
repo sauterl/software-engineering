@@ -9,3 +9,7 @@
 # Ignore ant classes
 ###################
 /ant-classes/**
+
+# Ignore Eclipse classpath
+###################
+.classpath

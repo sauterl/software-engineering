@@ -27,6 +27,10 @@ public class CriteriaWrapper {
 		return new CriteriaWrapper(Criteria.all() );
 	}
 
+	public static CriteriaWrapper forId(String id){
+		return new CriteriaWrapper(Criteria.forId(id));
+	}
+	
 	public CriteriaWrapper(final String nameOrNull, final String textOrNull,
 			final Date afterOrNull, final Date beforeOrNull) {
 		this(new Criteria(nameOrNull, textOrNull, afterOrNull, beforeOrNull));

@@ -43,6 +43,7 @@ public class SimpleExistsCleanupStrategy implements CleanupStrategy {
 				counter++;
 			}
 		}
+		// TODO vice versa: clean MDS based on repo state
 		return counter;
 	}
 
