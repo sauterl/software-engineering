@@ -12,11 +12,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 /**
@@ -43,49 +43,53 @@ class CommandInterpreter {
 	/**
 	 * It's a thing of style
 	 *
-	 * @param Options
+	 * @param options
 	 *            Options that can be searched for in the List ToParse
-	 * @param ToParse
+	 * @param toParse
 	 *            List to Parse
 	 * @param ID
 	 * @return
 	 * @throws IllegalArgumentException
 	 * @throws ParseException
 	 */
-	private Criteria criteriaParser(final LinkedList<String> Options,
-			final LinkedList<String> ToParse, final boolean ID)
+	private CriteriaWrapper criteriaParser(final LinkedList<String> options,
+			final LinkedList<String> toParse, final boolean ID)
 					throws IllegalArgumentException, ParseException {
-		Criteria crit;
+		/*
+		 * EDIT by loris.sauter ################# + injected wrapper +
+		 * refractored TO FIT JAVA CONVENTIONS
+		 */
+		CriteriaWrapper crit;
 
-		final Map<String, String> Helper = new HashMap<String, String>();
-		String a = ToParse.poll();
-		for (int it = 1; it < ToParse.size(); it++) {
+		final Map<String, String> helper = new HashMap<String, String>();
+		String a = toParse.poll();
+		for (int it = 1; it < toParse.size(); it++) {
 
-			if (Options.contains(a)) {
-				if (Helper.containsKey(a)) {
+			if (options.contains(a)) {
+				if (helper.containsKey(a)) {
 					throw new IllegalArgumentException(
 							"We already defined a value for this key");
 				} else {
-					Helper.put(a, ToParse.poll());
+					helper.put(a, toParse.poll());
 				}
 			} else {
-				if (Options.contains(Option.ID.name()) && ID && Helper.isEmpty()
-						&& ToParse.size() >= 2) {
-					Helper.put(Option.ID.name(), ToParse.remove(1));
+				if (options.contains(Option.ID.name()) && ID && helper.isEmpty()
+						&& toParse.size() >= 2) {
+					helper.put(Option.ID.name(), toParse.remove(1));
 				} else {
 					throw new IllegalArgumentException(
 							"We don't accept this key");
 				}
 			}
-			a = ToParse.poll();
+			a = toParse.poll();
 		}
-		if (Helper.isEmpty() && !ID
-				|| Helper.size() > 1 && Helper.containsKey(Option.ID.name())) {
+		if (helper.isEmpty() && !ID
+				|| helper.size() > 1 && helper.containsKey(Option.ID.name())) {
 			throw new IllegalArgumentException(
 					"Inappropria te number of arguments");
 		} else {
-			if (Helper.containsKey(Option.ID.name())) {
-				crit = Criteria.forId(Helper.get(Option.ID.name()));
+			if (helper.containsKey(Option.ID.name())) {
+				crit = CriteriaWrapper.forId(helper.get(Option.ID.name()));
 			} else {
 
 				final DateFormat dateFormat1 = new SimpleDateFormat(
@@ -93,23 +97,23 @@ class CommandInterpreter {
 				final DateFormat dateFormat2 = new SimpleDateFormat(
 						"yyyy-MM-dd");
 
-				final Date before = Helper.containsKey(Option.BEFORE.name())
-						? Helper.get(Option.BEFORE.name()).length() > 10
+				final Date before = helper.containsKey(Option.BEFORE.name())
+						? helper.get(Option.BEFORE.name()).length() > 10
 								? dateFormat1
-										.parse(Helper.get(Option.BEFORE.name()))
+										.parse(helper.get(Option.BEFORE.name()))
 								: dateFormat2
-										.parse(Helper.get(Option.BEFORE.name()))
+										.parse(helper.get(Option.BEFORE.name()))
 						: null;
-				final Date after = Helper.containsKey(Option.AFTER.name())
-						? Helper.get(Option.AFTER.name()).length() > 10
+				final Date after = helper.containsKey(Option.AFTER.name())
+						? helper.get(Option.AFTER.name()).length() > 10
 								? dateFormat1
-										.parse(Helper.get(Option.AFTER.name()))
+										.parse(helper.get(Option.AFTER.name()))
 								: dateFormat2
-										.parse(Helper.get(Option.AFTER.name()))
+										.parse(helper.get(Option.AFTER.name()))
 						: null;
 
-				crit = new Criteria(Helper.get(Option.NAME.name()),
-						Helper.get(Option.TEXT.name()), before, after);
+				crit = new CriteriaWrapper(helper.get(Option.NAME.name()),
+						helper.get(Option.TEXT.name()), before, after);
 			}
 		}
 		return crit;
@@ -183,11 +187,11 @@ class CommandInterpreter {
 		final LinkedList<String> Options = new LinkedList<String>(Arrays.asList(
 				Option.ID.name(), Option.NAME.name(), Option.TEXT.name(),
 				Option.BEFORE.name(), Option.AFTER.name()));
-		final Criteria crit = criteriaParser(Options, arguments, true);
+		final CriteriaWrapper crit = criteriaParser(Options, arguments, true);
 		final ProgressListener listener = arguments.contains(Option.VERBOSE)
 				? new DummyProgressListener() : null;
 		final List<MetaData> ret = Factory.create(new File(repoLoc))
-				.delete(crit);
+				.delete(crit.getWrappedObject());
 		String retStr = "The following data sets have been deleted: ";
 		if (!ret.isEmpty()) {
 			for (final MetaData it : ret) {
@@ -213,7 +217,7 @@ class CommandInterpreter {
 				Arrays.asList(Option.ID.name(), Option.NAME.name(),
 						Option.TEXT.name(), Option.BEFORE.name(),
 						Option.AFTER.name(), Option.VERBOSE.name()));
-		final Criteria cr = criteriaParser(Options, arguments, true);
+		final CriteriaWrapper cr = criteriaParser(Options, arguments, true);
 		final String repoLoc = arguments
 				.get(cr.onlyID() && arguments.size() == 3 ? arguments.size() - 2
 						: arguments.size() - 3),
@@ -222,7 +226,8 @@ class CommandInterpreter {
 				? new DummyProgressListener() : null;
 		final DataRepository repo = Factory.create(new File(repoLoc));
 		String ret = "Exported: \n";
-		for (final MetaData it : repo.export(cr, new File(destLoc), listener)) {
+		for (final MetaData it : repo.export(cr.getWrappedObject(),
+				new File(destLoc), listener)) {
 			ret += it.getId() + " " + it.getName() + "\n";
 		}
 		return ret;
@@ -270,9 +275,9 @@ class CommandInterpreter {
 		final LinkedList<String> Options = new LinkedList<String>(Arrays.asList(
 				Option.ID.name(), Option.NAME.name(), Option.TEXT.name(),
 				Option.BEFORE.name(), Option.AFTER.name()));
-		final Criteria cr = arguments.size() == 1 ? Criteria.all()
+		final CriteriaWrapper cr = arguments.size() == 1 ? CriteriaWrapper.all()
 				: criteriaParser(Options, arguments, false);
-		final List<MetaData> ret = repo.getMetaData(cr);
+		final List<MetaData> ret = repo.getMetaData(cr.getWrappedObject());
 		String retString = "ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n";
 		for (final MetaData i : ret) {
 			retString += i.getId() + "\t" + i.getName() + "\t"
