@@ -99,8 +99,9 @@ class RepoFileUtils {
 			while ((size = inputStream.read(buffer)) != -1) {
 				outputStream.write(buffer, 0, size);
 				alreadyProcessed += size;
-				System.err.println(source.toString() + " | "
-						+ target.toString() + " | " + alreadyProcessed); // TODO
+				/* Please use LOGGING FRAMEWORK instead of such debug prints!
+				 * System.err.println(source.toString() + " | "
+						+ target.toString() + " | " + alreadyProcessed); */// TODO
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
 		} catch (IOException ex) {
