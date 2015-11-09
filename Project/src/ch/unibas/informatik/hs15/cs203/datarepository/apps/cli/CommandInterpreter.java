@@ -173,10 +173,15 @@ class CommandInterpreter {
 		final List<MetaData> ids = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
 		String retStr = "The following data sets have been deleted: ";
-		if (!ids.isEmpty()) {
-			for (int i = 0; i < ids.size(); i++) {
-				retStr = retStr.concat(ids.get(i).getId());
-				if (i < ids.size() - 1) {
+		return createMsgWithIDs(retStr, ids);
+	}
+	
+	private String createMsgWithIDs(String msg, List<MetaData> metas){
+		String retStr = new String(msg);
+		if (!metas.isEmpty()) {
+			for (int i = 0; i < metas.size(); i++) {
+				retStr = retStr.concat(metas.get(i).getId());
+				if (i < metas.size() - 1) {
 					retStr = retStr.concat(", ");
 				}
 			}
@@ -196,25 +201,15 @@ class CommandInterpreter {
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		// TODO upgrade
-		final LinkedList<String> Options = new LinkedList<String>(
-				Arrays.asList(Option.ID.name(), Option.NAME.name(),
-						Option.TEXT.name(), Option.BEFORE.name(),
-						Option.AFTER.name(), Option.VERBOSE.name()));
-		final CriteriaWrapper cr = criteriaParser(Options, arguments, true);
-		final String repoLoc = arguments
-				.get(cr.onlyID() && arguments.size() == 3 ? arguments.size() - 2
-						: arguments.size() - 3),
-				destLoc = arguments.peekLast();
-		final ProgressListener listener = arguments.contains(Option.VERBOSE)
-				? new DummyProgressListener() : null;
-		final DataRepository repo = factory.create(new File(repoLoc));
-		String ret = "Exported: \n";
-		for (final MetaData it : repo.export(cr.getWrappedObject(),
-				new File(destLoc), listener)) {
-			ret += it.getId() + " " + it.getName() + "\n";
+		final String repoLoc = arguments.get(analyzer.getNbOptions());
+		final CriteriaWrapper crit = parseCriteria(Command.EXPORT, arguments);
+		ProgressListener listener = new DummyProgressListener();
+		if(arguments.contains(Option.VERBOSE.name() )){
+			listener = new SimpleProgressListener();
 		}
-		return ret;
-
+		final String destLoc = arguments.getLast();
+		List<MetaData> list = factory.create(new File(repoLoc)).export(crit.getWrappedObject(), new File(destLoc), listener);
+		return createMsgWithIDs("The following data sets have been exported: ", list);
 	}
 
 	/**
@@ -401,7 +396,7 @@ class CommandInterpreter {
 	 * @param str
 	 *            The string to parse.
 	 * @return The parsed Date OR <tt>null</tt> if the given string was not
-	 *         parseable.
+	 *         parseable, or the given string was <tt>null</tt>
 	 * @see DateFormat#parse(String)
 	 */
 	private Date parseDate(final String str) {
@@ -413,7 +408,7 @@ class CommandInterpreter {
 			} else {
 				return fuzzy.parse(str);
 			}
-		} catch (final ParseException e) {
+		} catch (final ParseException | NullPointerException e) {
 			return null;
 		}
 	}
