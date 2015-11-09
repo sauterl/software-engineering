@@ -13,7 +13,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.DataRepositoryFac
  * @version 2 Edited by loris.sauter to achieve new requirements (ClientTest)
  * 
  */
-public class Factory{
+public class Factory {
 	/**
 	 * Creates a {@link DataRepository} for the specified repository folder. The
 	 * repository folder will be created if it does not exit.
@@ -31,7 +31,7 @@ public class Factory{
 	 *             </ul>
 	 */
 	public static DataRepository create(File repositoryFolder) {
-		//Verify File param
+		// Verify File param
 		if (repositoryFolder == null) {
 			throw new IllegalArgumentException("The repository folder is null");
 		}
@@ -43,10 +43,10 @@ public class Factory{
 			throw new IllegalArgumentException(
 					"The given path does not point to a folder, but to something else");
 		}
-		if(!repositoryFolder.exists()){
+		if (!repositoryFolder.exists()) {
 			repositoryFolder.mkdirs();
 		}
-		//Create Repo and return it
+		// Create Repo and return it
 		DataRepositoryImpl _ret;
 		try {
 			_ret = new DataRepositoryImpl(repositoryFolder);

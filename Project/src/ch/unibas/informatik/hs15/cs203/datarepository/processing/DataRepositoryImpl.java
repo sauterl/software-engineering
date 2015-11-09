@@ -183,19 +183,20 @@ class DataRepositoryImpl implements DataRepository {
 	 */
 	private MetaData add(File file, String id, String description,
 			boolean move, ProgressListener progressListener) {
-		
+
 		Verification.verifyExistence(file);
 		Verification.verifyNotRepoPath(file, repositoryFolder);
 		Verification.verifyNotWithinRepo(file, repositoryFolder);
 		Verification.verifyDescription(description);
 		Verification.verifyProgressListener(progressListener);
-		if(id==null || id==""){
-			id = MetaDataManager.generateRandomUUID();	
+		if (id == null || id == "") {
+			id = MetaDataManager.generateRandomUUID();
 		}
 		Path joinedPath = createNewDatasetFolder(id);
 		MetaDataWrapper _ret = new MetaDataWrapper(id, file.getName(),
 				description, RepoFileUtils.getFileCount(file),
-				RepoFileUtils.getFileSize(file), Json.iso8601ToDate(Json.dateToISO8601(new Date())));
+				RepoFileUtils.getFileSize(file), Json.iso8601ToDate(Json
+						.dateToISO8601(new Date())));
 		MetaDataManager mdm = null;
 		try {
 			mdm = MetaDataManager.getMetaDataManager(repositoryFolder

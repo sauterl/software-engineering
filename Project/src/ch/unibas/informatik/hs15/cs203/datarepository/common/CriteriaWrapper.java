@@ -22,15 +22,15 @@ public class CriteriaWrapper {
 	public CriteriaWrapper(final String id) {
 		this(Criteria.forId(id));
 	}
-	
-	public static CriteriaWrapper all(){
-		return new CriteriaWrapper(Criteria.all() );
+
+	public static CriteriaWrapper all() {
+		return new CriteriaWrapper(Criteria.all());
 	}
 
-	public static CriteriaWrapper forId(String id){
+	public static CriteriaWrapper forId(String id) {
 		return new CriteriaWrapper(Criteria.forId(id));
 	}
-	
+
 	public CriteriaWrapper(final String nameOrNull, final String textOrNull,
 			final Date afterOrNull, final Date beforeOrNull) {
 		this(new Criteria(nameOrNull, textOrNull, afterOrNull, beforeOrNull));
@@ -152,12 +152,15 @@ public class CriteriaWrapper {
 
 	/**
 	 * Returns true if this is a criteria query for a certain id. In other
-	 * words: returns true if and only if <tt>getId() != null</tt> and all other getters return <tt>null</tt>
+	 * words: returns true if and only if <tt>getId() != null</tt> and all other
+	 * getters return <tt>null</tt>
 	 * 
 	 * @return
 	 */
 	public boolean onlyID() {
-		return getId() != null && (getAfter() == null && getBefore() == null && getName() == null && getText() == null);
+		return getId() != null
+				&& (getAfter() == null && getBefore() == null
+						&& getName() == null && getText() == null);
 	}
 
 	/*
@@ -196,12 +199,12 @@ public class CriteriaWrapper {
 		builder.append("]");
 		return builder.toString();
 	}
-	
-	public Criteria getWrappedObject(){
+
+	public Criteria getWrappedObject() {
 		return wrapped;
 	}
-	
-	public boolean isNull(){
+
+	public boolean isNull() {
 		return wrapped == null;
 	}
 }

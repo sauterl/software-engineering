@@ -6,20 +6,23 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * Wrapper for {@link MetaData}
+ * 
  * @author Loris
- *
+ * 
  */
 public class MetaDataWrapper {
-	
+
 	private MetaData wrapped;
 
 	public MetaDataWrapper(MetaData meta) {
 		wrapped = meta;
 	}
 
-	public MetaDataWrapper(String id, String name, String description, int numberOfFiles, long size,
-          Date timestamp){
-		this (new MetaData(id, name, description, numberOfFiles, size, timestamp));
+	public MetaDataWrapper(String id, String name, String description,
+			int numberOfFiles, long size, Date timestamp) {
+		this(
+				new MetaData(id, name, description, numberOfFiles, size,
+						timestamp));
 	}
 
 	/**
@@ -70,7 +73,9 @@ public class MetaDataWrapper {
 		return wrapped.getTimestamp();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -78,15 +83,22 @@ public class MetaDataWrapper {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-		result = prime * result + ((getDescription() == null) ? 0 : getDescription().hashCode());
-		result = prime * result + ((getNumberOfFiles() == 0) ? 0 : getNumberOfFiles());
-		result = prime * result + ((getSize() == 0) ? 0 : (int)getSize() );
-		result = prime * result + ((getTimestamp() == null) ? 0 : getTimestamp().hashCode());
+		result = prime * result
+				+ ((getName() == null) ? 0 : getName().hashCode());
+		result = prime
+				* result
+				+ ((getDescription() == null) ? 0 : getDescription().hashCode());
+		result = prime * result
+				+ ((getNumberOfFiles() == 0) ? 0 : getNumberOfFiles());
+		result = prime * result + ((getSize() == 0) ? 0 : (int) getSize());
+		result = prime * result
+				+ ((getTimestamp() == null) ? 0 : getTimestamp().hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -142,9 +154,9 @@ public class MetaDataWrapper {
 		}
 		return true;
 	}
-	
-	public MetaData getWrappedObject(){
+
+	public MetaData getWrappedObject() {
 		return wrapped;
 	}
-	
+
 }

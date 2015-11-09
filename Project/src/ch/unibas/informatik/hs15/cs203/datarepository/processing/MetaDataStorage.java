@@ -17,13 +17,16 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 /**
  * The {@link MetaDataStorage} class provides methods to store a list of meta
  * data.<br />
- * Further this class also is capable of handling queries with {@link CriteriaWrapper} objects.<br />
+ * Further this class also is capable of handling queries with
+ * {@link CriteriaWrapper} objects.<br />
  * 
  * <p>
  * The most commonly used methods of this class are:
  * <ul>
- * <li> {@link #put(MetaDataWrapper)} - To add {@link MetaDataWrapper} to the storage</li>
- * <li> {@link #get(CriteriaWrapper)} - To get all stored {@link MetaDataWrapper} matching the {@link CriteriaWrapper}</li>
+ * <li> {@link #put(MetaDataWrapper)} - To add {@link MetaDataWrapper} to the
+ * storage</li>
+ * <li> {@link #get(CriteriaWrapper)} - To get all stored {@link MetaDataWrapper}
+ * matching the {@link CriteriaWrapper}</li>
  * <li> {@link #get(String)} - To get a {@link MetaDataWrapper} object by its ID</li>
  * <li> {@link #getAll()} - To get every single stored {@link MetaDataWrapper}</li>
  * </ul>
@@ -66,25 +69,31 @@ public class MetaDataStorage {
 	/**
 	 * Returns a list of meta data objects fulfilling all of the specified
 	 * criteria.<br />
-	 * This method is designed to use with a specific query for meta data objects
-	 * fulfilling a certain criteria. If the <tt>criteria</tt> asks for every
-	 * meta data object in this storage, it is recommended to use {@link MetaDataStorage#getAll()} instead.
-	 * Further if the criteria queries for a certain ID, the appropriate method would be {@link MetaDataStorage#get(String)}.
-	 * For convince this method still returns valid results for the above mentioned cases.<br />
-	 * <b>Note: The resulting list is not <tt>null</tt>-proof (therefore may contains null entries).</b>
+	 * This method is designed to use with a specific query for meta data
+	 * objects fulfilling a certain criteria. If the <tt>criteria</tt> asks for
+	 * every meta data object in this storage, it is recommended to use
+	 * {@link MetaDataStorage#getAll()} instead. Further if the criteria queries
+	 * for a certain ID, the appropriate method would be
+	 * {@link MetaDataStorage#get(String)}. For convince this method still
+	 * returns valid results for the above mentioned cases.<br />
+	 * <b>Note: The resulting list is not <tt>null</tt>-proof (therefore may
+	 * contains null entries).</b>
+	 * 
 	 * @param criteria
 	 *            The conditions to fulfill.
 	 * @return A list of meta data objects fulfilling all of the specified
 	 *         criteria or an empty list if no matching meta data object was
 	 *         found.
-	 * @throws IllegalArgumentException If the given criteria is <tt>null</tt>.
-	 * @throws IllegalStateException If the storage is empty.
+	 * @throws IllegalArgumentException
+	 *             If the given criteria is <tt>null</tt>.
+	 * @throws IllegalStateException
+	 *             If the storage is empty.
 	 */
 	public List<MetaDataWrapper> get(final CriteriaWrapper criteria) {
 		if (criteria == null) {
 			throw new IllegalArgumentException("CriteriaWrapper is null");
 		}
-		if(isEmpty()){
+		if (isEmpty()) {
 			return new ArrayList<MetaDataWrapper>();
 		}
 		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
@@ -125,15 +134,16 @@ public class MetaDataStorage {
 	}
 
 	/**
-	 * Returns the {@link MetaDataWrapper} with specified ID. If no meta data with such
-	 * an ID was found, <tt>null</tt> is returned.
+	 * Returns the {@link MetaDataWrapper} with specified ID. If no meta data
+	 * with such an ID was found, <tt>null</tt> is returned.
 	 * 
 	 * @param id
 	 *            The ID of the meta data to get.
 	 * @return The found meta data with specified ID or <tt>null</tt> if none
 	 *         exists with such an ID.
 	 * @see TreeMap#get(Object)
-	 * @throws IllegalStateException If the storage is empty.
+	 * @throws IllegalStateException
+	 *             If the storage is empty.
 	 */
 	public MetaDataWrapper get(final String id) {
 		validateNotEmpty();
@@ -144,34 +154,37 @@ public class MetaDataStorage {
 	 * Returns all stored {@link MetaDataWrapper} objects in a single array.
 	 * 
 	 * @return All stored meta data objects in a single array.
-	 * @throws IllegalStateException If the storage is empty.
+	 * @throws IllegalStateException
+	 *             If the storage is empty.
 	 */
 	public MetaDataWrapper[] getAll() {
-		if(isEmpty()){
+		if (isEmpty()) {
 			return new MetaDataWrapper[0];
 		}
 		return idMap.values().toArray(new MetaDataWrapper[0]);
 	}
-	
+
 	/**
-	 * Returns all IDs known to this {@link MetaDataStorage}.
-	 * <br />It is granted, that to every single entry of the returning list,
-	 * the IDs, a meta data entry in this storage exists.
+	 * Returns all IDs known to this {@link MetaDataStorage}. <br />
+	 * It is granted, that to every single entry of the returning list, the IDs,
+	 * a meta data entry in this storage exists.
+	 * 
 	 * @return All known IDs.
-	 * @throws IllegalStateException If the storage is empty.
+	 * @throws IllegalStateException
+	 *             If the storage is empty.
 	 */
-	public Set<String> getAllIDs(){
-		if(isEmpty()){
+	public Set<String> getAllIDs() {
+		if (isEmpty()) {
 			return new HashSet<String>();
 		}
 		return idMap.keySet();
 	}
 
 	/**
-	 * Puts the given {@link MetaDataWrapper} to this {@link MetaDataStorage}. The
-	 * method's return value is a success indicator and is <tt>true</tt> if and
-	 * only if the meta data's was not previously stored, thus <tt>false</tt>
-	 * otherwise.<br />
+	 * Puts the given {@link MetaDataWrapper} to this {@link MetaDataStorage}.
+	 * The method's return value is a success indicator and is <tt>true</tt> if
+	 * and only if the meta data's was not previously stored, thus
+	 * <tt>false</tt> otherwise.<br />
 	 * This detection is done via the meta data's ID. So in other words,
 	 * <tt>meta</tt>'s ID must be new to the storage.<br />
 	 * <b>Note: If you want to replace a meta data then use the appropriate
@@ -205,21 +218,26 @@ public class MetaDataStorage {
 	public MetaDataWrapper replace(final MetaDataWrapper meta) {
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
-	
+
 	/**
 	 * Removes the specified {@link MetaDataWrapper} object from this storage.
-	 * @param meta The meta data object to remove.
+	 * 
+	 * @param meta
+	 *            The meta data object to remove.
 	 * @return The removed meta data or <tt>null</tt> if none got removed.
-	 * @throws IllegalStateException If an error occured while removing.
+	 * @throws IllegalStateException
+	 *             If an error occured while removing.
 	 */
-	public MetaDataWrapper remove(final MetaDataWrapper meta){
-		if(removeTime(meta)){
+	public MetaDataWrapper remove(final MetaDataWrapper meta) {
+		if (removeTime(meta)) {
 			return removeID(meta);
-		}else{
-			throw new IllegalStateException("Could not entirely remove meta data with id: "+meta.getId());
+		} else {
+			throw new IllegalStateException(
+					"Could not entirely remove meta data with id: "
+							+ meta.getId());
 		}
 	}
-	
+
 	/**
 	 * Returns the size of this storage.
 	 * 
@@ -330,12 +348,14 @@ public class MetaDataStorage {
 			return false;
 		}
 	}
-	
-	private MetaDataWrapper removeID(final MetaDataWrapper meta){
-		if(!idMap.containsKey(meta.getId() ) ){
-			throw new IllegalArgumentException("Cannot remove inexistent meta data with id: "+meta.getId() );
-		}else{
-			return idMap.remove(meta.getId() );
+
+	private MetaDataWrapper removeID(final MetaDataWrapper meta) {
+		if (!idMap.containsKey(meta.getId())) {
+			throw new IllegalArgumentException(
+					"Cannot remove inexistent meta data with id: "
+							+ meta.getId());
+		} else {
+			return idMap.remove(meta.getId());
 		}
 	}
 
@@ -355,28 +375,28 @@ public class MetaDataStorage {
 			return false;
 		}
 	}
-	
-	private boolean removeTime(final MetaDataWrapper meta){
+
+	private boolean removeTime(final MetaDataWrapper meta) {
 		final Date d = meta.getTimestamp();
-		if(!timeMap.containsKey(d) ){
+		if (!timeMap.containsKey(d)) {
 			// likely already removed
 			return true;
-		}else{
+		} else {
 			Vector<String> ids = timeMap.get(d);
-			if(ids != null){
-				if(ids.contains(meta.getId() )){
-					if(ids.removeElement(meta.getId() ) ){
-						//GOT REMOVED
+			if (ids != null) {
+				if (ids.contains(meta.getId())) {
+					if (ids.removeElement(meta.getId())) {
+						// GOT REMOVED
 						return true;
-					}else{
-						//got NOT removed, was NO ELEMENT, throw an error?
+					} else {
+						// got NOT removed, was NO ELEMENT, throw an error?
 						return false;
 					}
-				}else{
+				} else {
 					// likely already removed
 					return true;
 				}
-			}else{
+			} else {
 				// likely already removed
 				return true;
 			}

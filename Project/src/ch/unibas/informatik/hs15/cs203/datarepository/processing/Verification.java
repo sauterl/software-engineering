@@ -42,11 +42,13 @@ class Verification {
 	 */
 	static void verifyNotRepoPath(File file, File repositoryFolder)
 			throws IllegalArgumentException {
-		if(file == null || repositoryFolder == null){
-			throw new IllegalArgumentException("Either the file or the repository Folder were null");
+		if (file == null || repositoryFolder == null) {
+			throw new IllegalArgumentException(
+					"Either the file or the repository Folder were null");
 		}
-		if(!file.exists() || !repositoryFolder.exists()){
-			throw new IllegalArgumentException("Either the file or the repository Folder do not exist");
+		if (!file.exists() || !repositoryFolder.exists()) {
+			throw new IllegalArgumentException(
+					"Either the file or the repository Folder do not exist");
 		}
 		if (file.getAbsolutePath().equals(repositoryFolder.getAbsolutePath())) {
 			throw new IllegalArgumentException(
@@ -74,7 +76,8 @@ class Verification {
 	}
 
 	/**
-	 * If the given file is already within the repositoryFolder, an exception is thrown.
+	 * If the given file is already within the repositoryFolder, an exception is
+	 * thrown.
 	 */
 	static void verifyNotWithinRepo(File file, File repositoryFolder)
 			throws IllegalArgumentException {
@@ -87,20 +90,21 @@ class Verification {
 	}
 
 	/**
-	 * Verifies whether the criteria itself is null and if a criteria is specified at all.
-	 * If criteria is null or contains no information, an error is thrown.
-	 * If an ID has been specified and any other information has been specified, an error is thrown
+	 * Verifies whether the criteria itself is null and if a criteria is
+	 * specified at all. If criteria is null or contains no information, an
+	 * error is thrown. If an ID has been specified and any other information
+	 * has been specified, an error is thrown
 	 */
 	static void verifyNotNullCriteria(CriteriaWrapper criteria) {
 		if (criteria == null || criteria.isNull()) {
 			throw new IllegalArgumentException("The given criteria is null");
 		}
-//		if (criteria.getAfter() == null && criteria.getBefore() == null
-//				&& criteria.getId() == null && criteria.getName() == null
-//				&& criteria.getText() == null) {
-//			throw new IllegalArgumentException(
-//					"No criteria have been specified");
-//		}
+		// if (criteria.getAfter() == null && criteria.getBefore() == null
+		// && criteria.getId() == null && criteria.getName() == null
+		// && criteria.getText() == null) {
+		// throw new IllegalArgumentException(
+		// "No criteria have been specified");
+		// }
 		if (criteria.getId() != null
 				&& (criteria.getAfter() != null || criteria.getBefore() != null
 						|| criteria.getName() != null || criteria.getText() != null)) {
@@ -109,14 +113,14 @@ class Verification {
 		}
 	}
 
-
 	/**
 	 * Searches the repository for a dataset with a given id.
+	 * 
 	 * @return whether a dataset exists or not.
 	 */
 	static boolean verifyExistence(String id, File repositoryFolder) {
-		for(String filename : repositoryFolder.list()){
-			if(filename.equals(id)){
+		for (String filename : repositoryFolder.list()) {
+			if (filename.equals(id)) {
 				return true;
 			}
 		}
@@ -124,18 +128,16 @@ class Verification {
 	}
 
 	/**
-	 * Checks whether a file is null and whether it already exists.
-	 * If the file already exists, an error is thrown
+	 * Checks whether a file is null and whether it already exists. If the file
+	 * already exists, an error is thrown
 	 */
 	static void verifyAbsence(File file) {
 		if (file == null) {
 			throw new IllegalArgumentException("The repository folder is null");
 		}
 		if (file.exists()) {
-			throw new IllegalArgumentException(
-					"The given file already exists");
+			throw new IllegalArgumentException("The given file already exists");
 		}
 	}
-	
-	
+
 }

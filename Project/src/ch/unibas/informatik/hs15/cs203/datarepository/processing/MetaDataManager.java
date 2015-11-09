@@ -144,12 +144,15 @@ class MetaDataManager implements Closeable {
 	 */
 	public static MetaDataManager getMetaDataManager(final String repoPath)
 			throws IllegalArgumentException {
-		try{
-		if (instance == null) {
-			LOG.debug("Created new instance");
-			instance = new MetaDataManager(repoPath);
-		}}catch(Exception e){
-			throw new IllegalArgumentException("There was an error accessing the metadata Storage. "+e.getMessage());
+		try {
+			if (instance == null) {
+				LOG.debug("Created new instance");
+				instance = new MetaDataManager(repoPath);
+			}
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+					"There was an error accessing the metadata Storage. "
+							+ e.getMessage());
 		}
 		return instance;
 	}
@@ -174,11 +177,13 @@ class MetaDataManager implements Closeable {
 	}
 
 	/**
-	 * Adds and writes the specified {@link MetaDataWrapper} to the meta data file.<br />
+	 * Adds and writes the specified {@link MetaDataWrapper} to the meta data
+	 * file.<br />
 	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
 	 * write the data persistently</b><br />
-	 * This method is a shortcut for {@link MetaDataManager#putMeta(MetaDataWrapper)}
-	 * followed by {@link MetaDataManager#writeTempMetaFile()}
+	 * This method is a shortcut for
+	 * {@link MetaDataManager#putMeta(MetaDataWrapper)} followed by
+	 * {@link MetaDataManager#writeTempMetaFile()}
 	 * 
 	 * @param meta
 	 * @return
@@ -193,40 +198,47 @@ class MetaDataManager implements Closeable {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Removes the specified meta data and writes this change to the mea data file.<br />
+	 * Removes the specified meta data and writes this change to the mea data
+	 * file.<br />
 	 * <b>Note: You <i>will</i> need to call {@link MetaDataManager#close()} to
 	 * write the data persistently</b><br />
-	 * This method is a shortcut for {@link MetaDataManager#removeMeta(MetaDataWrapper)}
-	 * followed by {@link MetaDataManager#writeTempMetaFile()}
+	 * This method is a shortcut for
+	 * {@link MetaDataManager#removeMeta(MetaDataWrapper)} followed by
+	 * {@link MetaDataManager#writeTempMetaFile()}
 	 * 
 	 * @param meta
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean remove(final MetaDataWrapper meta) throws IOException{
-		if(meta.equals(removeMeta(meta))){
+	public boolean remove(final MetaDataWrapper meta) throws IOException {
+		if (meta.equals(removeMeta(meta))) {
 			writeTempMetaFile();
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Runs {@link CleanupStrategy#clean(MetaDataStorage, Path)} of the specified strategy.
-	 * <br /> 
-	 * The internal storage is passed to the strategy as well as the repository path, with which this {@link MetaDataManager} was
-	 * initialized.<br />
-	 * <b>Note: After the clean up, the meta data file gets written temporarily and thus this manager needs to be {@link #close()}d
-	 * for a persistent cleaned meta data file.</b>
-	 * @param strategy The cleanup strategy to use.
+	 * Runs {@link CleanupStrategy#clean(MetaDataStorage, Path)} of the
+	 * specified strategy. <br />
+	 * The internal storage is passed to the strategy as well as the repository
+	 * path, with which this {@link MetaDataManager} was initialized.<br />
+	 * <b>Note: After the clean up, the meta data file gets written temporarily
+	 * and thus this manager needs to be {@link #close()}d for a persistent
+	 * cleaned meta data file.</b>
+	 * 
+	 * @param strategy
+	 *            The cleanup strategy to use.
 	 * @return The amount of altered entries.
-	 * @throws IOException If an error occurred while writing the temporary meta data file.
+	 * @throws IOException
+	 *             If an error occurred while writing the temporary meta data
+	 *             file.
 	 * @see CleanupStrategy#clean(MetaDataStorage, Path)
 	 */
-	public int runCleanUp(CleanupStrategy strategy) throws IOException{
+	public int runCleanUp(CleanupStrategy strategy) throws IOException {
 		int out = strategy.clean(storage, Paths.get(repoPath));
 		writeTempMetaFile();
 		return out;
@@ -242,18 +254,20 @@ class MetaDataManager implements Closeable {
 	 */
 	@Override
 	public void close() throws IllegalArgumentException {
-		try{
+		try {
 			releaseLock();
-		if (Files.exists(Paths.get(repoPath, tmpLabel + metaDataFileName),
-				LinkOption.NOFOLLOW_LINKS)) {
-			Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
-					Paths.get(repoPath, metaDataFileName),
-					StandardCopyOption.REPLACE_EXISTING,
-					StandardCopyOption.ATOMIC_MOVE);
-		}
-		instance = null;
-		}catch(Exception e){
-			throw new IllegalArgumentException("There was an error while writing Metadata. "+e.getMessage());
+			if (Files.exists(Paths.get(repoPath, tmpLabel + metaDataFileName),
+					LinkOption.NOFOLLOW_LINKS)) {
+				Files.move(Paths.get(repoPath, tmpLabel + metaDataFileName),
+						Paths.get(repoPath, metaDataFileName),
+						StandardCopyOption.REPLACE_EXISTING,
+						StandardCopyOption.ATOMIC_MOVE);
+			}
+			instance = null;
+		} catch (Exception e) {
+			throw new IllegalArgumentException(
+					"There was an error while writing Metadata. "
+							+ e.getMessage());
 		}
 	}
 
@@ -300,16 +314,17 @@ class MetaDataManager implements Closeable {
 	public boolean putMeta(final MetaDataWrapper meta) {
 		return storage.put(meta);
 	}
-	
+
 	/**
 	 * Removes the given meta data from the underlying {@link MetaDataStorage}.
 	 * 
-	 * @param meta The meta data to remove.
+	 * @param meta
+	 *            The meta data to remove.
 	 * 
 	 * @return The removed meta data or <tt>null</tt> if nothing got removed.
 	 * @see MetaDataStorage#remove(MetaDataWrapper)
 	 */
-	public MetaDataWrapper removeMeta(final MetaDataWrapper meta){
+	public MetaDataWrapper removeMeta(final MetaDataWrapper meta) {
 		return storage.remove(meta);
 	}
 
@@ -321,7 +336,7 @@ class MetaDataManager implements Closeable {
 		fw.flush();
 		fw.close();
 		releaseLock();
-//		System.gc();//is this necessary?
+		// System.gc();//is this necessary?
 	}
 
 	/**
@@ -332,11 +347,13 @@ class MetaDataManager implements Closeable {
 	 * 
 	 * @param collection
 	 *            The collection of json objects to convert.
-	 * @return Either an array of {@link MetaDataWrapper} objects which got converted
-	 *         from their JSON equivalents or an empty <tt>MetaDataWrapper</tt> array
-	 *         if either <tt>collection</tt> was <code>null</code>or empty.
+	 * @return Either an array of {@link MetaDataWrapper} objects which got
+	 *         converted from their JSON equivalents or an empty
+	 *         <tt>MetaDataWrapper</tt> array if either <tt>collection</tt> was
+	 *         <code>null</code>or empty.
 	 */
-	private MetaDataWrapper[] convertCollectionToMeta(final Collection<Json> collection) {
+	private MetaDataWrapper[] convertCollectionToMeta(
+			final Collection<Json> collection) {
 		if (collection == null || collection.isEmpty()) {
 			return new MetaDataWrapper[0];
 		}// assert collection is neither null nor empty
