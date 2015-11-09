@@ -5,25 +5,43 @@ import java.util.LinkedList;
 
 public class ArgumentsAnalyzer {
 	
-	private LinkedList<String> origin;
+	private LinkedList<String> args;
 	private Command command = null;
 	
 	private int nbOptions = -1;
 	private int nbArguments = -1;
 	
 	public ArgumentsAnalyzer(){
-		origin = null;
+		args = null;
 	}
 	
-	public ArgumentsAnalyzer(LinkedList<String> origin){
-		setSubject(origin);
+	/**
+	 * 
+	 * @param command The full command, inclusive command name and its arguments
+	 */
+	public ArgumentsAnalyzer(LinkedList<String> command){
+		setSubject(command);
 	}
 	
-	public void setSubject(LinkedList<String> origin) throws IllegalArgumentException{
-		this.origin = new LinkedList<>(origin);
-		String cmd = origin.peek();
-		this.command = Command.parse(cmd);
-		if(command == null){
+	/**
+	 * 
+	 * @param cmd The command
+	 * @param arguments its arguments
+	 */
+	public ArgumentsAnalyzer(Command cmd, LinkedList<String> arguments){
+		setSubject(cmd, arguments);
+	}
+	
+	public void setSubject(Command cmd, LinkedList<String> arguments){
+		this.args = new LinkedList<String>(arguments);
+		this.command = cmd;
+	}
+	
+	public void setSubject(LinkedList<String> command) throws IllegalArgumentException{
+		this.args = new LinkedList<String>(command);
+		String cmdName = command.peek();
+		this.command = Command.parse(cmdName);
+		if(this.command == null){
 			throw new IllegalArgumentException("Command is either unknown or missing.");
 		}
 	}
@@ -36,7 +54,7 @@ public class ArgumentsAnalyzer {
 	
 	private void count(){
 		validateReady();
-		Iterator<String> it = origin.iterator();
+		Iterator<String> it = args.iterator();
 		int optionsCounter = 0;
 		int argumentsCounter = 0;
 		while(it.hasNext() ){
@@ -47,6 +65,8 @@ public class ArgumentsAnalyzer {
 				argumentsCounter++;
 			}
 		}
+		this.nbOptions = optionsCounter;
+		this.nbArguments = argumentsCounter;
 	}
 	
 	public Command getCommand() {
@@ -70,7 +90,7 @@ public class ArgumentsAnalyzer {
 	}
 
 	public boolean isReady(){
-		return origin != null;
+		return args != null && command != null;
 	}
 	
 	private void validateReady(){

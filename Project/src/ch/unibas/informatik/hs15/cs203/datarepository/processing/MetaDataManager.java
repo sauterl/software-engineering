@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 import util.jsontools.Json;
 import util.jsontools.JsonParser;
 import util.logging.Logger;
@@ -113,11 +114,6 @@ class MetaDataManager implements Closeable {
 	 * "description":"Some of my documents", "filecount":34, "size":2433993827,
 	 * "timestamp":"2014-09-18T13:42:38" } ] } }
 	 */
-
-	/**
-	 * Version. Why is this not a property?
-	 */
-	public static final String VERSION = "0.0.1";
 
 	/**
 	 * Creates a new {@link MetaDataManager} for the given repository path. If
@@ -382,7 +378,7 @@ class MetaDataManager implements Closeable {
 
 	private Json createNewMetaDataFile() {
 		final Json repo = new Json();
-		repo.addEntry(versionKey, VERSION);
+		repo.addEntry(versionKey, Version.VERSION);
 		repo.addEntry(timestampKey, new Date());
 		final Json[] emptyDatasets = new Json[0];
 		repo.addEntry(datasetsKey, emptyDatasets);

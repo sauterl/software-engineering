@@ -175,9 +175,14 @@ class CommandInterpreter {
 			if (curr.contains(CommandParser.OPTION_SEPARATOR)) {
 				Option op = Option.parse(curr.substring(0,
 						curr.indexOf(CommandParser.OPTION_SEPARATOR)));
-				String value = curr.substring(
-						curr.indexOf(CommandParser.OPTION_SEPARATOR + 1));
-				if (out.containsKey(op)) {
+				
+				String value = null;
+				try{
+					value =curr.substring(curr.indexOf(CommandParser.OPTION_SEPARATOR)+1);
+				}catch(StringIndexOutOfBoundsException e){
+					throw new IllegalArgumentException(String.format("Error while aprsing entry. %s, option has *no* value, but should", curr));
+				}
+				if (!out.containsKey(op)) {
 					out.put(op, value);
 				} else {
 					throw new IllegalArgumentException(String.format(
@@ -238,30 +243,21 @@ class CommandInterpreter {
 	 */
 	private String executeAdd(final LinkedList<String> arguments)
 			throws IOException {
-		String desc = null, repoLoc = null, file = null;
-		boolean move = false;
-		final ProgressListener listener = new DummyProgressListener();
-		String curr;
-		final int originSize = arguments.size();
-		for (int i = 0; i < originSize; i++) {
-			curr = arguments.poll();
-			if (curr.startsWith(Option.DESCRIPTION.name())) {
-				desc = curr.substring(
-						curr.indexOf(CommandParser.OPTION_SEPARATOR) + 1);
-			} else if (curr.startsWith(Option.MOVE.name())) {
-				move = true;
-			} else if (curr.startsWith(Option.VERBOSE.name())) {
-				// TODO listener = new ConsoleProgressListener();
-			} else {
-				if (i == originSize - 2) {
-					repoLoc = curr;
-				} else if (i == originSize - 1) {
-					file = curr;
-				} else {
-					throw new RuntimeException("Reached unexpected state.");
-				}
-			}
-		} // endfor
+		ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(Command.ADD, arguments);
+		analyzer.analyze();
+		if(analyzer.getNbArguments() < analyzer.getNbMandatoryArgs()){
+			handleMissingMandatoryArguments(String.format("Unexpected end of command, expected %d mandatory arguments (but got %d).", analyzer.getNbMandatoryArgs(), analyzer.getNbArguments()));
+		}
+		Map<Option, String> optVals = parseOptionValues(arguments);
+		String desc = optVals.get(Option.DESCRIPTION);
+		boolean move = arguments.contains(Option.MOVE.name() );
+		ProgressListener listener = new DummyProgressListener();
+		if(arguments.contains(Option.VERBOSE.name() ) ){
+			listener = new SimpleProgressListener();
+		}
+		int nbOptions = analyzer.getNbOptions();//last option index in arguments: nbOptions-1
+		String repoLoc = arguments.get(nbOptions);//first mandatory argument
+		String file = arguments.get(nbOptions+1);//second mandatory argument
 		final DataRepository repo = factory.create(new File(repoLoc));
 		final File add = new File(file);
 		add.createNewFile();
@@ -362,24 +358,6 @@ class CommandInterpreter {
 		return out;
 	}
 
-	/*
-	 * WHAT IS THIS FOR CODE? if(helper.isEmpty() && !ID || helper.size()>1 &&
-	 * helper.containsKey(Option.ID.name())){ throw new
-	 * IllegalArgumentException("Inappropriate number of arguments"); }else{
-	 * if(helper.containsKey(Option.ID.name())){
-	 * crit=Criteria.forId(helper.get(Option.ID.name())); }else{
-	 * 
-	 * DateFormat dateFormat1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
-	 * DateFormat dateFormat2 = new SimpleDateFormat( "yyyy-MM-dd");
-	 * 
-	 * Date
-	 * before=helper.containsKey(Option.BEFORE.name())?helper.get(Option.BEFORE.
-	 * name()).length()>10?dateFormat1.parse(helper.get(Option.BEFORE.name())):
-	 * dateFormat2.parse(helper.get(Option.BEFORE.name())):null; Date
-	 * after=helper.containsKey(Option.AFTER.name())?helper.get(Option.AFTER.
-	 * name()).length()>10?dateFormat1.parse(helper.get(Option.AFTER.name())):
-	 * dateFormat2.parse(helper.get(Option.AFTER.name())):null; }
-	 */
 	/**
 	 * Executes the List command of the data repository application.The paramter
 	 * <code>arguments</code> are the arguments without the command itself
@@ -447,6 +425,10 @@ class CommandInterpreter {
 		throw new IllegalArgumentException(String.format(
 				"Unknown command <%s>: Check your spelling or use command <help> to get more information.",
 				type));
+	}
+	
+	private String handleMissingMandatoryArguments(final String msg){
+		throw new IllegalArgumentException(msg);
 	}
 
 	/**

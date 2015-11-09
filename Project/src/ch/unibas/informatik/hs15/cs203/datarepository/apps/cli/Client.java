@@ -36,7 +36,7 @@ public class Client {
 		String out = null;
 		try {
 			out = interpreter.interpret(args);
-		} catch (IllegalArgumentException | ParseException | IOException e) {
+		} catch (Throwable e) {
 			t = e;
 		}
 		return out;
