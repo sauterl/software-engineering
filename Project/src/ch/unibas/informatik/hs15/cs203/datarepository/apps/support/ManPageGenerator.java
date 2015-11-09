@@ -158,8 +158,8 @@ public class ManPageGenerator {
 		} else {
 			out = buildManPage();
 		}
-//		return Utilities.wrapLine(out, 70);
-		return Utilities.wrapLinesSensitive(out, 70, null);
+		return Utilities.wrapLine(out, 70);
+//		return Utilities.wrapLinesSensitive(out, 70, null);
 	}
 
 	protected void init() {
