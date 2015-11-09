@@ -59,6 +59,20 @@ class CommandInterpreter {
 		this.factory = factory;
 	}
 
+	private String createMsgWithIDs(final String msg,
+			final List<MetaData> metas) {
+		String retStr = new String(msg);
+		if (!metas.isEmpty()) {
+			for (int i = 0; i < metas.size(); i++) {
+				retStr = retStr.concat(metas.get(i).getId());
+				if (i < metas.size() - 1) {
+					retStr = retStr.concat(", ");
+				}
+			}
+		}
+		return retStr;
+	}
+
 	/**
 	 * It's a thing of style
 	 *
@@ -168,25 +182,12 @@ class CommandInterpreter {
 	 */
 	private String executeDelete(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
-		String repoLoc = arguments.get(analyzer.getNbOptions());
-		CriteriaWrapper crit = parseCriteria(Command.DELETE, arguments);
+		final String repoLoc = arguments.get(analyzer.getNbOptions());
+		final CriteriaWrapper crit = parseCriteria(Command.DELETE, arguments);
 		final List<MetaData> ids = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
-		String retStr = "The following data sets have been deleted: ";
+		final String retStr = "The following data sets have been deleted: ";
 		return createMsgWithIDs(retStr, ids);
-	}
-	
-	private String createMsgWithIDs(String msg, List<MetaData> metas){
-		String retStr = new String(msg);
-		if (!metas.isEmpty()) {
-			for (int i = 0; i < metas.size(); i++) {
-				retStr = retStr.concat(metas.get(i).getId());
-				if (i < metas.size() - 1) {
-					retStr = retStr.concat(", ");
-				}
-			}
-		}
-		return retStr;
 	}
 
 	/**
@@ -200,16 +201,17 @@ class CommandInterpreter {
 	 */
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
-		// TODO upgrade
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		final CriteriaWrapper crit = parseCriteria(Command.EXPORT, arguments);
 		ProgressListener listener = new DummyProgressListener();
-		if(arguments.contains(Option.VERBOSE.name() )){
+		if (arguments.contains(Option.VERBOSE.name())) {
 			listener = new SimpleProgressListener();
 		}
 		final String destLoc = arguments.getLast();
-		List<MetaData> list = factory.create(new File(repoLoc)).export(crit.getWrappedObject(), new File(destLoc), listener);
-		return createMsgWithIDs("The following data sets have been exported: ", list);
+		final List<MetaData> list = factory.create(new File(repoLoc))
+				.export(crit.getWrappedObject(), new File(destLoc), listener);
+		return createMsgWithIDs("The following data sets have been exported: ",
+				list);
 	}
 
 	/**
@@ -248,22 +250,32 @@ class CommandInterpreter {
 	 */
 	private String executeList(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
-		// TODO upgrade
-		final String repoLoc = arguments.peekLast();
-		final DataRepository repo = factory.create(new File(repoLoc));
-		final LinkedList<String> Options = new LinkedList<String>(Arrays.asList(
-				Option.ID.name(), Option.NAME.name(), Option.TEXT.name(),
-				Option.BEFORE.name(), Option.AFTER.name()));
-		final CriteriaWrapper cr = arguments.size() == 1 ? CriteriaWrapper.all()
-				: criteriaParser(Options, arguments, false);
-		final List<MetaData> ret = repo.getMetaData(cr.getWrappedObject());
-		String retString = "ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n";
-		for (final MetaData i : ret) {
-			retString += i.getId() + "\t" + i.getName() + "\t"
-					+ parseDate(i.getTimestamp()) + "\t" + i.getNumberOfFiles() + "\t"
-					+ i.getSize() + "\t" + i.getDescription() + "\n";
+		final String repoLoc = arguments.getLast();
+		final CriteriaWrapper crit = parseCriteria(Command.LIST, arguments);
+		final List<MetaData> list = factory.create(new File(repoLoc)).getMetaData(crit.getWrappedObject() );
+		
+		StringBuilder out = new StringBuilder("ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n");
+		for (final MetaData m : list) {
+			out.append(createTabbedInfoLine(m));
 		}
-		return retString;
+		return out.toString();
+	}
+	
+	private String createTabbedInfoLine(MetaData meta){
+		StringBuilder sb = new StringBuilder();
+		sb.append(meta.getId() );
+		sb.append("\t");
+		sb.append(meta.getName() );
+		sb.append("\t");
+		sb.append(parseDate(meta.getTimestamp()));
+		sb.append("\t");
+		sb.append(meta.getNumberOfFiles() );
+		sb.append("\t");
+		sb.append(meta.getSize() );
+		sb.append("\t");
+		sb.append(meta.getDescription() == null ? "" : meta.getDescription() );
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	/**
@@ -374,7 +386,7 @@ class CommandInterpreter {
 			String id = null;
 			if (hasIDOption) {
 				id = optVals.get(Option.ID);
-			} else if(hasIDArgument){
+			} else if (hasIDArgument) {
 				id = args.get(1);// always second argument
 			}
 			if (id != null) {
@@ -384,6 +396,11 @@ class CommandInterpreter {
 		return new CriteriaWrapper(optVals.get(Option.NAME),
 				optVals.get(Option.TEXT), parseDate(optVals.get(Option.AFTER)),
 				parseDate(optVals.get(Option.BEFORE)));
+	}
+
+	private String parseDate(final Date date) {
+		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return precise.format(date);
 	}
 
 	/**
@@ -411,11 +428,6 @@ class CommandInterpreter {
 		} catch (final ParseException | NullPointerException e) {
 			return null;
 		}
-	}
-	
-	private String parseDate(final Date date){
-		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return precise.format(date);
 	}
 
 	private Map<Option, String> parseOptionValues(
