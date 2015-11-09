@@ -47,7 +47,6 @@ class DataRepositoryImpl implements DataRepository {
 		try {
 			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
 					.getAbsolutePath());
-			// Write temporary metadata
 			mdm.add(_ret);
 
 			progressListener.start();
@@ -55,8 +54,8 @@ class DataRepositoryImpl implements DataRepository {
 			if (move) {
 				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
 				progressListener.progress(
-						RepoFileUtils.getFileSize(joinedPath.toFile()),
-						RepoFileUtils.getFileSize(joinedPath.toFile()));
+						_ret.getSize(),
+						_ret.getSize());
 			} else {
 				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
 						joinedPath, progressListener, 0, _ret.getSize());
@@ -127,26 +126,20 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> export(Criteria exportCriteria, File target,
 			ProgressListener progressListener) {
-		try {
-
 			List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(
 					exportCriteria, target, progressListener));
 			long totalNumberOfBytes = 0;
 			for (MetaDataWrapper md : wholeMetadata) {
-				// System.out.println(md.getId());
-				totalNumberOfBytes += RepoFileUtils.getFileSize(new File(
-						repositoryFolder.getAbsolutePath() + "/" + md.getId()));
+				totalNumberOfBytes+= md.getSize();
 			}
 
 			long copiedBytes = 0;
 			progressListener.start();
 			progressListener.progress(copiedBytes, totalNumberOfBytes);
-			for (int c = 0; c < wholeMetadata.size(); c++) {
-				// System.out.println(repositoryFolder.getAbsolutePath()+"/"+wholeMetadata.get(c).getId()+"/"+wholeMetadata.get(c).getName());
+			for (MetaDataWrapper md : wholeMetadata) {
 				File source = new File(repositoryFolder.getAbsolutePath() + "/"
-						+ wholeMetadata.get(c).getId() + "/"
-						+ wholeMetadata.get(c).getName());
-				// System.out.println(target.getAbsolutePath());
+						+ md.getId() + "/"
+						+ md.getName());
 				File fullTarget = new File(target.getAbsolutePath());
 
 				try {
@@ -156,37 +149,28 @@ class DataRepositoryImpl implements DataRepository {
 				} catch (IOException e) {
 					progressListener.finish();
 					throw new IllegalArgumentException(
-							"Something happend while copying");
+							"Something happend while exporting a file");
 				}
-				copiedBytes += RepoFileUtils.getFileSize(new File(
-						repositoryFolder.getAbsolutePath() + "/"
-								+ wholeMetadata.get(c).getId()));
+				copiedBytes += md.getSize();
 			}
 			progressListener.finish();
 
 			return unwrap(wholeMetadata);
-
-		} catch (Exception e) {
-			throw e;
-		}
 	}
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
 			ProgressListener progressListener) {
 		Verification.verifyNotNullCriteria(new CriteriaWrapper(exportCriteria));
 		Verification.verifyProgressListener(progressListener);
-		// Verification.verifyAbsence(target);
-		// TODO If ID has been specified, check for existence
-		if (target != null) {
-			if (!target.exists()) {
-				throw new IllegalArgumentException(
-						"The target path enterd couldn't be found");
-			}
-			if(target.isFile()){
-				throw new IllegalArgumentException("The given target points to a file, not a directory");
-			}
-		} else {
+		if (target == null) {
 			throw new IllegalArgumentException("Please define a target.");
+		}
+		if (!target.exists()) {
+			throw new IllegalArgumentException(
+					"The target path does not exist");
+		}
+		if(target.isFile()){
+			throw new IllegalArgumentException("The given target points to a file, not a directory");
 		}
 		List<MetaDataWrapper> wholeMetadata = wrap(getMetaData(exportCriteria));
 		if (exportCriteria.getId() != null) {
@@ -222,9 +206,24 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public MetaData replace(String id, File file, String description,
 			boolean move, ProgressListener progressListener) {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO Care about System crashes between delete and add
+		if(description==null || description ==""){
+			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
+			description = mdm.getMeta(id).getDescription();
+			mdm.close();
+		}
+		this.delete(Criteria.forId(id));
+		return this.add(file, description, move, progressListener);
 	}
+
+//	/**
+//	 * see DataRepositoryImpl.add(file, description, move, progressListener).
+//	 * The only difference here is that it takes as an additional parameter an id
+//	 */
+//	private MetaData add(File file, String id, String description,
+//			boolean move, ProgressListener progressListener) {
+//		
+//	}
 
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
