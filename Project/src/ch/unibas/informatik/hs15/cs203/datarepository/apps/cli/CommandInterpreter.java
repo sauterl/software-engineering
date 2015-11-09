@@ -212,7 +212,7 @@ class CommandInterpreter {
 	 */
 	private String executeAdd(final LinkedList<String> arguments)
 			throws IOException {
-		String desc = "", repoLoc = null, file = null;
+		String desc = null, repoLoc = null, file = null;
 		boolean move = false;
 		final ProgressListener listener = new DummyProgressListener();
 		String curr;
