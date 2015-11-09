@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
-import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 /**
  * The {@link CommandInterpreter} receives a command with its options and
@@ -126,6 +126,46 @@ class CommandInterpreter {
 		}
 		return crit;
 
+	}
+	
+	private CriteriaWrapper parseCriteria(LinkedList<String> args){
+		return null;
+	}
+	
+	private Map<Option, String> parseOptionValueMap(LinkedList<String> args){
+		HashMap<Option, String> out = new HashMap<Option, String>();
+		Iterator<String> it = args.iterator();
+		while(it.hasNext() ){
+			String curr = it.next();
+			if(curr.contains(CommandParser.OPTION_SEPARATOR)){
+				
+			}
+		}
+		return out;
+	}
+	
+	/**
+	 * Parses a given String to an appropriate date.
+	 * <br />
+	 * Based on the length of the string, either <code>yyyy-MM-dd HH:mm:ss</code>
+	 * or <code>yyyy-MM-dd</code> is used as {@link DateFormat} to parse the string.
+	 * Therefore a {@link ParseException} is thrown, if the chosen {@link DateFormat} cannot
+	 * parse the given string.
+	 * @param str The string to parse.
+	 * @return The parsed Date.
+	 * @throws ParseException If the string is not parseable with the chosen {@link DateFormat}.
+	 * @see DateFormat#parse(String)
+	 */
+	private Date parseDate(String str) throws ParseException{
+		final DateFormat precise = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		final DateFormat fuzzy = new SimpleDateFormat(
+				"yyyy-MM-dd");
+		if(str.length() > 10){
+			return precise.parse(str);
+		}else{
+			return fuzzy.parse(str);
+		}
 	}
 
 	/**
@@ -335,6 +375,23 @@ class CommandInterpreter {
 				+ "' has been successfully replaced with the file"
 				+ ret.getName() + ". ID: " + ret.getId();
 	}
+	
+	private String handleUnknownCommand(final String cmd) throws IllegalArgumentException{
+		String type = "null";
+		if(cmd != null){
+			try{
+				int t = Integer.parseInt(cmd);
+				if(t == 42){
+					return "This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)";
+				}
+			}catch(NumberFormatException ex){
+				
+			}
+			type = cmd;
+		}
+		throw new IllegalArgumentException(String.format("Unknown command <%s>: Check your spelling or use command <help> to get more information.", type));
+	}
+	
 
 	/**
 	 * Interprets the given command line arguments. It is <i>highly</i>
@@ -355,7 +412,8 @@ class CommandInterpreter {
 			// this is a shortcut for that case.
 			return executeHelp(null);
 		}
-		final Command cmd = Command.parse(command.poll());// no null check since
+		final String cmdName = command.poll();// to print accurate error message
+		final Command cmd = Command.parse(cmdName);// no null check since
 		// check
 		// already done in lex
 		switch (cmd) {
@@ -375,8 +433,7 @@ class CommandInterpreter {
 			case REPLACE:
 				return executeReplace(command);
 			default:
-				throw new UnsupportedOperationException(
-						"Command " + cmd + " Not implemented yet");
+				return handleUnknownCommand(cmdName);
 		}
 	}
 
