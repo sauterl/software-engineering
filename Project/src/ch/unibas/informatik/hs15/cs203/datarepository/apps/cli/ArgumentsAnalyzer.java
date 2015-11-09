@@ -61,6 +61,8 @@ public class ArgumentsAnalyzer {
 			String curr = it.next();
 			if(curr.contains(CommandParser.OPTION_SEPARATOR )){
 				optionsCounter++;
+			}else if(Option.parse(curr)!=null){
+				optionsCounter++;
 			}else{
 				argumentsCounter++;
 			}
