@@ -39,7 +39,7 @@ public class ArgumentsAnalyzer {
 	
 	public void setSubject(LinkedList<String> command) throws IllegalArgumentException{
 		this.args = new LinkedList<String>(command);
-		String cmdName = command.peek();
+		String cmdName = args.poll();
 		this.command = Command.parse(cmdName);
 		if(this.command == null){
 			throw new IllegalArgumentException("Command is either unknown or missing.");
@@ -53,7 +53,6 @@ public class ArgumentsAnalyzer {
 	
 	
 	private void count(){
-		validateReady();
 		Iterator<String> it = args.iterator();
 		int optionsCounter = 0;
 		int argumentsCounter = 0;

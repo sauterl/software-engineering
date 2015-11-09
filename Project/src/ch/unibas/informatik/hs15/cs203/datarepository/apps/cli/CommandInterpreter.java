@@ -265,7 +265,7 @@ class CommandInterpreter {
 		String retString = "ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n";
 		for (final MetaData i : ret) {
 			retString += i.getId() + "\t" + i.getName() + "\t"
-					+ i.getTimestamp() + "\t" + i.getNumberOfFiles() + "\t"
+					+ parseDate(i.getTimestamp()) + "\t" + i.getNumberOfFiles() + "\t"
 					+ i.getSize() + "\t" + i.getDescription() + "\n";
 		}
 		return retString;
@@ -416,6 +416,11 @@ class CommandInterpreter {
 		} catch (final ParseException e) {
 			return null;
 		}
+	}
+	
+	private String parseDate(final Date date){
+		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return precise.format(date);
 	}
 
 	private Map<Option, String> parseOptionValues(
