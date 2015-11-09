@@ -31,48 +31,7 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public MetaData add(File file, String description, boolean move,
 			ProgressListener progressListener) {
-		// Verification
-		Verification.verifyExistence(file);
-		Verification.verifyNotRepoPath(file, repositoryFolder);
-		Verification.verifyNotWithinRepo(file, repositoryFolder);
-		Verification.verifyDescription(description);
-		Verification.verifyProgressListener(progressListener);
-
-		String newID = MetaDataManager.generateRandomUUID();
-		Path joinedPath = createNewDatasetFolder(newID);
-		MetaDataWrapper _ret = new MetaDataWrapper(newID, file.getName(),
-				description, RepoFileUtils.getFileCount(file),
-				RepoFileUtils.getFileSize(file), dateCutter(new Date()));
-		MetaDataManager mdm = null;
-		try {
-			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
-					.getAbsolutePath());
-			mdm.add(_ret);
-
-			progressListener.start();
-			progressListener.progress(0, _ret.getSize());
-			if (move) {
-				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
-				progressListener.progress(
-						_ret.getSize(),
-						_ret.getSize());
-			} else {
-				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
-						joinedPath, progressListener, 0, _ret.getSize());
-			}
-			progressListener.finish();
-		} catch (IOException e) {
-			throw new IllegalArgumentException("File could not be moved/copied");
-		} finally {
-			if (mdm != null) {
-				mdm.close();
-			}
-		}
-		return _ret.getWrappedObject();
-	}
-
-	private Date dateCutter(Date d) {
-		return Json.iso8601ToDate(Json.dateToISO8601(d));
+		return this.add(file, null, description, move, progressListener);
 	}
 
 	/**
@@ -126,36 +85,36 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> export(Criteria exportCriteria, File target,
 			ProgressListener progressListener) {
-			List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(
-					exportCriteria, target, progressListener));
-			long totalNumberOfBytes = 0;
-			for (MetaDataWrapper md : wholeMetadata) {
-				totalNumberOfBytes+= md.getSize();
+		List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(exportCriteria,
+				target, progressListener));
+		long totalNumberOfBytes = 0;
+		for (MetaDataWrapper md : wholeMetadata) {
+			totalNumberOfBytes += md.getSize();
+		}
+
+		long copiedBytes = 0;
+		progressListener.start();
+		progressListener.progress(copiedBytes, totalNumberOfBytes);
+		for (MetaDataWrapper md : wholeMetadata) {
+			File source = new File(repositoryFolder.getAbsolutePath() + "/"
+					+ md.getId() + "/" + md.getName());
+			File fullTarget = new File(target.getAbsolutePath());
+
+			try {
+				RepoFileUtils.copyRecursively(
+						source.getAbsoluteFile().toPath(), fullTarget
+								.getAbsoluteFile().toPath(), progressListener,
+						copiedBytes, totalNumberOfBytes);
+			} catch (IOException e) {
+				progressListener.finish();
+				throw new IllegalArgumentException(
+						"Something happend while exporting a file");
 			}
+			copiedBytes += md.getSize();
+		}
+		progressListener.finish();
 
-			long copiedBytes = 0;
-			progressListener.start();
-			progressListener.progress(copiedBytes, totalNumberOfBytes);
-			for (MetaDataWrapper md : wholeMetadata) {
-				File source = new File(repositoryFolder.getAbsolutePath() + "/"
-						+ md.getId() + "/"
-						+ md.getName());
-				File fullTarget = new File(target.getAbsolutePath());
-
-				try {
-					RepoFileUtils.copyRecursively(source.getAbsoluteFile()
-							.toPath(), fullTarget.getAbsoluteFile().toPath(),
-							progressListener, copiedBytes, totalNumberOfBytes);
-				} catch (IOException e) {
-					progressListener.finish();
-					throw new IllegalArgumentException(
-							"Something happend while exporting a file");
-				}
-				copiedBytes += md.getSize();
-			}
-			progressListener.finish();
-
-			return unwrap(wholeMetadata);
+		return unwrap(wholeMetadata);
 	}
 
 	private List<MetaData> exportCheck(Criteria exportCriteria, File target,
@@ -166,11 +125,11 @@ class DataRepositoryImpl implements DataRepository {
 			throw new IllegalArgumentException("Please define a target.");
 		}
 		if (!target.exists()) {
-			throw new IllegalArgumentException(
-					"The target path does not exist");
+			throw new IllegalArgumentException("The target path does not exist");
 		}
-		if(target.isFile()){
-			throw new IllegalArgumentException("The given target points to a file, not a directory");
+		if (target.isFile()) {
+			throw new IllegalArgumentException(
+					"The given target points to a file, not a directory");
 		}
 		List<MetaDataWrapper> wholeMetadata = wrap(getMetaData(exportCriteria));
 		if (exportCriteria.getId() != null) {
@@ -206,24 +165,62 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public MetaData replace(String id, File file, String description,
 			boolean move, ProgressListener progressListener) {
-		//TODO Care about System crashes between delete and add
-		if(description==null || description ==""){
-			MetaDataManager mdm = MetaDataManager.getMetaDataManager(repositoryFolder.getAbsolutePath());
+		// TODO Care about System crashes between delete and add
+		if (description == null || description == "") {
+			MetaDataManager mdm = MetaDataManager
+					.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			description = mdm.getMeta(id).getDescription();
 			mdm.close();
 		}
 		this.delete(Criteria.forId(id));
-		return this.add(file, description, move, progressListener);
+		return this.add(file, id, description, move, progressListener);
 	}
 
-//	/**
-//	 * see DataRepositoryImpl.add(file, description, move, progressListener).
-//	 * The only difference here is that it takes as an additional parameter an id
-//	 */
-//	private MetaData add(File file, String id, String description,
-//			boolean move, ProgressListener progressListener) {
-//		
-//	}
+	/**
+	 * see DataRepositoryImpl.add(file, description, move, progressListener).
+	 * The only difference here is that it takes as an additional parameter an
+	 * id
+	 */
+	private MetaData add(File file, String id, String description,
+			boolean move, ProgressListener progressListener) {
+		
+		Verification.verifyExistence(file);
+		Verification.verifyNotRepoPath(file, repositoryFolder);
+		Verification.verifyNotWithinRepo(file, repositoryFolder);
+		Verification.verifyDescription(description);
+		Verification.verifyProgressListener(progressListener);
+		if(id==null || id==""){
+			id = MetaDataManager.generateRandomUUID();	
+		}
+		Path joinedPath = createNewDatasetFolder(id);
+		MetaDataWrapper _ret = new MetaDataWrapper(id, file.getName(),
+				description, RepoFileUtils.getFileCount(file),
+				RepoFileUtils.getFileSize(file), Json.iso8601ToDate(Json.dateToISO8601(new Date())));
+		MetaDataManager mdm = null;
+		try {
+			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
+					.getAbsolutePath());
+			mdm.add(_ret);
+
+			progressListener.start();
+			progressListener.progress(0, _ret.getSize());
+			if (move) {
+				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
+				progressListener.progress(_ret.getSize(), _ret.getSize());
+			} else {
+				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
+						joinedPath, progressListener, 0, _ret.getSize());
+			}
+			progressListener.finish();
+		} catch (IOException e) {
+			throw new IllegalArgumentException("File could not be moved/copied");
+		} finally {
+			if (mdm != null) {
+				mdm.close();
+			}
+		}
+		return _ret.getWrappedObject();
+	}
 
 	@Override
 	public List<MetaData> getMetaData(Criteria searchCriteria) {
