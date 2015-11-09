@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
-import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 /**
  * The {@link CommandInterpreter} receives a command with its options and
@@ -32,23 +32,27 @@ import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
  *
  */
 class CommandInterpreter {
-	
+
 	private DataRepositoryFactory factory;
 
 	/**
 	 * Creates a new {@link CommandInterpreter}. Currently nothing more happens.
-	 * @deprecated Since {@link #CommandInterpreter(DataRepositoryFactory)} was introduced
+	 * 
+	 * @deprecated Since {@link #CommandInterpreter(DataRepositoryFactory)} was
+	 *             introduced
 	 */
 	@Deprecated
 	public CommandInterpreter() {
 
 	}
-	
+
 	/**
 	 * Constructs a new CommandInterpreter which uses the given factory.
-	 * @param factory The factory the command interpreter should use.
+	 * 
+	 * @param factory
+	 *            The factory the command interpreter should use.
 	 */
-	public CommandInterpreter(DataRepositoryFactory factory){
+	public CommandInterpreter(DataRepositoryFactory factory) {
 		this.factory = factory;
 	}
 
@@ -126,6 +130,73 @@ class CommandInterpreter {
 		}
 		return crit;
 
+	}
+
+	private CriteriaWrapper parseCriteria(LinkedList<String> args) {
+
+		return null;
+	}
+
+	/**
+	 * Parses a given arguments list into {@link Option} value pairs. <br />
+	 * It is assumed that the given list was created by a {@link CommandParser}.
+	 * 
+	 * @param args
+	 *            The list of arguments, created by a {@link CommandParser}.
+	 * @return A Map containing the option and its value.
+	 * @throws IllegalArgumentException
+	 *             If the given arguments list is ill formatted.
+	 */
+	private Map<Option, String> parseOptionValues(LinkedList<String> args)
+			throws IllegalArgumentException {
+		HashMap<Option, String> out = new HashMap<Option, String>();
+		Iterator<String> it = args.iterator();
+		while (it.hasNext()) {
+			String curr = it.next();
+			if (curr.contains(CommandParser.OPTION_SEPARATOR)) {
+				Option op = Option.parse(curr.substring(0,
+						curr.indexOf(CommandParser.OPTION_SEPARATOR)));
+				String value = curr.substring(
+						curr.indexOf(CommandParser.OPTION_SEPARATOR + 1));
+				if (out.containsKey(op)) {
+					out.put(op, value);
+				} else {
+					throw new IllegalArgumentException(String.format(
+							"Error while parsing entry: %s. It *may* be a duplicate.",
+							curr));
+				}
+			} else {
+				throw new IllegalArgumentException(String
+						.format("Entry >%s< is not a parsable option.", curr));
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * Parses a given String to an appropriate date. <br />
+	 * Based on the length of the string, either
+	 * <code>yyyy-MM-dd HH:mm:ss</code> or <code>yyyy-MM-dd</code> is used as
+	 * {@link DateFormat} to parse the string. Therefore a
+	 * {@link ParseException} is thrown, if the chosen {@link DateFormat} cannot
+	 * parse the given string.
+	 * 
+	 * @param str
+	 *            The string to parse.
+	 * @return The parsed Date.
+	 * @throws ParseException
+	 *             If the string is not parseable with the chosen
+	 *             {@link DateFormat}.
+	 * @see DateFormat#parse(String)
+	 */
+	private Date parseDate(String str) throws ParseException {
+		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		final DateFormat fuzzy = new SimpleDateFormat("yyyy-MM-dd");
+		if (str.length() > 10) {
+			return precise.parse(str);
+		} else {
+			return fuzzy.parse(str);
+		}
 	}
 
 	/**
@@ -264,24 +335,25 @@ class CommandInterpreter {
 		}
 		return out;
 	}
+
 	/*
-	 * WHAT IS THIS FOR CODE?
-		if(helper.isEmpty() && !ID || helper.size()>1 && helper.containsKey(Option.ID.name())){
-			throw new IllegalArgumentException("Inappropriate number of arguments");
-		}else{
-			if(helper.containsKey(Option.ID.name())){
-				crit=Criteria.forId(helper.get(Option.ID.name()));
-			}else{
-
-				DateFormat dateFormat1 = new SimpleDateFormat(
-						"yyyy-MM-dd HH:mm:ss");
-				DateFormat dateFormat2 = new SimpleDateFormat(
-						"yyyy-MM-dd");
-
-				Date before=helper.containsKey(Option.BEFORE.name())?helper.get(Option.BEFORE.name()).length()>10?dateFormat1.parse(helper.get(Option.BEFORE.name())):dateFormat2.parse(helper.get(Option.BEFORE.name())):null;
-				Date after=helper.containsKey(Option.AFTER.name())?helper.get(Option.AFTER.name()).length()>10?dateFormat1.parse(helper.get(Option.AFTER.name())):dateFormat2.parse(helper.get(Option.AFTER.name())):null;
-			}
-			*/
+	 * WHAT IS THIS FOR CODE? if(helper.isEmpty() && !ID || helper.size()>1 &&
+	 * helper.containsKey(Option.ID.name())){ throw new
+	 * IllegalArgumentException("Inappropriate number of arguments"); }else{
+	 * if(helper.containsKey(Option.ID.name())){
+	 * crit=Criteria.forId(helper.get(Option.ID.name())); }else{
+	 * 
+	 * DateFormat dateFormat1 = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+	 * DateFormat dateFormat2 = new SimpleDateFormat( "yyyy-MM-dd");
+	 * 
+	 * Date
+	 * before=helper.containsKey(Option.BEFORE.name())?helper.get(Option.BEFORE.
+	 * name()).length()>10?dateFormat1.parse(helper.get(Option.BEFORE.name())):
+	 * dateFormat2.parse(helper.get(Option.BEFORE.name())):null; Date
+	 * after=helper.containsKey(Option.AFTER.name())?helper.get(Option.AFTER.
+	 * name()).length()>10?dateFormat1.parse(helper.get(Option.AFTER.name())):
+	 * dateFormat2.parse(helper.get(Option.AFTER.name())):null; }
+	 */
 	/**
 	 * Executes the List command of the data repository application.The paramter
 	 * <code>arguments</code> are the arguments without the command itself
@@ -336,6 +408,21 @@ class CommandInterpreter {
 				+ ret.getName() + ". ID: " + ret.getId();
 	}
 
+	private String handleUnknownCommand(final String cmd)
+			throws IllegalArgumentException {
+		String type = "null";
+		if (cmd != null) {
+			Command c = Command.parse(cmd);
+			if (c.equals(Command.FORTYTWO)) {
+				return "This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)";
+			}
+			type = cmd;
+		}
+		throw new IllegalArgumentException(String.format(
+				"Unknown command <%s>: Check your spelling or use command <help> to get more information.",
+				type));
+	}
+
 	/**
 	 * Interprets the given command line arguments. It is <i>highly</i>
 	 * recommended to pass <i>directly</i> the command line arguments array to
@@ -349,15 +436,11 @@ class CommandInterpreter {
 	public String interpret(final String[] args)
 			throws ParseException, IOException, IllegalArgumentException {
 		final LinkedList<String> command = CommandParser.lex(args);
-		if (command.size() < 1) {
-			// Since commands >data-repository and >data-repository help lead to
-			// the same, general help
-			// this is a shortcut for that case.
-			return executeHelp(null);
+		final String cmdName = command.poll();// to print accurate error message
+		final Command cmd = Command.parse(cmdName);
+		if (cmd == null) {
+			return handleUnknownCommand(cmdName);
 		}
-		final Command cmd = Command.parse(command.poll());// no null check since
-		// check
-		// already done in lex
 		switch (cmd) {
 			case ADD:
 				// Note how the list command already has been removed from the
@@ -375,8 +458,7 @@ class CommandInterpreter {
 			case REPLACE:
 				return executeReplace(command);
 			default:
-				throw new UnsupportedOperationException(
-						"Command " + cmd + " Not implemented yet");
+				return handleUnknownCommand(cmdName);
 		}
 	}
 
