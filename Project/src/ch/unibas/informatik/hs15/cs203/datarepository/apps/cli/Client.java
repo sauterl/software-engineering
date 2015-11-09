@@ -36,6 +36,8 @@ public class Client {
 		String out = null;
 		try {
 			out = interpreter.interpret(args);
+		} catch(RuntimeException ex){
+			throw ex;
 		} catch (Throwable e) {
 			t = e;
 		}

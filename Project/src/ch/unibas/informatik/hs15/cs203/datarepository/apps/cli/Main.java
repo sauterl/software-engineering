@@ -43,9 +43,17 @@ public class Main {
 	 */
 	public static void main(final String[] args) {
 		int out = 1;
-		String print = Client.execute(args, FACTORY);
+		Throwable t = null;
+		String print = null;
+		try{
+			print = Client.execute(args, FACTORY);
+		}catch(Throwable th){
+			t = th;
+		}
 		if(Client.hasError() ){
-			Throwable t = Client.getError();
+			t = Client.getError();
+		}
+		if(t != null){
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage()
 					: "Unkown error of type: " + t.getClass().getSimpleName());

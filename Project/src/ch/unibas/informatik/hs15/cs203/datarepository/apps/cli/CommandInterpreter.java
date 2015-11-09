@@ -195,6 +195,7 @@ class CommandInterpreter {
 	 */
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
+		// TODO upgrade
 		final LinkedList<String> Options = new LinkedList<String>(
 				Arrays.asList(Option.ID.name(), Option.NAME.name(),
 						Option.TEXT.name(), Option.BEFORE.name(),
@@ -252,6 +253,7 @@ class CommandInterpreter {
 	 */
 	private String executeList(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
+		// TODO upgrade
 		final String repoLoc = arguments.peekLast();
 		final DataRepository repo = factory.create(new File(repoLoc));
 		final LinkedList<String> Options = new LinkedList<String>(Arrays.asList(
@@ -278,6 +280,7 @@ class CommandInterpreter {
 	 */
 	private String executeReplace(final LinkedList<String> arguments)
 			throws IOException {
+		// TODO upgrade
 		final String file = arguments.removeLast();
 		final String iD = arguments.removeLast();
 		final String repoLoc = arguments.removeLast();
@@ -356,14 +359,6 @@ class CommandInterpreter {
 		}
 	}
 
-	/**
-	 * Unused till gets linked into actual code - loris.sauter
-	 *
-	 * @param args
-	 * @param onlyID
-	 *            If only ID argument is available for this command
-	 * @return
-	 */
 	private CriteriaWrapper parseCriteria(final Command cmd,
 			final LinkedList<String> args) {
 		final LinkedList<String> command = new LinkedList<String>(args);
