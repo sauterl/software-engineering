@@ -364,6 +364,7 @@ class CommandInterpreter {
 		final LinkedList<String> command = new LinkedList<String>(args);
 		command.addFirst(cmd.name());
 		final ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(command);
+		analyzer.analyze();
 		final Map<Option, String> optVals = parseOptionValues(command);
 		// check if only ID
 		if (cmd.isIDArgumentAllowed()) {
