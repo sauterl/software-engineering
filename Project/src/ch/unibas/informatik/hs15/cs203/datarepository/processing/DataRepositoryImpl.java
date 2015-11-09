@@ -228,22 +228,23 @@ class DataRepositoryImpl implements DataRepository {
 			throw new IllegalArgumentException(
 					"Search Criteria must not be null");
 		}
+		CriteriaWrapper wrapperCrit = new CriteriaWrapper(searchCriteria);
 		List<MetaDataWrapper> _res = new ArrayList<MetaDataWrapper>();
 		MetaDataManager mdm = null;
 		try {
 			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
 					.getAbsolutePath());
-			if (searchCriteria.empty()) {
+			if (searchCriteria.equals(Criteria.all())) {
 				_res = mdm.getAllMetaData();
 				Collections.sort(_res, new MetaDataComparator());
 				return unwrap(_res);
 			}
-			if (searchCriteria.getId() != null && !searchCriteria.onlyID()) {
+			if (wrapperCrit.getId() != null && !wrapperCrit.onlyID()) {
 				throw new IllegalArgumentException(
 						"If you specify an ID, no other criteria can be specified");
 			}
-			if (searchCriteria.onlyID()) {
-				MetaDataWrapper idMatch = mdm.getMeta(searchCriteria.getId());
+			if (wrapperCrit.onlyID()) {
+				MetaDataWrapper idMatch = mdm.getMeta(wrapperCrit.getId());
 				if (idMatch != null) {
 					_res.add(idMatch);
 				}

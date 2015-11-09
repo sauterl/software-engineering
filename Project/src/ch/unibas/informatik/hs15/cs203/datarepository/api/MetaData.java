@@ -127,13 +127,5 @@ public final class MetaData
   {
     return timestamp;
   }
-  
-  /**
-   * Output of all Attributes
-   */
-  @Override
-  public String toString(){
-	  return id+", "+name+", "+description+", "+numberOfFiles+", "+size+", "+timestamp.toString();
-  }
 
 }
