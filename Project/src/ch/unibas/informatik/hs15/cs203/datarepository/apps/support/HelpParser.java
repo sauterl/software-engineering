@@ -62,7 +62,7 @@ class HelpParser {
 				} else {
 					final String key = keys.iterator().next();
 					final String value = j.getString(key);
-					out.add(key + " " + value);
+					out.add("\t"+key + ": " + value);
 				}
 
 			} else {

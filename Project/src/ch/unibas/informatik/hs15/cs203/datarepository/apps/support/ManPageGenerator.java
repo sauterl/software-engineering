@@ -150,13 +150,16 @@ public class ManPageGenerator {
 
 	public String getManPage() throws IOException {
 		LOG.debug("Request manpage for: "+(command == null ? "null" : command));
+		String out;
 		if (command == null) {
-			return createDefaultHelpPage();
+			out = createDefaultHelpPage();
 		} else if (command.equalsIgnoreCase("help")) {
-			return createHelpPage();
+			out = createHelpPage();
 		} else {
-			return buildManPage();
+			out = buildManPage();
 		}
+//		return Utilities.wrapLine(out, 70);
+		return Utilities.wrapLinesSensitive(out, 70, null);
 	}
 
 	protected void init() {
