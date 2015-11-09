@@ -46,7 +46,9 @@ enum Command {
 	 * The HELP command
 	 * Mandatory argument count: 0
 	 */
-	HELP(0);
+	HELP(0),
+	
+	FORTYTWO();
 
 	/**
 	 * Parses a given {@link String} to a matching {@link Command}. Unequal
@@ -67,6 +69,14 @@ enum Command {
 			if (str.equalsIgnoreCase(c.name())) {
 				return c;
 			}
+		}
+		try{
+			int t = Integer.parseInt(str);
+			if(t == 42){
+				return FORTYTWO;
+			}
+		}catch(NumberFormatException ex){
+			
 		}
 		return null;
 	}
