@@ -54,7 +54,8 @@ public final class CollectionUtils {
 	 *            the first given collection.
 	 * @return The intersection of the given collections as a result in the
 	 *         first collection.
-	 * @throws NullPointerException If the one of the given collections is null.
+	 * @throws NullPointerException
+	 *             If the one of the given collections is null.
 	 * @see Collection#retainAll(Collection)
 	 */
 	public static final Collection<?> intersectAll(
@@ -71,15 +72,16 @@ public final class CollectionUtils {
 		}
 		// assert collections[0] != null;
 		for (int i = 1; i < collections.length; i++) {
-			if(collections[i] != null){
+			if (collections[i] != null) {
 				collections[0].retainAll(collections[i]);
-			}else{
-				throw new NullPointerException("Cannot intersect collection null with others.");
+			} else {
+				throw new NullPointerException(
+						"Cannot intersect collection null with others.");
 			}
 		}
 		return collections[0];
 	}
-	
+
 	/**
 	 * No constructor available since no objects are needed.
 	 */

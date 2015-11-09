@@ -78,8 +78,9 @@ class RepoFileUtils {
 	static void copy(Path source, Path target,
 			ProgressListener progressListener, long alreadyProcessed,
 			long totalSize) {
-		if(target.toFile().exists()){
-			throw new IllegalArgumentException("The file you want to copy to already exists");
+		if (target.toFile().exists()) {
+			throw new IllegalArgumentException(
+					"The file you want to copy to already exists");
 		}
 		if (source.toFile().isDirectory()) {
 			target.toFile().mkdirs();
@@ -167,7 +168,7 @@ class RepoFileUtils {
 	}
 
 	public static void deleteRecursively(Path source) {
-		System.out.println("deleting |"+source.toString());
+		System.out.println("deleting |" + source.toString());
 		if (!source.toFile().exists()) {
 			throw new IllegalArgumentException(
 					"The given file to delete does not exist");

@@ -35,8 +35,6 @@ import java.util.Date;
  * </ul>
  * 
  * @author Franz-Josef Elmer
- * 
- * @version 2 - modified by loris.sauter: added eclipse generated hash and equals
  */
 public final class Criteria
 {
@@ -116,17 +114,6 @@ public final class Criteria
     this.before = before;
     this.after = after;
   }
-  
-  /**
-   * Returns true if the criteria only has an ID and no other criteria
-   */
-  public boolean onlyID(){
-	  if(this.getId()!=null && (this.getAfter() == null && this.getBefore() == null
-				&& this.getName() == null && this.getText() == null)){
-		  return true;
-	  }
-	  return false;
-  }
 
   /**
    * Returns the id or <code>null</code> if not specified.
@@ -167,75 +154,4 @@ public final class Criteria
   {
     return after;
   }
-
-/**
- * Returns a hash value for this object.
- * The hash value method is eclipse generated.
- * @return A hash value for this object.
- * @see java.lang.Object#hashCode()
- */
-@Override
-public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((after == null) ? 0 : after.hashCode());
-	result = prime * result + ((before == null) ? 0 : before.hashCode());
-	result = prime * result + ((id == null) ? 0 : id.hashCode());
-	result = prime * result + ((name == null) ? 0 : name.hashCode());
-	result = prime * result + ((text == null) ? 0 : text.hashCode());
-	return result;
-}
-
-/**
- * Compares this object and another one on equality.
- * Eclipse generated.
- * @see java.lang.Object#equals(java.lang.Object)
- */
-@Override
-public boolean equals(Object obj) {
-	if (this == obj)
-		return true;
-	if (obj == null)
-		return false;
-	if (!(obj instanceof Criteria))
-		return false;
-	Criteria other = (Criteria) obj;
-	if (after == null) {
-		if (other.after != null)
-			return false;
-	} else if (!after.equals(other.after))
-		return false;
-	if (before == null) {
-		if (other.before != null)
-			return false;
-	} else if (!before.equals(other.before))
-		return false;
-	if (id == null) {
-		if (other.id != null)
-			return false;
-	} else if (!id.equals(other.id))
-		return false;
-	if (name == null) {
-		if (other.name != null)
-			return false;
-	} else if (!name.equals(other.name))
-		return false;
-	if (text == null) {
-		if (other.text != null)
-			return false;
-	} else if (!text.equals(other.text))
-		return false;
-	return true;
-}
-
-/**
- * Returns true if all criteria is null
- */
-public boolean empty() {
-	  if(this.getId()==null && (this.getAfter() == null && this.getBefore() == null
-				&& this.getName() == null && this.getText() == null)){
-		  return true;
-	  }
-	  return false;
-}
 }
