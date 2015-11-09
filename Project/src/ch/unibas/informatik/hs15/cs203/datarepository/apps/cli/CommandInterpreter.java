@@ -132,9 +132,41 @@ class CommandInterpreter {
 
 	}
 
-	private CriteriaWrapper parseCriteria(LinkedList<String> args) {
-
-		return null;
+	/**
+	 * 
+	 * @param args
+	 * @param onlyID
+	 *            If only ID argument is available for this command
+	 * @return
+	 */
+	private CriteriaWrapper parseCriteria(Command cmd,
+			LinkedList<String> args) {
+		LinkedList<String> command = new LinkedList<String>(args);
+		command.addFirst(cmd.name());
+		ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(command);
+		Map<Option, String> optVals = parseOptionValues(command);
+		// check if only ID
+		if (cmd.isIDArgumentAllowed()) {
+			// id argument is possible
+			boolean hasIDOption = optVals.containsKey(Option.ID);
+			boolean hasIDArgument = analyzer.getNbArguments() > analyzer
+					.getNbMandatoryArgs();
+			if (hasIDOption != hasIDArgument) {
+				String id = null;
+				if (hasIDOption) {
+					id = optVals.get(Option.ID);
+				} else {
+					id = args.get(1);// always second argument
+				}
+				return CriteriaWrapper.forId(id);
+			} else {
+				throw new IllegalArgumentException(
+						"Do only specify *either* --id, or give data set identifier argument. But not both nor neither!");
+			}
+		} else {
+			return new CriteriaWrapper(optVals.get(Option.NAME),
+					optVals.get(Option.TEXT), parseDate(optVals.get(Option.AFTER)), parseDate(optVals.get(Option.BEFORE)));
+		}
 	}
 
 	/**
@@ -143,12 +175,15 @@ class CommandInterpreter {
 	 * 
 	 * @param args
 	 *            The list of arguments, created by a {@link CommandParser}.
+	 * @param strict
+	 *            Set this to <tt>true</tt> to have an exception thrown, if any
+	 *            entry in the list is not an option-value-pair.
 	 * @return A Map containing the option and its value.
 	 * @throws IllegalArgumentException
 	 *             If the given arguments list is ill formatted.
 	 */
-	private Map<Option, String> parseOptionValues(LinkedList<String> args)
-			throws IllegalArgumentException {
+	private Map<Option, String> parseOptionValues(LinkedList<String> args,
+			boolean strict) throws IllegalArgumentException {
 		HashMap<Option, String> out = new HashMap<Option, String>();
 		Iterator<String> it = args.iterator();
 		while (it.hasNext()) {
@@ -166,36 +201,43 @@ class CommandInterpreter {
 							curr));
 				}
 			} else {
-				throw new IllegalArgumentException(String
-						.format("Entry >%s< is not a parsable option.", curr));
+				if (strict) {
+					throw new IllegalArgumentException(String.format(
+							"Entry >%s< is not a parsable option.", curr));
+				}
 			}
 		}
 		return out;
+	}
+
+	private Map<Option, String> parseOptionValues(LinkedList<String> args) {
+		return parseOptionValues(args, false);
 	}
 
 	/**
 	 * Parses a given String to an appropriate date. <br />
 	 * Based on the length of the string, either
 	 * <code>yyyy-MM-dd HH:mm:ss</code> or <code>yyyy-MM-dd</code> is used as
-	 * {@link DateFormat} to parse the string. Therefore a
-	 * {@link ParseException} is thrown, if the chosen {@link DateFormat} cannot
-	 * parse the given string.
+	 * {@link DateFormat} to parse the string. Therefore <tt>null</tt> is
+	 * returned, if the chosen {@link DateFormat} cannot parse the given string.
 	 * 
 	 * @param str
 	 *            The string to parse.
-	 * @return The parsed Date.
-	 * @throws ParseException
-	 *             If the string is not parseable with the chosen
-	 *             {@link DateFormat}.
+	 * @return The parsed Date OR <tt>null</tt> if the given string was not
+	 *         parseable.
 	 * @see DateFormat#parse(String)
 	 */
-	private Date parseDate(String str) throws ParseException {
+	private Date parseDate(String str) {
 		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		final DateFormat fuzzy = new SimpleDateFormat("yyyy-MM-dd");
-		if (str.length() > 10) {
-			return precise.parse(str);
-		} else {
-			return fuzzy.parse(str);
+		try {
+			if (str.length() > 10) {
+				return precise.parse(str);
+			} else {
+				return fuzzy.parse(str);
+			}
+		} catch (ParseException e) {
+			return null;
 		}
 	}
 

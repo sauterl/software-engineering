@@ -10,7 +10,6 @@ public class ArgumentsAnalyzer {
 	
 	private int nbOptions = -1;
 	private int nbArguments = -1;
-	private int nbMandatoryArgs = -1;
 	
 	public ArgumentsAnalyzer(){
 		origin = null;
@@ -51,18 +50,22 @@ public class ArgumentsAnalyzer {
 	}
 	
 	public Command getCommand() {
+		validateReady();
 		return command;
 	}
 
 	public int getNbOptions() {
+		validateReady();
 		return nbOptions;
 	}
 
 	public int getNbArguments() {
+		validateReady();
 		return nbArguments;
 	}
 
 	public int getNbMandatoryArgs() {
+		validateReady();
 		return command.getMandatoryArgsCount();
 	}
 
@@ -70,7 +73,7 @@ public class ArgumentsAnalyzer {
 		return origin != null;
 	}
 	
-	public void validateReady(){
+	private void validateReady(){
 		if(!isReady() ){
 			throw new IllegalStateException("Nothing to analyze");
 		}

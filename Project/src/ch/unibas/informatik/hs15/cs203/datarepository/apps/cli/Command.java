@@ -26,14 +26,14 @@ enum Command {
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
 	 *  Mandatory argument count: 1
 	 */
-	DELETE(1,Option.ID,Option.TEXT,Option.BEFORE,Option.AFTER,Option.NAME),
+	DELETE(1,true,Option.ID,Option.TEXT,Option.BEFORE,Option.AFTER,Option.NAME),
 	/**
 	 * The EXPORT command. Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
 	 * {@link Option#NAME} and {@link Option#VERBOSE} Mandatory argument count: 2
 	 */
-	EXPORT(2, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
+	EXPORT(2,true, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
 	/**
 	 * The LIST command. Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
@@ -84,19 +84,34 @@ enum Command {
 	private final Option[] appropriateOptions;
 
 	private final int mandatoryArgsCount;
+	
+	private final boolean allowsOnlyIDArg;
 
 	private Command() {
-		this(Integer.MIN_VALUE, null);
+		this(Integer.MIN_VALUE, false, null);
+	}
+	
+	private Command(final int mandatoryArgsCount){
+		this(mandatoryArgsCount, false, null);
 	}
 
-	private Command(final int mandatoryArgsCount,
+	private Command(final int mandatoryArgsCount, final boolean allowsIDArg,
 			final Option... appropriateOptions) {
 		this.appropriateOptions = appropriateOptions;
 		this.mandatoryArgsCount = mandatoryArgsCount;
+		this.allowsOnlyIDArg = allowsIDArg;
 	}
 
 	private Command(final Option... appropriateOptions) {
-		this(Integer.MIN_VALUE, appropriateOptions);
+		this(Integer.MIN_VALUE,false, appropriateOptions);
+	}
+	
+	private Command(final int mandatoryArgsCount, final Option...appropriateOptions){
+		this(mandatoryArgsCount, false,appropriateOptions);
+	}
+	
+	public boolean isIDArgumentAllowed(){
+		return allowsOnlyIDArg;
 	}
 
 	/**
