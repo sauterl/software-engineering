@@ -1,7 +1,7 @@
 README
 ==========
 
-This repository is used to manage the development of a project at universtiy of basel, fall 2015.
+This repository is used to manage the development of a project at the university of Basel, fall 2015.
 
 Project
 ---------
@@ -26,4 +26,3 @@ Contents
 -----------
 
 The source code is located in the ``./Project/src/`folder, any other subfolder of `./Project/` contains other, code development related files.
-Other, mostly some documents, files are located elsewhere.
