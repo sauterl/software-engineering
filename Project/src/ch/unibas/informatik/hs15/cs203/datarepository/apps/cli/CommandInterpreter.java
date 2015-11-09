@@ -104,25 +104,8 @@ class CommandInterpreter {
 				crit = CriteriaWrapper.forId(helper.get(Option.ID.name()));
 			} else {
 
-				final DateFormat dateFormat1 = new SimpleDateFormat(
-						"yyyy-MM-dd HH:mm:ss");
-				final DateFormat dateFormat2 = new SimpleDateFormat(
-						"yyyy-MM-dd");
-
-				final Date before = helper.containsKey(Option.BEFORE.name())
-						? helper.get(Option.BEFORE.name()).length() > 10
-								? dateFormat1
-										.parse(helper.get(Option.BEFORE.name()))
-								: dateFormat2
-										.parse(helper.get(Option.BEFORE.name()))
-						: null;
-				final Date after = helper.containsKey(Option.AFTER.name())
-						? helper.get(Option.AFTER.name()).length() > 10
-								? dateFormat1
-										.parse(helper.get(Option.AFTER.name()))
-								: dateFormat2
-										.parse(helper.get(Option.AFTER.name()))
-						: null;
+				Date before = parseDate(helper.get(Option.BEFORE.name()));
+				Date after = parseDate(helper.get(Option.AFTER.name() ));
 
 				crit = new CriteriaWrapper(helper.get(Option.NAME.name()),
 						helper.get(Option.TEXT.name()), before, after);
@@ -133,12 +116,13 @@ class CommandInterpreter {
 	}
 
 	/**
-	 * 
+	 * Unused till gets linked into actual code - loris.sauter
 	 * @param args
 	 * @param onlyID
 	 *            If only ID argument is available for this command
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private CriteriaWrapper parseCriteria(Command cmd,
 			LinkedList<String> args) {
 		LinkedList<String> command = new LinkedList<String>(args);
