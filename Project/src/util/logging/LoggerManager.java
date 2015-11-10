@@ -158,6 +158,13 @@ public class LoggerManager {
 			log.resetHandlers();
 		}
 	}
+	
+	/**
+	 * Disables logging. <b>CANNOT BE UNDONE</b>
+	 */
+	public void disableLogging(){
+		configManager.disableLogging();
+	}
 
 	Logger registerLogger(final Logger logger) {
 		if (logger == null) {

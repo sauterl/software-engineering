@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,6 +58,47 @@ class CommandInterpreter {
 		this.factory = factory;
 	}
 
+	/**
+	 * Interprets the given command line arguments. It is <i>highly</i>
+	 * recommended to pass <i>directly</i> the command line arguments array to
+	 * this method.
+	 *
+	 * @param args
+	 *            The command line arguments.
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public String interpret(final String[] args)
+			throws ParseException, IOException, IllegalArgumentException {
+		final LinkedList<String> command = CommandParser.lex(args);
+		final String cmdName = command.poll();// to print accurate error message
+		// command is in particular ARGUMENTS now!
+		final Command cmd = Command.parse(cmdName);
+		if (cmd == null) {
+			return handleUnknownCommand(cmdName);
+		}
+		analyzer = new ArgumentsAnalyzer(cmd, command);
+		analyzer.analyze();
+		validateMandatoryArguments();
+		optVals = parseOptionValues(command);
+		switch (cmd) {
+			case ADD:
+				return executeAdd(command);
+			case EXPORT:
+				return executeExport(command);
+			case LIST:
+				return executeList(command);
+			case DELETE:
+				return executeDelete(command);
+			case HELP:
+				return executeHelp(command);
+			case REPLACE:
+				return executeReplace(command);
+			default:
+				return handleUnknownCommand(cmdName);
+		}
+	}
+
 	private String createMsgWithIDs(final String msg,
 			final List<MetaData> metas) {
 		String retStr = new String(msg);
@@ -71,6 +111,23 @@ class CommandInterpreter {
 			}
 		}
 		return retStr;
+	}
+
+	private String createTabbedInfoLine(final MetaData meta) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(meta.getId());
+		sb.append("\t");
+		sb.append(meta.getName());
+		sb.append("\t");
+		sb.append(parseDate(meta.getTimestamp()));
+		sb.append("\t");
+		sb.append(meta.getNumberOfFiles());
+		sb.append("\t");
+		sb.append(meta.getSize());
+		sb.append("\t");
+		sb.append(meta.getDescription() == null ? "" : meta.getDescription());
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	/**
@@ -252,30 +309,15 @@ class CommandInterpreter {
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.getLast();
 		final CriteriaWrapper crit = parseCriteria(Command.LIST, arguments);
-		final List<MetaData> list = factory.create(new File(repoLoc)).getMetaData(crit.getWrappedObject() );
-		
-		StringBuilder out = new StringBuilder("ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n");
+		final List<MetaData> list = factory.create(new File(repoLoc))
+				.getMetaData(crit.getWrappedObject());
+
+		final StringBuilder out = new StringBuilder(
+				"ID\tName\tTimestamp\tNumber of Files\tSize\tDescription\n");
 		for (final MetaData m : list) {
 			out.append(createTabbedInfoLine(m));
 		}
 		return out.toString();
-	}
-	
-	private String createTabbedInfoLine(MetaData meta){
-		StringBuilder sb = new StringBuilder();
-		sb.append(meta.getId() );
-		sb.append("\t");
-		sb.append(meta.getName() );
-		sb.append("\t");
-		sb.append(parseDate(meta.getTimestamp()));
-		sb.append("\t");
-		sb.append(meta.getNumberOfFiles() );
-		sb.append("\t");
-		sb.append(meta.getSize() );
-		sb.append("\t");
-		sb.append(meta.getDescription() == null ? "" : meta.getDescription() );
-		sb.append("\n");
-		return sb.toString();
 	}
 
 	/**
@@ -289,15 +331,16 @@ class CommandInterpreter {
 			throws IOException {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		ProgressListener listener = new DummyProgressListener();
-		if(arguments.contains(Option.VERBOSE.name()) ){
+		if (arguments.contains(Option.VERBOSE.name())) {
 			listener = new SimpleProgressListener();
 		}
-		final boolean move = arguments.contains(Option.MOVE.name() );
-		final String ID = arguments.get(analyzer.getNbOptions()+1);
+		final boolean move = arguments.contains(Option.MOVE.name());
+		final String ID = arguments.get(analyzer.getNbOptions() + 1);
 		final String fileLoc = arguments.getLast();
 		final String desc = optVals.get(Option.DESCRIPTION);
-		final MetaData replaced = factory.create(new File(repoLoc)).replace(ID, new File(fileLoc), desc, move, listener);
-		return "Successfully replaced data set with id: "+replaced.getId();
+		final MetaData replaced = factory.create(new File(repoLoc)).replace(ID,
+				new File(fileLoc), desc, move, listener);
+		return "Successfully replaced data set with id: " + replaced.getId();
 	}
 
 	private String handleMissingMandatoryArguments(final String msg) {
@@ -317,47 +360,6 @@ class CommandInterpreter {
 		throw new IllegalArgumentException(String.format(
 				"Unknown command <%s>: Check your spelling or use command <help> to get more information.",
 				type));
-	}
-
-	/**
-	 * Interprets the given command line arguments. It is <i>highly</i>
-	 * recommended to pass <i>directly</i> the command line arguments array to
-	 * this method.
-	 *
-	 * @param args
-	 *            The command line arguments.
-	 * @throws ParseException
-	 * @throws IOException
-	 */
-	public String interpret(final String[] args)
-			throws ParseException, IOException, IllegalArgumentException {
-		final LinkedList<String> command = CommandParser.lex(args);
-		final String cmdName = command.poll();// to print accurate error message
-		// command is in particular ARGUMENTS now!
-		final Command cmd = Command.parse(cmdName);
-		if (cmd == null) {
-			return handleUnknownCommand(cmdName);
-		}
-		analyzer = new ArgumentsAnalyzer(cmd, command);
-		analyzer.analyze();
-		validateMandatoryArguments();
-		optVals = parseOptionValues(command);
-		switch (cmd) {
-			case ADD:
-				return executeAdd(command);
-			case EXPORT:
-				return executeExport(command);
-			case LIST:
-				return executeList(command);
-			case DELETE:
-				return executeDelete(command);
-			case HELP:
-				return executeHelp(command);
-			case REPLACE:
-				return executeReplace(command);
-			default:
-				return handleUnknownCommand(cmdName);
-		}
 	}
 
 	private CriteriaWrapper parseCriteria(final Command cmd,
