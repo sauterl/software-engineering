@@ -42,21 +42,49 @@ public class Utilities {
 	}
 	
 	public static String wrapLinesSensitive(String text, int length, Locale locale){
-		throw new UnsupportedOperationException("Not implemented yet");
-		/*String wrapped = wrapLine(text, length, locale);
-		StringBuilder out = new StringBuilder();
-		ArrayList<String> lines = new ArrayList<String>(Arrays.asList(wrapped.split("\n")));
-		for(int i=1; i<lines.size(); i++){
-			int c = countPrecedingTabs(lines.get(i-1));
-			if(c>0){
-				StringBuilder tmp = new StringBuilder(lines.get(i));
-				for(int j=0; j<c; j++){
-					tmp.insert(0, "\t");
-				}
-				lines.set(i, tmp.toString());
-			}
+		StringBuilder sb = new StringBuilder();
+		BreakIterator breaker = null;
+		int tabCount = 0;
+		int oldTab = tabCount;
+		if(locale == null){
+			breaker = BreakIterator.getLineInstance();
+		}else{
+			BreakIterator.getLineInstance(locale);
 		}
-		return out.toString();*/
+		breaker.setText(text);
+		int previous = breaker.first();
+		int next = breaker.next();
+		int len = 0;
+		while(next != BreakIterator.DONE){
+			String curr = text.substring(previous, next);
+			if(curr.equals("\t")){
+				tabCount++;
+				oldTab = tabCount;
+			}
+			len += curr.length();
+			if(len >= length){
+				sb.append("\n");
+				StringBuilder tmp = new StringBuilder(curr);
+				tabCount=0;
+				for(int i=0; i<oldTab; i++){
+					tmp.insert(0, "\t");
+					if(i==oldTab-1){
+						tmp.insert(oldTab, " ");
+					}
+					
+				}
+				curr = tmp.toString();
+				len = curr.length();
+			}else if(curr.endsWith("\n")){
+				len = curr.length();
+				tabCount = 0;
+				oldTab = 0;
+			}
+			sb.append(curr);
+			previous = next;
+			next = breaker.next();
+		}
+		return sb.toString();
 	}
 	
 	public static int countPrecedingTabs(StringBuilder sb){

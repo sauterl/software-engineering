@@ -149,6 +149,13 @@ public class ManPageGenerator {
 	}
 
 	public String getManPage() throws IOException {
+		return getManPage(false);
+	}
+	
+	/**
+	 * currently no experimental code!
+	 */
+	public String getManPage(boolean experimental) throws IOException{
 		LOG.debug("Request manpage for: "+(command == null ? "null" : command));
 		String out;
 		if (command == null) {
@@ -158,8 +165,12 @@ public class ManPageGenerator {
 		} else {
 			out = buildManPage();
 		}
-		return Utilities.wrapLine(out, 70);
-//		return Utilities.wrapLinesSensitive(out, 70, null);
+		experimental = true;
+		if(experimental ){
+			return Utilities.wrapLinesSensitive(out, 80, null);
+		}else{
+			return Utilities.wrapLine(out, 80);
+		}
 	}
 
 	protected void init() {

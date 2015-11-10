@@ -13,7 +13,7 @@ $t$--name Name of the data set.$n$
 $t$--text Text snippet appearing in either the name or the description of the data set.$n$
 $t$--before Data sets with a timestamp before the specified timestamp.$n$
 $t$--after Data sets with a timestamp after the specified timestamp.$br$
-Data sets fulfilling all conditions are exported if all data sets have dierent names. If at least
+Data sets fulfilling all conditions are exported if all data sets have different names. If at least
 two data sets have the same name an error occurs. The error message lists the identifiers
 of all data sets which could not be exported because of same name. The parameter <data
 set identifier> is not allowed. The success message tells which data sets (by identifier
