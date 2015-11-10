@@ -287,23 +287,17 @@ class CommandInterpreter {
 	 */
 	private String executeReplace(final LinkedList<String> arguments)
 			throws IOException {
-		// TODO upgrade
-		final String file = arguments.removeLast();
-		final String iD = arguments.removeLast();
-		final String repoLoc = arguments.removeLast();
-		final String description = arguments.size() >= 2
-				&& arguments.peek().equals(Option.DESCRIPTION)
-						? arguments.get(1) : "";
-		final boolean move = arguments.contains(Option.VERBOSE);
-		final ProgressListener listener = arguments.contains(Option.VERBOSE)
-				? new DummyProgressListener() : null;
-		final File add = new File(file);
-		add.createNewFile();
-		final MetaData ret = factory.create(new File(repoLoc)).replace(iD, add,
-				description, move, listener);
-		return "Data set with the ID: '" + iD
-				+ "' has been successfully replaced with the file"
-				+ ret.getName() + ". ID: " + ret.getId();
+		final String repoLoc = arguments.get(analyzer.getNbOptions());
+		ProgressListener listener = new DummyProgressListener();
+		if(arguments.contains(Option.VERBOSE.name()) ){
+			listener = new SimpleProgressListener();
+		}
+		final boolean move = arguments.contains(Option.MOVE.name() );
+		final String ID = arguments.get(analyzer.getNbOptions()+1);
+		final String fileLoc = arguments.getLast();
+		final String desc = optVals.get(Option.DESCRIPTION);
+		final MetaData replaced = factory.create(new File(repoLoc)).replace(ID, new File(fileLoc), desc, move, listener);
+		return "Successfully replaced data set with id: "+replaced.getId();
 	}
 
 	private String handleMissingMandatoryArguments(final String msg) {

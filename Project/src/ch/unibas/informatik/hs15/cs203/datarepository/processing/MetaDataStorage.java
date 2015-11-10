@@ -146,7 +146,7 @@ public class MetaDataStorage {
 	 *             If the storage is empty.
 	 */
 	public MetaDataWrapper get(final String id) {
-		validateNotEmpty();
+		validateNotEmpty("get(String)");
 		return idMap.get(id);
 	}
 
@@ -229,6 +229,7 @@ public class MetaDataStorage {
 	 *             If an error occured while removing.
 	 */
 	public MetaDataWrapper remove(final MetaDataWrapper meta) {
+		validateNotEmpty("remove");
 		if (removeTime(meta)) {
 			return removeID(meta);
 		} else {
@@ -407,6 +408,16 @@ public class MetaDataStorage {
 		if (isEmpty()) {
 			throw new IllegalStateException(
 					"Cannot perform this operation on empty storage.");
+		}
+	}
+	
+	private void validateNotEmpty(String methodName){
+		if(methodName == null){
+			validateNotEmpty();
+		}
+		if (isEmpty()) {
+			throw new IllegalStateException(String.format(
+					"Cannot perform operation %s on empty storage.", methodName));
 		}
 	}
 

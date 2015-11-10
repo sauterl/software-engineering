@@ -261,6 +261,7 @@ class MetaDataManager implements Closeable {
 			}
 			instance = null;
 		} catch (Exception e) {
+			LOG.error("Something went wrong", e);
 			throw new IllegalArgumentException(
 					"There was an error while writing Metadata. "
 							+ e.getMessage());
@@ -403,9 +404,11 @@ class MetaDataManager implements Closeable {
 
 	private void initStorage(final MetaDataWrapper[] entries) {
 		if (storage != null) {
+			LOG.error("Cannot initialize storage twice");
 			throw new IllegalStateException("Cannot intialize storage twice!");
 		}
 		storage = new MetaDataStorage(entries);
+		LOG.debug("Initialized storage");
 	}
 
 	private Json parseMetaDataFile(final String file) throws IOException {

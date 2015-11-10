@@ -22,6 +22,11 @@
 			"name":"ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator",
 			"handler":"console",
 			"level":"CONFIG"
+		},
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.processing.DataRepositoryImpl",
+			"handler":"console",
+			"level":"INFO"
 		}
 	]
 }

@@ -17,12 +17,15 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
+import util.logging.Logger;
 
 class DataRepositoryImpl implements DataRepository {
 	/**
 	 * Path to the Repository Folder
 	 */
 	private File repositoryFolder;
+	
+	private final Logger LOG = Logger.getLogger(getClass());
 
 	protected DataRepositoryImpl(File repositoryFolder) throws IOException {
 		this.repositoryFolder = repositoryFolder;
@@ -72,12 +75,15 @@ class DataRepositoryImpl implements DataRepository {
 						.toPath());
 				mdm.remove(md);
 			}
-			mdm.close();
+//			mdm.close();
 		} catch (Exception e) {
-			mdm.close();
+//			mdm.close();
+			LOG.error("Something went wrong while deleting files", e);
 			throw new IllegalArgumentException(
 					"Something happenened while deleting the files. "
 							+ e.getMessage());
+		} finally {
+			mdm.close();
 		}
 		return unwrap(wholeMetadata);
 	}
@@ -254,7 +260,7 @@ class DataRepositoryImpl implements DataRepository {
 			_res.addAll(mdm
 					.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
-			mdm.close();
+//			mdm.close();
 			return unwrap(_res);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e.getMessage());
