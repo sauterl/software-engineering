@@ -48,6 +48,9 @@ enum Command {
 	 */
 	HELP(0),
 	
+	/**
+	 * Just a little easter egg.
+	 */
 	FORTYTWO();
 
 	/**

@@ -146,6 +146,7 @@ class MetaDataManager implements Closeable {
 				instance = new MetaDataManager(repoPath);
 			}
 		} catch (Exception e) {
+			LOG.error("Initialization error: ", e);
 			throw new IllegalArgumentException(
 					"There was an error accessing the metadata Storage. "
 							+ e.getMessage());

@@ -1,6 +1,11 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+
+import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 
 /**
  * The {@link CommandParser} class provides parsing mechanisms. The main feature
@@ -90,6 +95,108 @@ final class CommandParser {
 			}// end test for option / regular argument
 		}
 		return tokens;
+	}
+
+	/**
+	 * Parses a given arguments list into {@link Option} value pairs. <br />
+	 * It is assumed that the given list was created by a {@link CommandParser}.
+	 *
+	 * @param args
+	 *            The list of arguments, created by a {@link CommandParser}.
+	 * @param strict
+	 *            Set this to <tt>true</tt> to have an exception thrown, if any
+	 *            entry in the list is not an option-parameter-pair.
+	 * @return A Map containing the option and its value.
+	 * @throws IllegalArgumentException
+	 *             If the given arguments list is ill formatted.
+	 */
+	public static Map<Option, String> parseOptionValues(final LinkedList<String> args,
+			final boolean strict) throws IllegalArgumentException {
+		final HashMap<Option, String> out = new HashMap<Option, String>();
+		final Iterator<String> it = args.iterator();
+		while (it.hasNext()) {
+			final String curr = it.next();
+			if (curr.contains(CommandParser.OPTION_SEPARATOR)) {
+				final Option op = Option.parse(curr.substring(0,
+						curr.indexOf(CommandParser.OPTION_SEPARATOR)));
+
+				String value = null;
+				try {
+					value = curr.substring(
+							curr.indexOf(CommandParser.OPTION_SEPARATOR) + 1);
+				} catch (final StringIndexOutOfBoundsException e) {
+					throw new IllegalArgumentException(String.format(
+							"Error while parsing entry. %s, option has *no* value, but should",
+							curr));
+				}
+				if (!out.containsKey(op)) {
+					out.put(op, value);
+				} else {
+					throw new IllegalArgumentException(String.format(
+							"Error while parsing entry: %s. It *may* be a duplicate.",
+							curr));
+				}
+			} else {
+				if (strict) {
+					throw new IllegalArgumentException(String.format(
+							"Entry >%s< is not a parsable option.", curr));
+				}
+			}
+		}
+		return out;
+	}
+	
+	/**
+	 * Parses the given command's arguments to a {@link CriteriaWrapper}.
+	 * <br />This parsing is done command sensitive. For example if a command
+	 * accepts an ID as an option parameter or as argument, this parsing algorithm detects
+	 * this and fails if both are present.
+	 * @param cmd The command
+	 * @param args The command's arguments
+	 * @return A CriteriaWrapper created based on the options in the arguments.
+	 */
+	public static CriteriaWrapper parseCriteria(final Command cmd,
+			final LinkedList<String> args) {
+		final LinkedList<String> command = new LinkedList<String>(args);
+		command.addFirst(cmd.name());
+		final ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(command);
+		analyzer.analyze();
+		final Map<Option, String> optVals = CommandParser.parseOptionValues(command);
+		// check if only ID
+		if (cmd.isIDArgumentAllowed()) {
+			// id argument is possible
+			final boolean hasIDOption = optVals.containsKey(Option.ID);
+			final boolean hasIDArgument = analyzer.getNbArguments() > analyzer
+					.getNbMandatoryArgs();
+			if ((hasIDOption && hasIDArgument)) {
+				throw new IllegalArgumentException(
+						"Do only specify *either* --id, or give data set identifier argument. But not both!");
+			}
+			String id = null;
+			if (hasIDOption) {
+				id = optVals.get(Option.ID);
+			} else if (hasIDArgument) {
+				id = args.get(1);// always second argument
+			}
+			if (id != null) {
+				return CriteriaWrapper.forId(id);
+			}
+		}
+		return new CriteriaWrapper(optVals.get(Option.NAME),
+				optVals.get(Option.TEXT), ParseUtils.parseDate(optVals.get(Option.AFTER)),
+				ParseUtils.parseDate(optVals.get(Option.BEFORE)));
+	}
+	
+	/**
+	 * Parses a given list of command argument tokens into option-parameter pairs.
+	 * <br />The list should be produces by {@link #lex(String[])} method to ensure reliable results.
+	 * <br />This is a shortcut to {@linkplain #parseOptionValues(LinkedList, false)}
+	 * @param arguments The command argument tokens
+	 * @return A map containing option-parameter pairs.
+	 * @see CommandParser#parseOptionValues(LinkedList, boolean)
+	 */
+	public static Map<Option, String> parseOptionValues(LinkedList<String> arguments){
+		return parseOptionValues(arguments, false);
 	}
 
 	private static void checkNullParam(final String[] args)  throws IllegalArgumentException{

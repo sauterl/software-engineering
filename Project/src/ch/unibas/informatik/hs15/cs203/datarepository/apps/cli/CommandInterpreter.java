@@ -16,6 +16,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 
 /**
@@ -80,7 +81,7 @@ class CommandInterpreter {
 		analyzer = new ArgumentsAnalyzer(cmd, command);
 		analyzer.analyze();
 		validateMandatoryArguments();
-		optVals = parseOptionValues(command);
+		optVals = CommandParser.parseOptionValues(command);
 		switch (cmd) {
 			case ADD:
 				return executeAdd(command);
@@ -119,7 +120,7 @@ class CommandInterpreter {
 		sb.append("\t");
 		sb.append(meta.getName());
 		sb.append("\t");
-		sb.append(parseDate(meta.getTimestamp()));
+		sb.append(ParseUtils.formatDate(meta.getTimestamp()));
 		sb.append("\t");
 		sb.append(meta.getNumberOfFiles());
 		sb.append("\t");
@@ -130,64 +131,6 @@ class CommandInterpreter {
 		return sb.toString();
 	}
 
-	/**
-	 * It's a thing of style
-	 *
-	 * @param options
-	 *            Options that can be searched for in the List ToParse
-	 * @param toParse
-	 *            List to Parse
-	 * @param ID
-	 * @return
-	 * @throws IllegalArgumentException
-	 * @throws ParseException
-	 */
-	private CriteriaWrapper criteriaParser(final LinkedList<String> options,
-			final LinkedList<String> toParse, final boolean ID)
-					throws IllegalArgumentException, ParseException {
-		CriteriaWrapper crit;
-
-		final Map<String, String> helper = new HashMap<String, String>();
-		String a = toParse.poll();
-		for (int it = 1; it < toParse.size(); it++) {
-
-			if (options.contains(a)) {
-				if (helper.containsKey(a)) {
-					throw new IllegalArgumentException(
-							"We already defined a value for this key");
-				} else {
-					helper.put(a, toParse.poll());
-				}
-			} else {
-				if (options.contains(Option.ID.name()) && ID && helper.isEmpty()
-						&& toParse.size() >= 2) {
-					helper.put(Option.ID.name(), toParse.remove(1));
-				} else {
-					throw new IllegalArgumentException(
-							"We don't accept this key");
-				}
-			}
-			a = toParse.poll();
-		}
-		if (helper.isEmpty() && !ID
-				|| helper.size() > 1 && helper.containsKey(Option.ID.name())) {
-			throw new IllegalArgumentException(
-					"Inappropria te number of arguments");
-		} else {
-			if (helper.containsKey(Option.ID.name())) {
-				crit = CriteriaWrapper.forId(helper.get(Option.ID.name()));
-			} else {
-
-				final Date before = parseDate(helper.get(Option.BEFORE.name()));
-				final Date after = parseDate(helper.get(Option.AFTER.name()));
-
-				crit = new CriteriaWrapper(helper.get(Option.NAME.name()),
-						helper.get(Option.TEXT.name()), before, after);
-			}
-		}
-		return crit;
-
-	}
 
 	/**
 	 * Executes the ADD command of the data repository application. The paramter
@@ -240,7 +183,7 @@ class CommandInterpreter {
 	private String executeDelete(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
-		final CriteriaWrapper crit = parseCriteria(Command.DELETE, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.DELETE, arguments);
 		final List<MetaData> ids = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
 		final String retStr = "The following data sets have been deleted: ";
@@ -259,7 +202,7 @@ class CommandInterpreter {
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
-		final CriteriaWrapper crit = parseCriteria(Command.EXPORT, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.EXPORT, arguments);
 		ProgressListener listener = new DummyProgressListener();
 		if (arguments.contains(Option.VERBOSE.name())) {
 			listener = new SimpleProgressListener();
@@ -308,7 +251,7 @@ class CommandInterpreter {
 	private String executeList(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.getLast();
-		final CriteriaWrapper crit = parseCriteria(Command.LIST, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.LIST, arguments);
 		final List<MetaData> list = factory.create(new File(repoLoc))
 				.getMetaData(crit.getWrappedObject());
 
@@ -343,7 +286,11 @@ class CommandInterpreter {
 		return "Successfully replaced data set with id: " + replaced.getId();
 	}
 
-	private String handleMissingMandatoryArguments(final String msg) {
+	/**
+	 * Throws an {@link IllegalArgumentException} with the given message.
+	 * @param msg The message for missing mandatory arguments.
+	 */
+	private void handleMissingMandatoryArguments(final String msg) {
 		throw new IllegalArgumentException(msg);
 	}
 
@@ -353,131 +300,13 @@ class CommandInterpreter {
 		if (cmd != null) {
 			final Command c = Command.parse(cmd);
 			if (c.equals(Command.FORTYTWO)) {
-				return "This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)";
+				return Utilities.wrapLine("This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)", 80);
 			}
 			type = cmd;
 		}
 		throw new IllegalArgumentException(String.format(
 				"Unknown command <%s>: Check your spelling or use command <help> to get more information.",
 				type));
-	}
-
-	private CriteriaWrapper parseCriteria(final Command cmd,
-			final LinkedList<String> args) {
-		final LinkedList<String> command = new LinkedList<String>(args);
-		command.addFirst(cmd.name());
-		final ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(command);
-		analyzer.analyze();
-		final Map<Option, String> optVals = parseOptionValues(command);
-		// check if only ID
-		if (cmd.isIDArgumentAllowed()) {
-			// id argument is possible
-			final boolean hasIDOption = optVals.containsKey(Option.ID);
-			final boolean hasIDArgument = analyzer.getNbArguments() > analyzer
-					.getNbMandatoryArgs();
-			if ((hasIDOption && hasIDArgument)) {
-				throw new IllegalArgumentException(
-						"Do only specify *either* --id, or give data set identifier argument. But not both!");
-			}
-			String id = null;
-			if (hasIDOption) {
-				id = optVals.get(Option.ID);
-			} else if (hasIDArgument) {
-				id = args.get(1);// always second argument
-			}
-			if (id != null) {
-				return CriteriaWrapper.forId(id);
-			}
-		}
-		return new CriteriaWrapper(optVals.get(Option.NAME),
-				optVals.get(Option.TEXT), parseDate(optVals.get(Option.AFTER)),
-				parseDate(optVals.get(Option.BEFORE)));
-	}
-
-	private String parseDate(final Date date) {
-		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return precise.format(date);
-	}
-
-	/**
-	 * Parses a given String to an appropriate date. <br />
-	 * Based on the length of the string, either
-	 * <code>yyyy-MM-dd HH:mm:ss</code> or <code>yyyy-MM-dd</code> is used as
-	 * {@link DateFormat} to parse the string. Therefore <tt>null</tt> is
-	 * returned, if the chosen {@link DateFormat} cannot parse the given string.
-	 *
-	 * @param str
-	 *            The string to parse.
-	 * @return The parsed Date OR <tt>null</tt> if the given string was not
-	 *         parseable, or the given string was <tt>null</tt>
-	 * @see DateFormat#parse(String)
-	 */
-	private Date parseDate(final String str) {
-		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		final DateFormat fuzzy = new SimpleDateFormat("yyyy-MM-dd");
-		try {
-			if (str.length() > 10) {
-				return precise.parse(str);
-			} else {
-				return fuzzy.parse(str);
-			}
-		} catch (final ParseException | NullPointerException e) {
-			return null;
-		}
-	}
-
-	private Map<Option, String> parseOptionValues(
-			final LinkedList<String> args) {
-		return parseOptionValues(args, false);
-	}
-
-	/**
-	 * Parses a given arguments list into {@link Option} value pairs. <br />
-	 * It is assumed that the given list was created by a {@link CommandParser}.
-	 *
-	 * @param args
-	 *            The list of arguments, created by a {@link CommandParser}.
-	 * @param strict
-	 *            Set this to <tt>true</tt> to have an exception thrown, if any
-	 *            entry in the list is not an option-value-pair.
-	 * @return A Map containing the option and its value.
-	 * @throws IllegalArgumentException
-	 *             If the given arguments list is ill formatted.
-	 */
-	private Map<Option, String> parseOptionValues(final LinkedList<String> args,
-			final boolean strict) throws IllegalArgumentException {
-		final HashMap<Option, String> out = new HashMap<Option, String>();
-		final Iterator<String> it = args.iterator();
-		while (it.hasNext()) {
-			final String curr = it.next();
-			if (curr.contains(CommandParser.OPTION_SEPARATOR)) {
-				final Option op = Option.parse(curr.substring(0,
-						curr.indexOf(CommandParser.OPTION_SEPARATOR)));
-
-				String value = null;
-				try {
-					value = curr.substring(
-							curr.indexOf(CommandParser.OPTION_SEPARATOR) + 1);
-				} catch (final StringIndexOutOfBoundsException e) {
-					throw new IllegalArgumentException(String.format(
-							"Error while aprsing entry. %s, option has *no* value, but should",
-							curr));
-				}
-				if (!out.containsKey(op)) {
-					out.put(op, value);
-				} else {
-					throw new IllegalArgumentException(String.format(
-							"Error while parsing entry: %s. It *may* be a duplicate.",
-							curr));
-				}
-			} else {
-				if (strict) {
-					throw new IllegalArgumentException(String.format(
-							"Entry >%s< is not a parsable option.", curr));
-				}
-			}
-		}
-		return out;
 	}
 
 	private void validateMandatoryArguments() {
