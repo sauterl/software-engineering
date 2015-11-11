@@ -2,12 +2,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +126,6 @@ class CommandInterpreter {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Executes the ADD command of the data repository application. The paramter
 	 * <code>arguments</code> are the arguments for the command ADD, without ADD
@@ -183,7 +177,8 @@ class CommandInterpreter {
 	private String executeDelete(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
-		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.DELETE, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.DELETE,
+				arguments);
 		final List<MetaData> ids = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
 		final String retStr = "The following data sets have been deleted: ";
@@ -202,7 +197,8 @@ class CommandInterpreter {
 	private String executeExport(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
-		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.EXPORT, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.EXPORT,
+				arguments);
 		ProgressListener listener = new DummyProgressListener();
 		if (arguments.contains(Option.VERBOSE.name())) {
 			listener = new SimpleProgressListener();
@@ -251,7 +247,8 @@ class CommandInterpreter {
 	private String executeList(final LinkedList<String> arguments)
 			throws IllegalArgumentException, ParseException {
 		final String repoLoc = arguments.getLast();
-		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.LIST, arguments);
+		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.LIST,
+				arguments);
 		final List<MetaData> list = factory.create(new File(repoLoc))
 				.getMetaData(crit.getWrappedObject());
 
@@ -288,7 +285,9 @@ class CommandInterpreter {
 
 	/**
 	 * Throws an {@link IllegalArgumentException} with the given message.
-	 * @param msg The message for missing mandatory arguments.
+	 *
+	 * @param msg
+	 *            The message for missing mandatory arguments.
 	 */
 	private void handleMissingMandatoryArguments(final String msg) {
 		throw new IllegalArgumentException(msg);
@@ -300,7 +299,9 @@ class CommandInterpreter {
 		if (cmd != null) {
 			final Command c = Command.parse(cmd);
 			if (c.equals(Command.FORTYTWO)) {
-				return Utilities.wrapLine("This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)", 80);
+				return Utilities.wrapLine(
+						"This is the Answer to the Ultimate Question of Life, the Universe and Everything - by Adam Douglas. \"The Hitchhiker's Guide to the Galaxy\" (1979)",
+						80);
 			}
 			type = cmd;
 		}

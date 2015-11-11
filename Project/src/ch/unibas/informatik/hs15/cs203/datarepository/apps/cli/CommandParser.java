@@ -197,7 +197,7 @@ final class CommandParser {
 	public static Map<Option, String> parseOptionValues(LinkedList<String> arguments){
 		return parseOptionValues(arguments, false);
 	}
-
+	
 	private static void checkNullParam(final String[] args)  throws IllegalArgumentException{
 		if (args == null) {
 			throw new IllegalArgumentException(
