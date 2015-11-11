@@ -7,13 +7,17 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 import util.logging.Logger;
 
 /**
- * Generates ManPages.
- *
+ * Generates ManPages. <br />
+ * A ManPage is in particular a formatted string containing information about a
+ * certain command. It contains a paragraph with the synopsis, explains the
+ * options and parameters as well as a brief description upon the behavior based
+ * on the parameters and its output.<br />
+ * This class formats information gathered with the two parser classes {@link HelpParser} and {@link DescriptionParser}.
+ * They do read and parse the appropriate help files. 
  * @author Loris
  *
  */
 public class ManPageGenerator {
-	// TODO Write JavaDoc
 	private final static Logger LOG = Logger.getLogger(ManPageGenerator.class);
 	private static final String TITLE_FORMAT = "Help to command %s";
 	private static final String SYNOPSIS_TITLE = "SYNOPSIS";
@@ -25,7 +29,13 @@ public class ManPageGenerator {
 	private HelpParser helpParser = null;
 
 	private DescriptionParser descParser = null;
-
+	
+	/**
+	 * Creates a new ManPageGenerator for the given command.
+	 * If <tt>null</tt> is passed to this method, it generates a general help message
+	 * about the application.
+	 * @param command
+	 */
 	public ManPageGenerator(final String command) {
 		this.command = command;
 		LOG.config("Set up for command: " + command);
@@ -34,9 +44,47 @@ public class ManPageGenerator {
 		}
 	}
 
+	public String getManPage() throws IOException {
+		return getManPage(false);
+	}
+
+	/**
+	 * currently no experimental code!
+	 */
+	public String getManPage(boolean experimental) throws IOException {
+		LOG.debug(
+				"Request manpage for: " + (command == null ? "null" : command));
+		String out;
+		if (command == null) {
+			out = createDefaultHelpPage();
+		} else if (command.equalsIgnoreCase("help")) {
+			out = createHelpPage();
+		} else {
+			out = buildManPage();
+		}
+		experimental = true;
+		if (experimental) {
+			return Utilities.wrapLinesSensitive(out, 80, null);
+		} else {
+			return Utilities.wrapLine(out, 80);
+		}
+	}
+
+	protected void init() {
+		LOG.debug("Initialization");
+		readHelpFile();
+		readDescFile();
+	}
+
 	private String buildManPage() throws IOException {
-		// TODO safety check
 		LOG.debug("Building man page");
+		final boolean descReady = checkDescParserReady();
+		final boolean helpReady = checkHelpParserReady();
+		if (!(descReady && helpReady)) {
+			throw new IllegalStateException(String.format(
+					"Not ready. DescriptionParser ready: %b, HelpParser ready: %b",
+					descReady, helpReady));
+		}
 		final StringBuilder sb = new StringBuilder();
 		// sb.append(String.format(TITLE_FORMAT, helpParser.getName() ));
 		// newParagraph(sb);
@@ -44,22 +92,13 @@ public class ManPageGenerator {
 		if (cap != null) {
 			sb.append(cap);
 			newParagraph(sb);
+		} else {
+			sb.append(String.format(TITLE_FORMAT, command));
+			newParagraph(sb);
 		}
-		// SYNOPSIS
-		sb.append(SYNOPSIS_TITLE);
-		newLine(sb);
-		sb.append(helpParser.getSynopsis());
-		newParagraph(sb);
-		// PARAMS
-		sb.append(PARAMS_TITLE);
-		newLine(sb);
-		sb.append(buildParams());
-		newParagraph(sb);
-		// DESC
-		sb.append(DESC_TITLE);
-		newLine(sb);
-		sb.append(descParser.parse());
-		newLine(sb);
+		createSynopsisParagrpah(sb);
+		createParamsParagraph(sb);
+		createDescParagraph(sb);
 		return sb.toString();
 	}
 
@@ -123,6 +162,14 @@ public class ManPageGenerator {
 		return sb.toString();
 	}
 
+	private void createDescParagraph(final StringBuilder sb)
+			throws IOException {
+		sb.append(DESC_TITLE);
+		newLine(sb);
+		sb.append(descParser.parse());
+		newLine(sb);
+	}
+
 	private String createHelpPage() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(
@@ -148,35 +195,20 @@ public class ManPageGenerator {
 		return sb.toString();
 	}
 
-	public String getManPage() throws IOException {
-		return getManPage(false);
-	}
-	
-	/**
-	 * currently no experimental code!
-	 */
-	public String getManPage(boolean experimental) throws IOException{
-		LOG.debug("Request manpage for: "+(command == null ? "null" : command));
-		String out;
-		if (command == null) {
-			out = createDefaultHelpPage();
-		} else if (command.equalsIgnoreCase("help")) {
-			out = createHelpPage();
-		} else {
-			out = buildManPage();
-		}
-		experimental = true;
-		if(experimental ){
-			return Utilities.wrapLinesSensitive(out, 80, null);
-		}else{
-			return Utilities.wrapLine(out, 80);
-		}
+	private void createParamsParagraph(final StringBuilder sb) {
+		// PARAMS
+		sb.append(PARAMS_TITLE);
+		newLine(sb);
+		sb.append(buildParams());
+		newParagraph(sb);
 	}
 
-	protected void init() {
-		LOG.debug("Initialization");
-		readHelpFile();
-		readDescFile();
+	private void createSynopsisParagrpah(final StringBuilder sb) {
+		// SYNOPSIS
+		sb.append(SYNOPSIS_TITLE);
+		newLine(sb);
+		sb.append(helpParser.getSynopsis());
+		newParagraph(sb);
 	}
 
 	private void newLine(final StringBuilder sb) {

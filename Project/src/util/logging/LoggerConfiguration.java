@@ -3,10 +3,11 @@ package util.logging;
 import java.util.logging.Level;
 
 /**
- * TODO write javadoc
- * 
+ * The {@link LoggerConfiguration} class represents the <tt>logger</tt> entry in
+ * a <tt>LSJL</tt> configuration file.
+ *
  * @author Loris
- * 
+ *
  */
 class LoggerConfiguration {
 

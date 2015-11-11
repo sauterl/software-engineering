@@ -58,7 +58,6 @@ final class CommandParser {
 	 *         options and arguments.
 	 */
 	public final static LinkedList<String> lex(final String[] args) throws IllegalArgumentException {
-		// TODO Replace illegal argument with more accurate exceptions
 		checkNullParam(args);
 		if (args.length < 1) {
 			return createDefaultTokens();
