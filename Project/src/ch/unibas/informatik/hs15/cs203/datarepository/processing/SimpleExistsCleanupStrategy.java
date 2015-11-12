@@ -15,7 +15,7 @@ import util.logging.Logger;
  * @author Loris
  * 
  */
-public class SimpleExistsCleanupStrategy implements CleanupStrategy {
+class SimpleExistsCleanupStrategy implements CleanupStrategy {
 
 	private final Logger LOG = Logger.getLogger(this.getClass());
 

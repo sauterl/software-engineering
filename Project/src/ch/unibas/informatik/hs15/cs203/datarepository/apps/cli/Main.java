@@ -43,17 +43,12 @@ public class Main {
 	 */
 	public static void main(final String[] args) {
 		int out = 1;
-		Throwable t = null;
 		String print = null;
 		try{
 			print = Client.execute(args, FACTORY);
-		}catch(Throwable th){
-			t = th;
-		}
-		if(Client.hasError() ){
-			t = Client.getError();
-		}
-		if(t != null){
+			out = 0;
+			System.out.println(print);
+		}catch(Throwable t){
 			System.err.print("[ERROR]: ");
 			System.err.print(t.getMessage() != null ? t.getMessage()
 					: "Unkown error of type: " + t.getClass().getSimpleName());
@@ -62,9 +57,6 @@ public class Main {
 			LOG.log(LevelX.FATAL,
 					"A fatal error has occurred. See stacktrace for further detail: ",
 					t);
-		}else{
-			out = 0;
-			System.out.println(print);
 		}
 		System.exit(out);
 	}

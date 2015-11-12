@@ -36,7 +36,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
  * @author Loris
  * 
  */
-public class MetaDataStorage {
+class MetaDataStorage {
 
 	private final TreeMap<String, MetaDataWrapper> idMap = new TreeMap<String, MetaDataWrapper>();
 	private final TreeMap<Date, Vector<String>> timeMap = new TreeMap<Date, Vector<String>>();
@@ -97,7 +97,7 @@ public class MetaDataStorage {
 			return new ArrayList<MetaDataWrapper>();
 		}
 		final Vector<MetaDataWrapper> out = new Vector<MetaDataWrapper>();
-		// ALL META DATA WANDED
+		// ALL META DATA WANTED
 		final CriteriaWrapper allRef = CriteriaWrapper.all();
 		if (allRef.equals(criteria)) {
 			return Arrays.asList(getAll());
@@ -170,8 +170,6 @@ public class MetaDataStorage {
 	 * a meta data entry in this storage exists.
 	 * 
 	 * @return All known IDs.
-	 * @throws IllegalStateException
-	 *             If the storage is empty.
 	 */
 	public Set<String> getAllIDs() {
 		if (isEmpty()) {
@@ -209,14 +207,6 @@ public class MetaDataStorage {
 			timeRes = putTime(meta);
 		}
 		return idRes && timeRes;
-	}
-
-	/**
-	 * @param meta
-	 * @return
-	 */
-	public MetaDataWrapper replace(final MetaDataWrapper meta) {
-		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 	/**

@@ -1,0 +1,41 @@
+1. Hier ein paar Bugs, die ich gefunden habe:
+
+   1. --verbose Option beim Add Kommando gibt nichts auf die Konsole aus.
+   2. Man kann nichtexistierende Dateien hinzufügen.
+   3. Das list Kommando gibt den Timestamp nicht im korrekten Format aus.
+   4. Kommandos ohne Optionen und Parameter führen zu 
+NullPointerExceptions und ein Stacktrace erscheint auf der Konsole.
+   5. Wird beim list Kommando eine Option angeben, dann gibt es nur eine 
+Fehlermeldung
+   6. Folgendes Kommando führt zu IndexOutOfBoundsException:
+        data-repository export my-repos ff9b0d09-db5b-488c-a3de-442c1d91c288 target
+   7. Folgendes Kommando führt zu NullPointerException:
+        data-repository delete my-repos/ ff9b0d09-db5b-488c-a3de-442c1d91c288
+
+2. Folgende Klassen im Package processing dürfen nicht public deklariert 
+werden: CleanupStrategy, SimpleExistsCleanupStrategy, MetaDataStorage
+
+3. Die Klasse CollectionUtils wird nirgends verwendet. Bitte entfernen.
+
+4. MetaDataStorage.get() in Zeile 92: Sie benutzen eine recht 
+umständlichen Algorithmus, um alle Datensätze, die die Kriterien 
+erfüllen, zu bekommen. Besser über idMap nur einmal durchzulaufen und 
+für jedes MetaData Objekt prüfen, ob die Kriterien zutreffen.
+
+5. RepoFileUtils, Zeile 171: Hier keinen Konsolenausgabe. Wenn ich einen 
+Datensatz mit 10000 Dateien lösche, möchte ich nicht jede Datei, die 
+gelöscht wird, aufgelistet sehen. Sie können als Erfolgsmeldung des 
+Kommandos die Zahl der Datensätze, der Dateien und die Gesamtgrösse 
+ausgeben.
+
+6. Main.main() und Client.getError(): Umständlich. Besser: In Zeile 39 
+von Client fangen Sie jede Exception (noch besser Throwable) ab und 
+stecken sie in eine RuntimeException: Etwa so:
+
+try {
+        return interpreter.interpret(args);
+} catch (RuntimeException e) {
+        throw e;
+} catch (Throwable t) {
+        throw new RuntimeException(t);
+}

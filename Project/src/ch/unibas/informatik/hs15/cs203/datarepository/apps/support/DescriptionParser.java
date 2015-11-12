@@ -69,7 +69,7 @@ import java.io.IOException;
  * @author Loris
  *
  */
-public final class DescriptionParser {
+final class DescriptionParser {
 	// TODO writer javadoc
 	public static final String NEW_PARAGRAPH_TAG = "$br$";
 

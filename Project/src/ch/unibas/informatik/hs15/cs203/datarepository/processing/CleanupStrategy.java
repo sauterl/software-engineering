@@ -11,7 +11,7 @@ import java.nio.file.Path;
  * @author Loris
  * 
  */
-public interface CleanupStrategy {
+interface CleanupStrategy {
 
 	/**
 	 * Performs a cleanup of the given storage, based on the contents of the
