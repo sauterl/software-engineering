@@ -1,9 +1,7 @@
-package support;
+package ch.unibas.informatik.hs15.cs203.datarepository.apps.support;
 
 import java.io.File;
 import java.io.IOException;
-
-import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.DescriptionParser;
 
 public class DescriptionParserTest {
 	
