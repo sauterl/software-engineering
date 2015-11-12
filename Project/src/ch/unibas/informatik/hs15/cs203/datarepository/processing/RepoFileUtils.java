@@ -169,7 +169,6 @@ class RepoFileUtils {
 	}
 
 	public static void deleteRecursively(Path source) {
-		System.out.println("deleting |" + source.toString());
 		if (!source.toFile().exists()) {
 			throw new IllegalArgumentException(
 					"The given file to delete does not exist");
