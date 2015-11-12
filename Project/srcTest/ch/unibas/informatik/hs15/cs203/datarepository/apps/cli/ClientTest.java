@@ -1,9 +1,12 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +31,91 @@ public class ClientTest
   {
     factory = new MockDataRepositoryFactory();
   }
+  
+  @Test
+	public void inputTest() {
+		
+		
+		BufferedReader br=setupReader();
+		String[] lines;
+		while((lines=readCommand(br)).length>0){
+		for(String l:lines){
+//		System.out.println(l);
+		}
+		runCommand(lines);
+//		System.out.println();
+		}
+		
+		
+	}
+	
+	private void runCommand(String[] lines){
+		setUp();
+		String commandfull=lines[0];
+		ArrayList<String> command=new ArrayList<String>();
+		int c=0;
+		while(c<commandfull.length()){
+			if(commandfull.indexOf('\t',c+1)>0){
+				command.add(commandfull.substring(c, commandfull.indexOf('\t',c+1)));
+				c=commandfull.indexOf('\t',c+1)+1;
+			}else{
+				command.add(commandfull.substring(c));
+				c=commandfull.length();
+			}
+		}
+		try{
+		String message=Client.execute(command.toArray(new String[0]), factory);
+		System.out.println(message);
+		if(lines.length<4){
+			if(lines.length>2){
+				assertTrue(lines[0]+"\nThe output of the command isnt correct. The output given was '"+message+"' the output wanted was '"+lines[2].substring(1)+"'.",lines[2].contains(message));
+			}
+		}else{
+			for(int count=2;c<lines.length;count++){
+				assertTrue(lines[0]+"\nThe output of the command isnt correct. The output given was '"+message+"' the output wanted was '"+lines[2].substring(1)+"'.",message.contains(lines[count].substring(1)));
+			}
+		}
+		assertTrue(lines[0]+"\nThe command shoult have faild but it worked.",lines[1].contains("SUCCESS"));
+		}catch(IllegalArgumentException e){
+			System.out.println(e.getMessage());
+			if(lines.length==3){
+				assertTrue(lines[0]+"\nThe Error Message returned by the command wast'n the one expected. Expected: '"+lines[2].substring(1)+"' returned: '"+e.getMessage()+"'",lines[2].contains(e.getMessage()));
+			}
+			assertTrue(lines[0]+"\nThe command should have worked but it failed",lines[1].contains("ERROR"));
+		}
+		
+	}
+	
+	private String[] readCommand(BufferedReader br){
+		ArrayList<String> lines=new ArrayList<String>();
+		String line="";
+		try {
+		while((line=br.readLine())!=null){
+			if(line.matches("^(\\t| )*$")){
+				break;
+			}
+			if(!line.startsWith("#")){
+				lines.add(line);
+			}
+		}
+	} catch (IOException e) {
+		fail("Exception while reading File.");
+	}
+		return lines.toArray(new String[0]);
+	}
+	
+	private BufferedReader setupReader(){
+		BufferedReader br=null;
+		URL location = ClientTest.class.getResource("cli-test-cases.txt");
+		try{
+			br=new BufferedReader(new FileReader(new File(location.getPath().replace("%20", " "))));
+		}catch (IOException e){
+			e.printStackTrace();
+			fail("test case file is missing");
+		}
+		return br;
+	}
+  
 
   @Test
   public void testAdd()
