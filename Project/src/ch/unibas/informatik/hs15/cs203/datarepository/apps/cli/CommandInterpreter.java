@@ -153,7 +153,6 @@ class CommandInterpreter {
 															// argument
 		final DataRepository repo = factory.create(new File(repoLoc));
 		final File add = new File(file);
-		add.createNewFile();
 		final MetaData helper = repo.add(add, desc, move, listener);
 		String ret = "";
 		if (helper == null) {
