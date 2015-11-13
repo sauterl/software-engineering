@@ -70,15 +70,33 @@ import java.io.IOException;
  *
  */
 final class DescriptionParser {
-	// TODO writer javadoc
+	/**
+	 * The new paragraph tag as described above.<br />
+	 * The tag is: {@value #NEW_PARAGRAPH_TAG}
+	 */
 	public static final String NEW_PARAGRAPH_TAG = "$br$";
-
+	/**
+	 * The ordered list entry tag as described above.<br />
+	 * The tag is: {@value #ORDERED_LIST_ENTRY_TAG}
+	 */
 	public static final String ORDERED_LIST_ENTRY_TAG = "$1$";
 
+	/**
+	 * The new line tag as described above.<br />
+	 * The tag is: {@value #NEW_LINE_TAG}
+	 */
 	public static final String NEW_LINE_TAG = "$n$";
 
+	/**
+	 * The tab tag as described above.<br />
+	 * The tag is: {@value #TAB_TAG}
+	 */
 	public static final String TAB_TAG = "$t$";
 
+	/**
+	 * The start and end character of a tag.<br />
+	 * The value is: {@link #TAG_SIGN}
+	 */
 	private static final String TAG_SIGN = "$";
 
 	private BufferedReader reader = null;
@@ -87,19 +105,85 @@ final class DescriptionParser {
 	private volatile boolean ready = false;
 	private int listIndex = 1;
 
+	/**
+	 * Creates an unready parser.<br />
+	 * Only {@link #parse(String)} is allowed to use with an object created with
+	 * this constructor.
+	 */
 	public DescriptionParser() {
 		// for convience;
 	}
 
+	/**
+	 * Creates a parser for the specified file.<br />
+	 * Invoking {@link #parse()} will then parse the contents of the specified
+	 * file.
+	 *
+	 * @param file
+	 *            The <tt>desc</tt>-formatted file to parse.
+	 * @throws FileNotFoundException
+	 *             If the file has not been found.
+	 */
 	public DescriptionParser(final File file) throws FileNotFoundException {
 		this.file = file;
 		reader = new BufferedReader(new FileReader(file));
 		ready = true;
 	}
 
+	/**
+	 * Creates a parser for the specified contents. <br />
+	 * Invoking {@link #parse()} will then parse the given string.
+	 *
+	 * @param contents
+	 *            A <tt>desc</tt>-formatted string to parse.
+	 */
 	public DescriptionParser(final String contents) {
 		input = contents;
 		ready = true;
+	}
+
+	/**
+	 * Returns <tt>true</tt> if this {@link DescriptionParser} is ready, thus
+	 * {@link #parse()} can be invoked. <br />
+	 * <i>If someone reads this comment, please be kind and send an email to
+	 * <code>loris . sauter [a-t] unibas . ch</code> with subject
+	 * <tt>coffee</tt>. Thank you very much!</i>
+	 *
+	 * @return see above.
+	 */
+	public boolean isReady() {
+		return ready;
+	}
+
+	/**
+	 * Parses the pre-specified contents. <br />
+	 * The specification is during the constructor invocation, so using one of
+	 * the parameterized constructors enables this mode.
+	 *
+	 * @return The parsed contents.
+	 * @throws IOException
+	 *             If this parser was initialized with a file and an error
+	 *             occurs while reading said file.
+	 */
+	public String parse() throws IOException {
+		if (!isReady()) {
+			throw new IllegalStateException("Parser not ready");
+		}
+		if (!checkStringMode()) {
+			input = readFile();
+		}
+		return parse(input);
+	}
+
+	/**
+	 * Parses the given <tt>desc</tt>-formatted string.
+	 *
+	 * @param str
+	 *            The contents / string in <tt>desc</tt> format to parse.
+	 * @return The parsed contents.
+	 */
+	public String parse(final String str) {
+		return parseString(cleanUp(str));
 	}
 
 	private boolean checkStringMode() {
@@ -118,33 +202,6 @@ final class DescriptionParser {
 			}
 		}
 		return sb.toString().trim();
-	}
-
-	/**
-	 * Returns <tt>true</tt> if this {@link DescriptionParser} is ready, thus
-	 * {@link #parse()} can be invoked. <br />
-	 * <i>If someone reads this comment, please be kind and send an email to
-	 * <code>loris . sauter [a-t] unibas . ch</code> with subject
-	 * <tt>coffee</tt>. Thank you very much!</i>
-	 *
-	 * @return see above.
-	 */
-	public boolean isReady() {
-		return ready;
-	}
-
-	public String parse() throws IOException {
-		if (!isReady()) {
-			throw new IllegalStateException("Parser not ready");
-		}
-		if (!checkStringMode()) {
-			input = readFile();
-		}
-		return parse(input);
-	}
-
-	public String parse(final String str) {
-		return parseString(cleanUp(str));
 	}
 
 	private String parseString(final String str)
