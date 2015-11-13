@@ -13,40 +13,40 @@ enum Command {
 	 * {@link Option#DESCRIPTION}, {@link Option#MOVE} and
 	 * {@link Option#VERBOSE} Mandatory argument count: 2
 	 */
-	ADD(2, Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
+	ADD(2,2,Option.DESCRIPTION, Option.MOVE, Option.VERBOSE),
 	/**
 	 * The REPLACE command, Appropriate {@link Option}s are:
 	 * {@link Option#DESCRIPTION}, {@link Option#MOVE} and
 	 * {@link Option#VERBOSE} Mandatory argument count: 3
 	 */
-	REPLACE(3,Option.DESCRIPTION,Option.MOVE,Option.VERBOSE,Option.ID),
+	REPLACE(3,3,Option.DESCRIPTION,Option.MOVE,Option.VERBOSE,Option.ID),
 	/**
 	 * The DELETE command,  Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
 	 *  Mandatory argument count: 1
 	 */
-	DELETE(1,true,Option.ID,Option.TEXT,Option.BEFORE,Option.AFTER,Option.NAME),
+	DELETE(1,2,true,Option.ID,Option.TEXT,Option.BEFORE,Option.AFTER,Option.NAME),
 	/**
 	 * The EXPORT command. Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT}, 
 	 * {@link Option#NAME} and {@link Option#VERBOSE} Mandatory argument count: 2
 	 */
-	EXPORT(2,true, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
+	EXPORT(2,3,true, Option.AFTER, Option.BEFORE, Option.ID, Option.TEXT, Option.NAME, Option.VERBOSE), 
 	/**
 	 * The LIST command. Appropriate {@link Option}s are:
 	 * {@link Option#AFTER}, {@link Option#BEFORE}, 
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT} and
 	 * {@link Option#NAME} Mandatory argument count: 1
 	 */
-	LIST(1,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
+	LIST(1,1,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
 	
 	/**
 	 * The HELP command
 	 * Mandatory argument count: 0
 	 */
-	HELP(0),
+	HELP(0,1),
 	
 	/**
 	 * Just a little easter egg.
@@ -88,29 +88,47 @@ enum Command {
 
 	private final int mandatoryArgsCount;
 	
+	private final int maxArgs;
+	
 	private final boolean allowsOnlyIDArg;
 
 	private Command() {
-		this(Integer.MIN_VALUE, false, null);
+		//no mandatory args, infinite max args, no id arg allowed, no appropriate options
+		this(Integer.MIN_VALUE,Integer.MAX_VALUE, false, null);
 	}
 	
 	private Command(final int mandatoryArgsCount){
-		this(mandatoryArgsCount, false, null);
+		//mandatory args, infinite max args, no id arg allowed, no appropriate options
+		this(mandatoryArgsCount,Integer.MAX_VALUE, false, null);
+	}
+	
+	private Command(final int mandatoryArgsCount, final int maxArgs){
+		// mandatory args, max args, no id arg allowed, no appropriate options
+		this(mandatoryArgsCount, maxArgs, false, null);
 	}
 
-	private Command(final int mandatoryArgsCount, final boolean allowsIDArg,
+	private Command(final int mandatoryArgsCount, final int maxArgs, final boolean allowsIDArg,
 			final Option... appropriateOptions) {
+		this.maxArgs = maxArgs;
 		this.appropriateOptions = appropriateOptions;
 		this.mandatoryArgsCount = mandatoryArgsCount;
 		this.allowsOnlyIDArg = allowsIDArg;
 	}
 
 	private Command(final Option... appropriateOptions) {
-		this(Integer.MIN_VALUE,false, appropriateOptions);
+		//no mandatory args, infinite max args, no id arg allowed, appropriate options
+		this(Integer.MIN_VALUE, Integer.MAX_VALUE, false, appropriateOptions);
+		
 	}
 	
 	private Command(final int mandatoryArgsCount, final Option...appropriateOptions){
-		this(mandatoryArgsCount, false,appropriateOptions);
+		//mandatory args, infinite max args, no id arg allowed, appropriate options
+		this(mandatoryArgsCount, Integer.MAX_VALUE, false,appropriateOptions);
+	}
+	
+	private Command(final int mandatoryArgsCount, final int maxArgs, final Option...appropriateOptions){
+		//mandatory args, max args, no id arg allowed, appropriate options
+		this(mandatoryArgsCount, maxArgs, false, appropriateOptions);
 	}
 	
 	public boolean isIDArgumentAllowed(){
@@ -155,4 +173,11 @@ enum Command {
 		return false;
 	}
 
+	/**
+	 * Returns the maximum of arguments of this command.
+	 * @return The maximum of arguments of this command.
+	 */
+	public int getMaxArgs(){
+		return maxArgs;
+	}
 }

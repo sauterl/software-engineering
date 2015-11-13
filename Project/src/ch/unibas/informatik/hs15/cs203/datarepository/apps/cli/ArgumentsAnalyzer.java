@@ -149,6 +149,17 @@ public class ArgumentsAnalyzer {
 		validateReady();
 		return command.getMandatoryArgsCount();
 	}
+	
+	/**
+	 * Returns the limit of arguments the command has. This will be redirected
+	 * to {@link Command#getMaxArgs()}.
+	 * @return The limit of arguments the command has.
+	 * @throws IllegalStateException If the analyzer is not ready.
+	 */
+	public int getMaxArgs(){
+		validateReady();
+		return command.getMaxArgs();
+	}
 
 	/**
 	 * Returns the number of options of the subject. Options are either

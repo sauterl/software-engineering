@@ -76,6 +76,7 @@ class CommandInterpreter {
 		analyzer = new ArgumentsAnalyzer(cmd, command);
 		analyzer.analyze();
 		validateMandatoryArguments();
+		validateArgsLimit();
 		optVals = CommandParser.parseOptionValues(command);
 		switch (cmd) {
 			case ADD:
@@ -178,6 +179,10 @@ class CommandInterpreter {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.DELETE,
 				arguments);
+		validateCriteria(crit);
+		if(analyzer.getNbOptions() == 0 && analyzer.getNbArguments() == 1){
+			throw new IllegalArgumentException("Too few arguments.");
+		}
 		final List<MetaData> ids = factory.create(new File(repoLoc))
 				.delete(crit.getWrappedObject());
 		final String retStr = "The following data sets have been deleted: ";
@@ -198,6 +203,10 @@ class CommandInterpreter {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.EXPORT,
 				arguments);
+		validateCriteria(crit);
+		if(analyzer.getNbOptions() == 0 && analyzer.getNbArguments() == 2){
+			throw new IllegalArgumentException("Too few arguments.");
+		}
 		ProgressListener listener = new DummyProgressListener();
 		if (arguments.contains(Option.VERBOSE.name())) {
 			listener = new SimpleProgressListener();
@@ -248,6 +257,7 @@ class CommandInterpreter {
 		final String repoLoc = arguments.getLast();
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.LIST,
 				arguments);
+		validateCriteria(crit);
 		final List<MetaData> list = factory.create(new File(repoLoc))
 				.getMetaData(crit.getWrappedObject());
 
@@ -314,6 +324,20 @@ class CommandInterpreter {
 			handleMissingMandatoryArguments(String.format(
 					"Unexpected end of command, expected %d mandatory arguments (but got %d).",
 					analyzer.getNbMandatoryArgs(), analyzer.getNbArguments()));
+		}
+	}
+	
+	private void validateArgsLimit(){
+		if(analyzer.getNbArguments() > analyzer.getMaxArgs() ){
+			throw new IllegalArgumentException(String.format("Too many arguments. Only %d arguments are allowed (but got %d, arg1).",  analyzer.getMaxArgs(), analyzer.getNbArguments()));
+		}
+	}
+	
+	private void validateCriteria(CriteriaWrapper crit){
+		if(!crit.onlyID() ){
+			if(crit.getId() != null){
+				throw new IllegalArgumentException("Do only *either* specify --id or criterias, but not buth.");
+			}
 		}
 	}
 

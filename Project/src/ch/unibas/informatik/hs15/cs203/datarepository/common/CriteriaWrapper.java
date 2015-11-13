@@ -200,7 +200,7 @@ public class CriteriaWrapper {
 		return getId() != null && (getAfter() == null && getBefore() == null
 				&& getName() == null && getText() == null);
 	}
-
+	
 	/**
 	 * (non-Javadoc)
 	 *

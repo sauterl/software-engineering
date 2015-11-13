@@ -27,12 +27,10 @@ final class CommandParser {
 
 	/**
 	 * Splits the given command line arguments into a logical and structural
-	 * correct list of tokens.
-	 * <br />
-	 * <b>Note: 'parameterized options' are represented by a single token.
-	 * The token contains the option's name and the parameter / argument, separated
-	 * by the {@value #OPTION_SEPARATOR}-character.</b>
-	 * <br />
+	 * correct list of tokens. <br />
+	 * <b>Note: 'parameterized options' are represented by a single token. The
+	 * token contains the option's name and the parameter / argument, separated
+	 * by the {@value #OPTION_SEPARATOR}-character.</b> <br />
 	 * In particular this method links option identifiers (like '--description')
 	 * and the following option value, if one is needed, (like '--description
 	 * "Some description").
@@ -57,7 +55,8 @@ final class CommandParser {
 	 *         linked list represents the (expected) order of the command
 	 *         options and arguments.
 	 */
-	public final static LinkedList<String> lex(final String[] args) throws IllegalArgumentException {
+	public final static LinkedList<String> lex(final String[] args)
+			throws IllegalArgumentException {
 		checkNullParam(args);
 		if (args.length < 1) {
 			return createDefaultTokens();
@@ -68,7 +67,7 @@ final class CommandParser {
 		tokens.add(cmd.name());
 		for (int i = 1; i < args.length; i++) {
 			if (Option.isLikelyOption(args[i])) {// test for option
-				final Option opt = parseOption(args[i],i);
+				final Option opt = parseOption(args[i], i);
 				if (opt.isFlag()) {// has option a argument
 					tokens.add(opt.name());
 				} else {
@@ -83,15 +82,15 @@ final class CommandParser {
 						throw new IllegalArgumentException(String.format(
 								"Command %s does not allow option --%s",
 								cmd.name(), opt.name()));
-					}// parameterized-option parsed
-				}// flag-option parsed
+					} // parameterized-option parsed
+				} // flag-option parsed
 			} else {// current token is likely not an option
 				if (args[i] == null || args[i].length() == 0) {
 					throw new IllegalArgumentException("Argument is null.");
 				} else {
 					tokens.add(args[i]);
 				}
-			}// end test for option / regular argument
+			} // end test for option / regular argument
 		}
 		return tokens;
 	}
@@ -107,10 +106,12 @@ final class CommandParser {
 	 *            entry in the list is not an option-parameter-pair.
 	 * @return A Map containing the option and its value.
 	 * @throws IllegalArgumentException
-	 *             If the given arguments list is ill formatted.
+	 *             If the given arguments list is ill formatted OR if the options in the
+	 *             arguments list do not fulfill the options constraints (Only ID or others and NOT ID).
 	 */
-	public static Map<Option, String> parseOptionValues(final LinkedList<String> args,
-			final boolean strict) throws IllegalArgumentException {
+	public static Map<Option, String> parseOptionValues(
+			final LinkedList<String> args, final boolean strict)
+					throws IllegalArgumentException {
 		final HashMap<Option, String> out = new HashMap<Option, String>();
 		final Iterator<String> it = args.iterator();
 		while (it.hasNext()) {
@@ -144,14 +145,17 @@ final class CommandParser {
 		}
 		return out;
 	}
-	
+
 	/**
-	 * Parses the given command's arguments to a {@link CriteriaWrapper}.
-	 * <br />This parsing is done command sensitive. For example if a command
-	 * accepts an ID as an option parameter or as argument, this parsing algorithm detects
-	 * this and fails if both are present.
-	 * @param cmd The command
-	 * @param args The command's arguments
+	 * Parses the given command's arguments to a {@link CriteriaWrapper}. <br />
+	 * This parsing is done command sensitive. For example if a command accepts
+	 * an ID as an option parameter or as argument, this parsing algorithm
+	 * detects this and fails if both are present.
+	 * 
+	 * @param cmd
+	 *            The command
+	 * @param args
+	 *            The command's arguments
 	 * @return A CriteriaWrapper created based on the options in the arguments.
 	 */
 	public static CriteriaWrapper parseCriteria(final Command cmd,
@@ -160,7 +164,8 @@ final class CommandParser {
 		command.addFirst(cmd.name());
 		final ArgumentsAnalyzer analyzer = new ArgumentsAnalyzer(command);
 		analyzer.analyze();
-		final Map<Option, String> optVals = CommandParser.parseOptionValues(command);
+		final Map<Option, String> optVals = CommandParser
+				.parseOptionValues(command);
 		// check if only ID
 		if (cmd.isIDArgumentAllowed()) {
 			// id argument is possible
@@ -182,23 +187,30 @@ final class CommandParser {
 			}
 		}
 		return new CriteriaWrapper(optVals.get(Option.NAME),
-				optVals.get(Option.TEXT), ParseUtils.parseDate(optVals.get(Option.AFTER)),
+				optVals.get(Option.TEXT),
+				ParseUtils.parseDate(optVals.get(Option.AFTER)),
 				ParseUtils.parseDate(optVals.get(Option.BEFORE)));
 	}
-	
+
 	/**
-	 * Parses a given list of command argument tokens into option-parameter pairs.
-	 * <br />The list should be produces by {@link #lex(String[])} method to ensure reliable results.
-	 * <br />This is a shortcut to {@linkplain #parseOptionValues(LinkedList, false)}
-	 * @param arguments The command argument tokens
+	 * Parses a given list of command argument tokens into option-parameter
+	 * pairs. <br />
+	 * The list should be produces by {@link #lex(String[])} method to ensure
+	 * reliable results. <br />
+	 * This is a shortcut to {@linkplain #parseOptionValues(LinkedList, false)}
+	 * 
+	 * @param arguments
+	 *            The command argument tokens
 	 * @return A map containing option-parameter pairs.
 	 * @see CommandParser#parseOptionValues(LinkedList, boolean)
 	 */
-	public static Map<Option, String> parseOptionValues(LinkedList<String> arguments){
+	public static Map<Option, String> parseOptionValues(
+			LinkedList<String> arguments) {
 		return parseOptionValues(arguments, false);
 	}
-	
-	private static void checkNullParam(final String[] args)  throws IllegalArgumentException{
+
+	private static void checkNullParam(final String[] args)
+			throws IllegalArgumentException {
 		if (args == null) {
 			throw new IllegalArgumentException(
 					"Null is not a valid string array to tokenize.");
@@ -211,7 +223,8 @@ final class CommandParser {
 		return out;
 	}
 
-	private static Command parseCommand(final String str) throws IllegalArgumentException {
+	private static Command parseCommand(final String str)
+			throws IllegalArgumentException {
 		final Command out = Command.parse(str);
 		if (out == null) {
 			throw new IllegalArgumentException("Unknown command: " + str);
@@ -219,10 +232,12 @@ final class CommandParser {
 		return out;
 	}
 
-	private static Option parseOption(final String option,int index) throws IllegalArgumentException{
+	private static Option parseOption(final String option, int index)
+			throws IllegalArgumentException {
 		final Option opt = Option.parse(option);
 		if (opt == null) {
-			throw new IllegalArgumentException("Error in "+(index+1)+". argument ["+option+"]: Unknown option.");
+			throw new IllegalArgumentException("Error in " + (index + 1)
+					+ ". argument [" + option + "]: Unknown option.");
 		}
 		return opt;
 	}
@@ -236,10 +251,9 @@ final class CommandParser {
 			if (!arg.startsWith(Option.OPTION_MARKER)) {
 				return opt.name().concat(OPTION_SEPARATOR).concat(arg);
 			} else {
-				throw new IllegalArgumentException(
-						String.format(
-								"Argument of option (%s) must not start with options marker (%s): %s",
-								opt.name(), Option.OPTION_MARKER, arg));
+				throw new IllegalArgumentException(String.format(
+						"Argument of option (%s) must not start with options marker (%s): %s",
+						opt.name(), Option.OPTION_MARKER, arg));
 			}
 		}
 	}
