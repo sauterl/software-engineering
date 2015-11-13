@@ -43,7 +43,7 @@ add
 	
 # ===============================
 # Deletion examples
-delete	my-rpos	abc12
+delete	my-repos	abc12
 	SUCCESS	delete(Criteria(id:abc12))
 	
 delete	--id	abc12	my-repos
@@ -90,7 +90,7 @@ delete
 	
 # ===============================
 # Export examples
-export	my-rpos	abc12	target
+export	my-repos	abc12	target
 	SUCCESS	export(Criteria(id:abc12), target, no-verbose)
 	
 export	--id	abc12	--verbose	my-repos	target
