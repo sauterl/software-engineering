@@ -30,12 +30,12 @@ import util.logging.Logger;
  * The {@link MetaDataManager} class manages meta data. This includes reading of
  * meta data file, manipulating meta data during runtime and finally writing
  * meta data to file.
- * 
+ * <p>
  * The design of this class and the processing package does <b>not</b> allow two
  * or more processes manipulating the same repository at the same time. Thus
  * this class will fail initialize when the meta data file of the specified
  * repository is locked.
- * 
+ * </p>
  * 
  * @author Loris
  * 
