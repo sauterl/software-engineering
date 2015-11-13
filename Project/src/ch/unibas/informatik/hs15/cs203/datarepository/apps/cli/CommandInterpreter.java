@@ -179,7 +179,7 @@ class CommandInterpreter {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.DELETE,
 				arguments);
-		validateCriteria(crit);
+		validateCriteriaOptions(optVals);
 		if(analyzer.getNbOptions() == 0 && analyzer.getNbArguments() == 1){
 			throw new IllegalArgumentException("Too few arguments.");
 		}
@@ -203,7 +203,7 @@ class CommandInterpreter {
 		final String repoLoc = arguments.get(analyzer.getNbOptions());
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.EXPORT,
 				arguments);
-		validateCriteria(crit);
+		validateCriteriaOptions(optVals);
 		if(analyzer.getNbOptions() == 0 && analyzer.getNbArguments() == 2){
 			throw new IllegalArgumentException("Too few arguments.");
 		}
@@ -257,7 +257,7 @@ class CommandInterpreter {
 		final String repoLoc = arguments.getLast();
 		final CriteriaWrapper crit = CommandParser.parseCriteria(Command.LIST,
 				arguments);
-		validateCriteria(crit);
+		validateCriteriaOptions(optVals);
 		final List<MetaData> list = factory.create(new File(repoLoc))
 				.getMetaData(crit.getWrappedObject());
 
@@ -333,11 +333,15 @@ class CommandInterpreter {
 		}
 	}
 	
-	private void validateCriteria(CriteriaWrapper crit){
-		if(!crit.onlyID() ){
-			if(crit.getId() != null){
-				throw new IllegalArgumentException("Do only *either* specify --id or criterias, but not buth.");
+	private void validateCriteriaOptions(Map<Option, String> optVals){
+		if(optVals.containsKey(Option.ID )){
+			for(Option o : Option.getCriteriaOptions() ){
+				if(optVals.containsKey(o) ){
+					throw new IllegalArgumentException("Don't mix --id with another 'crteria options'.");
+				}
 			}
+		}else{
+			//not --id
 		}
 	}
 

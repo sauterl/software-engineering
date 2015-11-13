@@ -81,6 +81,13 @@ enum Option {
 	}
 
 	/**
+	 * Returns the 'criteria-options': {@link #NAME}, {@link #TEXT}, {@link #AFTER} and {@link #BEFORE}
+	 * @return
+	 */
+	public static Option[] getCriteriaOptions(){
+		return new Option[]{Option.NAME, Option.TEXT, Option.AFTER, Option.BEFORE};
+	}
+	/**
 	 * Parses a given {@link String} to a matching {@link Option}. This is a
 	 * case sensitive matching and the string may has the
 	 * {@link Option#OPTION_MARKER} or not. So <code>verbose</code>,
