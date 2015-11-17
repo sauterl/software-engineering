@@ -13,3 +13,6 @@
 # Ignore Eclipse classpath
 ###################
 .classpath
+/-verbose/
+/huhuu.txt
+/repository
