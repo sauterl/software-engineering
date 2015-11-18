@@ -32,6 +32,9 @@
 		<junit haltonfailure="true">
 			<classpath refid="junitLib" />
 			<classpath path="${classes}" />
+			<classpath>
+			     <pathelement path="${srcTest}"/>
+			</classpath>
 			<formatter type="brief" usefile="false" />
 			<batchtest>
 				<fileset dir="${srcTest}">
@@ -40,6 +43,7 @@
 			</batchtest>
 		</junit>
 	</target>
+	
 
 	<target name="jar" depends="compile" description="Generate JAR">
 		<jar jarfile="${jar.file}" basedir="${classes}" includes="**/*.class, ${assets}/**/*.*">
