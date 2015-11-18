@@ -1,0 +1,52 @@
+Starts the application in a mode where it is constantly observing an incoming directory for new
+data sets. If a new one is detected it will be added to the repository similar to the add command
+with option --move.$br$
+In addition an HTML file with an HTML table of same content as the table produced by the list
+command (without options) will be updated. This file is always recreated at server start up and
+contains data sets added previously.$br$
+All output is redirected to a log file after successful start up of the server. It contains log messages
+in the format: <time stamp> <log level> <log message>. Where <time stamp> is the actual
+date and time in the same format as for the list command. The <log level> is either [INFO] or
+[ERROR]. The log entries are on one line except error logs with stack traces. The first log entry
+shows the version of the Data Repository followed by entries for each value of the configuration
+parameters.$br$
+If the server is successfully started a success message is printed onto standard output. Otherwise
+an error message is printed and the server is stopped. The running server is stopped by pressing
+ctrl-c on the console.$br$
+Because dropping a data set into the incoming directory might not be instantaneous for a large
+data set (many files and/or large files) an algorithm is needed to detect completeness of a data
+set file/folder. The application provides three completeness detection algorithms (described below)
+from which one has to be chosen.$br$
+A little API allows to add customized completeness detections later on. Classes for those algorithms
+are expected in an additional JAR file. It can be dropped into some defined location inside the
+installed application (e.g. in the same folder as the JAR file of the application). After restart of
+the server the new completeness detection is available.$br$
+The configuration parameters are read from a properties file (for format specifications see Javadoc
+of the load method of class Properties). The following properties are expected:$br$
+$t$incoming-directory: Absolute or relative path to the incoming directory. Existence will be
+checked at server start up.$n$
+$t$html-overview: Absolute or relative path to the file which contains a complete static HTML page
+with an HTML table with the same content produced by the optionless list command. If not
+specified no overview will be created.$n$
+$t$log-file: Absolute or relative path to the log-file. If not specified it will be server.log inside
+the repository folder. If the log file doesn't exist it will be created. If it already exists new
+log entries are append.$n$
+$t$checking-interval-in-seconds: The time interval (in seconds) the incoming directory will be
+scanned again after the last scan.$n$
+$t$completeness-detection.class-name: Fully qualified name of a Java class implementing a completeness
+detection algorithm (a Java interface).$br$
+If a mandatory property is missing or invalid the server doesn't starts up but an error message is
+printed.$br$
+COMPLETENESS DETECTION$n$
+All properties starting with 'completeness-checker.' are properties for the completeness detection
+algorithm. The three build-in algorithms and the properties they know are the following:$br$
+No Detection: This algorithm assumes that the data set folder/file is already complete when it
+appears in the incoming directory. Thus, no detection of completeness is needed.$br$
+Marker File Detection: A certain (empty) marker file found in the incoming directory indicates
+that the data set is complete. The name of the marker file is of the form <prefix><file/folder
+name>. The prefix is determined by the mandatory property completeness-detection.prefix.
+This marker file will be removed by the completeness checker. If there is no file/folder named
+<file/folder name> an error will be logged.$br$
+Unchanged Modification Date Detection: A data set is assumed to be complete if for any file
+of the data set the last-modified time stamp is older than the current time minus a quiet period
+specified by the mandatory property completeness-detection.quiet-period-in-seconds.

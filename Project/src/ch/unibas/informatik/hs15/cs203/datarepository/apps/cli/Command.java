@@ -49,6 +49,14 @@ enum Command {
 	HELP(0,1),
 	
 	/**
+	 * The SERVER command.
+	 * Mandatory argument count: 2
+	 * Max arguments: 2
+	 * NO Appropriate options.
+	 */
+	SERVER(2,2),
+	
+	/**
 	 * Just a little easter egg.
 	 */
 	FORTYTWO();

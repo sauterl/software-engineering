@@ -151,6 +151,11 @@ public class ManPageGenerator {
 		sb.append("Replaces data set(s) by new one(s).");
 		newLine(sb);
 		sb.append("\t");
+		sb.append("server");
+		sb.append(": ");
+		sb.append("Runs in server mode: Moving data sets from an incoming directory into the repository.");
+		newLine(sb);
+		sb.append("\t");
 		sb.append("help");
 		sb.append(": ");
 		sb.append(

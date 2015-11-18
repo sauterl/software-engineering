@@ -1,0 +1,14 @@
+{
+	"short": "Starts server mode. The description of this command is more readable in the specifications file.",
+    "name": "server",
+    "synopsis": "data-repository server <repository path> <properties file>",
+    "params": [
+        {
+            "<repository path>": "Absolute or relative path to the repository."
+        },
+        {
+            "<properties file>": "Java properties file with configuration parameters as described below."
+        }
+    ],
+    "desc": "server.desc"
+}
