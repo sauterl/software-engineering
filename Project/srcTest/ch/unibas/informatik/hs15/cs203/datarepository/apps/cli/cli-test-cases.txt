@@ -53,16 +53,16 @@ delete	--name	my-name	my-repos
 	SUCCESS	delete(Criteria(name:my-name))
 	
 delete	--text	some-text	my-repos
-	SUCCESS	delete(Criteria(text:some-txt))
+	SUCCESS	delete(Criteria(text:some-text))
 	
 delete	--name	my-name	--text	some-text	my-repos
-	SUCCESS	delete(Criteria(name:my-name, text:some-txt))
+	SUCCESS	delete(Criteria(name:my-name, text:some-text))
 	
 delete	--name	my-name	--before	2015-09-16	my-repos
 	SUCCESS	delete(Criteria(name:my-name, before:2015-09-16 00:00:00))
 	
 delete	--name	my-name	--before	2015-09-16	--after	2015-09-10 21:12:34	my-repos
-	SUCCESS	delete(Criteria(name:my-name, before:2015-09-16 00:00:00))
+	SUCCESS	delete(Criteria(name:my-name, before:2015-09-16 00:00:00, after:2015-09-10 21:12:34))
 	
 delete	--id	123	--name	my-name	my-repos
 	ERROR
@@ -100,16 +100,16 @@ export	--name	my-name	my-repos	target
 	SUCCESS	export(Criteria(name:my-name), target, no-verbose)
 	
 export	--text	some-text	my-repos	target
-	SUCCESS	export(Criteria(text:some-txt), target, no-verbose)
+	SUCCESS	export(Criteria(text:some-text), target, no-verbose)
 	
 export	--name	my-name	--text	some-text	my-repos	target
-	SUCCESS	export(Criteria(name:my-name, text:some-txt), target, no-verbose)
+	SUCCESS	export(Criteria(name:my-name, text:some-text), target, no-verbose)
 	
-export	--name	my-name	--before	2015-09-16	verbose	my-repos	target
+export	--name	my-name	--before	2015-09-16	--verbose	my-repos	target
 	SUCCESS	export(Criteria(name:my-name, before:2015-09-16 00:00:00), target, verbose)
 	
 export	--name	my-name	--before	2015-09-16	--after	2015-09-10 21:12:34	my-repos	target
-	SUCCESS	export(Criteria(name:my-name, before:2015-09-16 00:00:00), target, no-verbose)
+	SUCCESS	export(Criteria(name:my-name, before:2015-09-16 00:00:00, after:2015-09-10 21:12:34), target, no-verbose)
 	
 export	--id	123	--name	my-name	my-repos	target
 	ERROR
@@ -165,7 +165,7 @@ list	--text	blabla	my-repos
 	345	data	1970-01-01 01:00:11	30	23345411	example data
 	
 list	--text	blabla	--before	2015-01-01	--after	2014-12-24 21:09:12	my-repos
-	SUCCESS	getMetaData(Criteria(text:blabla))
+	SUCCESS	getMetaData(Criteria(text:blabla, before:2015-01-01 00:00:00, after:2014-12-24 21:09:12))
 	ID	Name	Timestamp	Number of Files	Size	Description
 	123	hello.txt	1970-01-01 01:20:34	1	11	
 	345	data	1970-01-01 01:00:11	30	23345411	example data
