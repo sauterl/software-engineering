@@ -52,7 +52,7 @@ public class ClientInputTest {
 		return Arrays.asList(list.toArray(new Object[0][0]));
 	}
 	
-	@Parameter
+	@Parameter(value=0)
 	public String[] inp;
 	
 	@Parameter(value=1)
@@ -69,43 +69,63 @@ public class ClientInputTest {
 	  }
 
 	@Test
-	public void runCommand(){
-		String[] lines=inp;
-		String commandfull=lines[0];
-		ArrayList<String> command=new ArrayList<String>();
-		int c=0;
-		while(c<commandfull.length()){
-			if(commandfull.indexOf('\t',c+1)>0){
-				command.add(commandfull.substring(c, commandfull.indexOf('\t',c+1)));
-				c=commandfull.indexOf('\t',c+1)+1;
-			}else{
-				command.add(commandfull.substring(c));
-				c=commandfull.length();
-			}
+	public void runCommand() {
+	String[] lines = inp;
+	String commandfull = lines[0];
+	ArrayList<String> command = new ArrayList<String>();
+	int c = 0;
+	while (c < commandfull.length()) {
+		if (commandfull.indexOf('\t', c + 1) > 0) {
+		command.add(commandfull.substring(c,
+			commandfull.indexOf('\t', c + 1)));
+		c = commandfull.indexOf('\t', c + 1) + 1;
+		} else {
+		command.add(commandfull.substring(c));
+		c = commandfull.length();
 		}
-		try{
-		String message=Client.execute(command.toArray(new String[0]), factory);
-//		System.out.println(message);
-		assertTrue(lines[0]+"\nThe command shoult have faild but it worked.",lines[1].contains("SUCCESS"));
-		if(lines.length<4){
-			if(lines.length>2){
-				assertTrue(lines[0]+"\nThe output of the command isnt correct. The output given was '"+message+"' the output wanted was '"+lines[2].substring(1)+"'.",lines[2].contains(message));
-			}
-		}else{
-			for(int count=2;c<lines.length;count++){
-				assertTrue(lines[0]+"\nThe output of the command isnt correct. The output given was '"+message+"' the output wanted was '"+lines[2].substring(1)+"'.",message.contains(lines[count].substring(1)));
-			}
+	}
+	try {
+		String message = Client.execute(command.toArray(new String[0]),
+			factory);
+//		System.out.println(factory.toString());
+		assertTrue(
+			lines[0] + "\nThe command shoult have faild but it worked.",
+			lines[1].contains("SUCCESS"));
+		String repCommand=factory.toString();
+		assertTrue(lines[0] + "\nThe command wasn't parsecd to the expected command.\n was: "+repCommand.substring(0, repCommand.length()-1)+"\n expected: "+lines[1],lines[1].contains(repCommand.substring(0, repCommand.length()-1)));
+		if (lines.length < 4) {
+		if (lines.length > 2) {
+			assertTrue(
+				lines[0] + "\nThe output of the command isnt correct. The output given was '"
+					+ message + "' the output wanted was '"
+					+ lines[2].substring(1) + "'.",
+				lines[2].contains(message));
 		}
-		
-		}catch(IllegalArgumentException e){
-//			System.out.println(e.getMessage());
-			assertTrue(lines[0]+"\nThe command should have worked but it failed",lines[1].contains("ERROR"));
-			if(lines.length==3){
-				assertTrue(lines[0]+"\nThe Error Message returned by the command wast'n the one expected. Expected: '"+lines[2].substring(1)+"' returned: '"+e.getMessage()+"'",lines[2].contains(e.getMessage()));
-			}
-			
+		} else {
+		for (int count = 2; c < lines.length; count++) {
+			assertTrue(
+				lines[0] + "\nThe output of the command isnt correct. The output given was '"
+					+ message + "' the output wanted was '"
+					+ lines[2].substring(1) + "'.",
+				message.contains(lines[count].substring(1)));
 		}
-		
+		}
+
+	} catch (IllegalArgumentException e) {
+//		System.out.println(factory.toString());
+		assertTrue(
+			lines[0] + "\nThe command should have worked but it failed",
+			lines[1].contains("ERROR"));
+		if (lines.length == 3) {
+		assertTrue(
+			lines[0] + "\nThe Error Message returned by the command wast'n the one expected. Expected: '"
+				+ lines[2].substring(1) + "' returned: '"
+				+ e.getMessage() + "'",
+			lines[2].contains(e.getMessage()));
+		}
+
+	}
+
 	}
 	
 	private static BufferedReader setupReader(){

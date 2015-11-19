@@ -40,7 +40,7 @@ enum Command {
 	 * {@link Option#ID},{@link Option#ID}, {@link Option#TEXT} and
 	 * {@link Option#NAME} Mandatory argument count: 1
 	 */
-	LIST(1,1,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
+	LIST(1,1,true,Option.ID,Option.NAME,Option.TEXT,Option.BEFORE,Option.AFTER), 
 	
 	/**
 	 * The HELP command
