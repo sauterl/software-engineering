@@ -1,9 +1,14 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * Class which contains utility methods for parsing.
@@ -62,6 +67,24 @@ class ParseUtils {
 	public static String formatDate(final Date date) {
 		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return precise.format(date);
+	}
+	/**
+	 * Loads a property file from a given filepath
+	 * @param filepath
+	 * has to be the path to a well formatted propertyfile
+	 * @return
+	 * @throws IOException 
+	 * is thrown if either the filepath is incorrect or the data is formatted incorrectly
+	 */
+	public static Properties loadProperties(final String filepath) throws IOException{
+		final Properties output =  new Properties();
+		final FileInputStream in = new FileInputStream(filepath);
+		if(filepath.endsWith(".xml")){
+			output.loadFromXML(in);
+		}else{
+			output.load(in);
+		}
+		return output;	
 	}
 
 }
