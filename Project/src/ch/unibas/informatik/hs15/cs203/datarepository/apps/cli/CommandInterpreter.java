@@ -91,6 +91,9 @@ class CommandInterpreter {
 				return executeHelp(command);
 			case REPLACE:
 				return executeReplace(command);
+			case SERVER:
+				executeServer(command);
+				return "Server ended"; // any case this will get printed? Only on failure, right?
 			default:
 				return handleUnknownCommand(cmdName);
 		}
@@ -267,6 +270,12 @@ class CommandInterpreter {
 			out.append(createTabbedInfoLine(m));
 		}
 		return out.toString();
+	}
+	
+	private void executeServer(final LinkedList<String> arguments){
+		final String repoLoc = arguments.getFirst();
+		final String propertiesFile = arguments.getLast();
+		// call server start.
 	}
 
 	/**
