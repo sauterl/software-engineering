@@ -13,30 +13,35 @@ public class HTMLWriter {
 	final String tableName = "myLittleTable.html";
 	/**
 	 * Initializes the writer with a classpath
-	 * @param classpath
+	 * @param folder
 	 * where should the writer update the file
 	 */
-	public HTMLWriter(String classpath){
-		_classpath = classpath;
+	public HTMLWriter(String folder){
+		//TODO Verify Folder, create Directory etc.
+		_classpath = folder;
 	}
 	/**
-	 * Updates the current HTML Table with the current data
+	 * Updates the current HTML Table
 	 * @param containedData
 	 * List of the data contained in the repository. 
 	 * Is obtained with the with {@link ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository#getMetaData(Criteria) getMetaData}
 	 * @throws IOException 
 	 */
 	public void update(List<MetaData> containedData) throws IOException{
+		
+		//TODO Verify MetaData
+		
 		File directory = new File(_classpath);
 		//Check whether the file exists
 		File table = new File(_classpath+tableName);
 		if(!directory.exists()){
-			directory.mkdir();
+			directory.mkdirs();
 		}
+		//TODO What to do if table is a directory???
 		if(table.exists() && !table.isDirectory()){
 			table.delete();
 		}
-		createNewTable(containedData);
+		writeNewTable(containedData);
 	}
 	/**
 	 * Creates a new HTML table from the data given
@@ -44,12 +49,16 @@ public class HTMLWriter {
 	 *  data which is to be put in the table
 	 * @throws IOException 
 	 */
-	private void createNewTable(List<MetaData> containedData) throws IOException{
+	private void writeNewTable(List<MetaData> containedData) throws IOException{
 		String template = "<tr>\n<th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>\n</tr>\n";
+		// Use StringBuilder in single thread application!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		StringBuffer output = new StringBuffer (String.format(template,"ID","Name","Timestamp","Number of Files","Size","Description"));
+		
 		if(containedData !=null &&!containedData.isEmpty()){
 			for(MetaData files:containedData){
 				String formatedString = String.format(template,files.getId(),files.getName(),files.getTimestamp().toString(),files.getNumberOfFiles(),files.getSize(),files.getDescription());
+				// Why several times replace all instead of once?
+				// TODO If you have a file named thread, it will become tdread here.
 				output.append(formatedString.replaceAll("th","td"));
 			}
 		}

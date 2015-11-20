@@ -77,6 +77,7 @@ class ParseUtils {
 	 * is thrown if either the filepath is incorrect or the data is formatted incorrectly
 	 */
 	public static Properties loadProperties(final String filepath) throws IOException{
+		//TODO Verification?
 		final Properties output =  new Properties();
 		final FileInputStream in = new FileInputStream(filepath);
 		if(filepath.endsWith(".xml")){
