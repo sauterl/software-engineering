@@ -68,5 +68,4 @@ class ParseUtils {
 		final DateFormat precise = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return precise.format(date);
 	}
-	
 }

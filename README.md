@@ -13,6 +13,7 @@ Some shortcuts to important documentation:
 
 * [Project introduction](http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/SoftwareProjekt.pdf) (in German language)
 * [specifications](http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/specifications.pdf) (in English language)
+* [specifications v2](http://informatik.unibas.ch/fileadmin/Lectures/HS2015/software-engineering/specifications2.pdf) (in English language)
 
 Contributors
 -----------

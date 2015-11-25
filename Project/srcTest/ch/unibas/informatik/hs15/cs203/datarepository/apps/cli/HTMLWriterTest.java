@@ -20,7 +20,7 @@ public class HTMLWriterTest {
 		try {
 			writer.update(empty);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO Is this a fail or expected behavior?
 			e.printStackTrace();
 		}
 	}
