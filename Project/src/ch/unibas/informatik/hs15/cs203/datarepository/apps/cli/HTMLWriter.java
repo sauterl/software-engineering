@@ -29,7 +29,9 @@ public class HTMLWriter {
 	 */
 	public void update(List<MetaData> containedData) throws IOException{
 		
-		//TODO Verify MetaData
+		if(containedData.contains(null) || containedData.isEmpty()){
+			throw new IOException();
+		}
 		
 		File directory = new File(_classpath);
 		//Check whether the file exists
@@ -37,7 +39,9 @@ public class HTMLWriter {
 		if(!directory.exists()){
 			directory.mkdirs();
 		}
-		//TODO What to do if table is a directory???
+		if(table.isDirectory()){
+			throw new IOException();
+		}
 		if(table.exists() && !table.isDirectory()){
 			table.delete();
 		}
@@ -55,11 +59,11 @@ public class HTMLWriter {
 		StringBuffer output = new StringBuffer (String.format(template,"ID","Name","Timestamp","Number of Files","Size","Description"));
 		
 		if(containedData !=null &&!containedData.isEmpty()){
+			template = template.replaceAll("<th>","<td>").replaceAll("</th>", "</td>");
 			for(MetaData files:containedData){
+		
 				String formatedString = String.format(template,files.getId(),files.getName(),files.getTimestamp().toString(),files.getNumberOfFiles(),files.getSize(),files.getDescription());
-				// Why several times replace all instead of once?
-				// TODO If you have a file named thread, it will become tdread here.
-				output.append(formatedString.replaceAll("th","td"));
+				output.append(formatedString);
 			}
 		}
 		output.insert(0,"<table>\n");
