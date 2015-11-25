@@ -5,6 +5,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
@@ -41,7 +42,11 @@ public class DatasetPort {
 	}
 
 	private DataRepository app = null;
+	
+	private WatchService service = null;
 
+	private WatchKey key = null;
+	
 	private DatasetPort(Path repo, DatasetPortConfiguration config){
 		incoming = config.getIncoming();
 		this.repo = repo;
@@ -50,24 +55,26 @@ public class DatasetPort {
 	private DatasetPort(Path repo, Path incoming) {
 		this.repo = repo;
 		this.incoming = incoming;
-		app = Factory.create(repo.toFile());
-		setup();
+		try{
+			setup();
+		}catch(IOException ex){
+			throw new RuntimeException("Could not start server for reason: ", ex);
+		}
+		
 	}
 
-	private void setup() {
-		// do stuff
-		// html thingy etc
+	private void setup() throws IOException {
+		app = Factory.create(repo.toFile());
+		service = FileSystems.getDefault().newWatchService();
+		key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
 	}
 
 	public void start() {
-		try {
-			WatchKey key = incoming.register(
-					FileSystems.getDefault().newWatchService(),
-					StandardWatchEventKinds.ENTRY_CREATE,
-					StandardWatchEventKinds.ENTRY_MODIFY);
-		} catch (IOException x) {
-			// do stuff
+		// startup
+		for(;;){
+			//the loop
 		}
+		//finishing up
 	}
 
 }
