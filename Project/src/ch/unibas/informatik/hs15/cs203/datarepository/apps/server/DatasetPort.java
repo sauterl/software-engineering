@@ -28,10 +28,26 @@ public class DatasetPort {
 	 */
 	private final Path incoming;
 
-	// TODO Solve cyclic dependency with datarepository problem
+	/**
+	 * Singleton
+	 */
+	private static DatasetPort instance = null;
+	
+	public static DatasetPort getDatasetPort(Path repo, DatasetPortConfiguration config){
+		if(instance == null){
+			instance = new DatasetPort(repo, config);
+		}
+		return instance;
+	}
+
 	private DataRepository app = null;
 
-	public DatasetPort(Path repo, Path incoming) {
+	private DatasetPort(Path repo, DatasetPortConfiguration config){
+		incoming = config.getIncoming();
+		this.repo = repo;
+	}
+	
+	private DatasetPort(Path repo, Path incoming) {
 		this.repo = repo;
 		this.incoming = incoming;
 		app = Factory.create(repo.toFile());
