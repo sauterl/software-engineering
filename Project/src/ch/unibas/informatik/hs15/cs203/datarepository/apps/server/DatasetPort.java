@@ -101,10 +101,13 @@ public class DatasetPort {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
+						logger.info("Verifying new file! Filename: "+file.toString());	//TODO Debug level
 						if (!config.getCompletenessDetection().newInstance()
 								.verifyCompletness(file.toPath())) {
+							logger.info("File incomplete.");
 							continue;
 						}
+						logger.info("Adding file: "+file.toString());
 						MetaData md = app.add(file, null, true,
 								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
