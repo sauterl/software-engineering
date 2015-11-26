@@ -10,6 +10,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;

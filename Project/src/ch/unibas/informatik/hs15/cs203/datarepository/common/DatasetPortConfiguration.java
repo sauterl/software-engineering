@@ -1,8 +1,9 @@
-package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
+package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import java.nio.file.Path;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort;
 
 /**
  * Configuration of {@link DatasetPort}.

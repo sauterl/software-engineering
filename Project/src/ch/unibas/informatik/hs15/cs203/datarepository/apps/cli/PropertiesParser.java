@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
-import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 
 /**
  * Has no constructor. Use PropertiesParser.parse();

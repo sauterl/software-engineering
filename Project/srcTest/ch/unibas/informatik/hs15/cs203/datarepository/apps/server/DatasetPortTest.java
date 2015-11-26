@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.APITestCase;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 public class DatasetPortTest extends APITestCase{
