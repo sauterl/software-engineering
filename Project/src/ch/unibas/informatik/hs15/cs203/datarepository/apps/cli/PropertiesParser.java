@@ -58,6 +58,10 @@ class PropertiesParser {
 			throw new RuntimeException(
 					"Error while loading properties file: " + e);
 		}
+		return parse(props);
+	}
+	
+	public static DatasetPortConfiguration parse(final Properties props) throws ParseException{
 		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
 		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
 		final Path logPath = parsePath(props, LOG_FILE_KEY);
