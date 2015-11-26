@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.Properties;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
+
 public class PropertiesParser {
 
 	public static final String INCOMING_DIR_KEY = "incoming-directory";
@@ -46,7 +48,13 @@ public class PropertiesParser {
 		Path htmlPath = parsePath(HTML_OVERVIEW_KEY);
 		Path logPath = parsePath(LOG_FILE_KEY);
 		int interval = parseInteger(CHECKING_INTERVAL_KEY);
-		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval);
+		CompletenessDetection strategy = parseDetection();
+		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval, strategy.getClass());
+	}
+
+	private CompletenessDetection parseDetection() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private Path parsePath(String key) throws ParseException {

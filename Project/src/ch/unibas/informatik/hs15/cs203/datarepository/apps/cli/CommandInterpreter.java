@@ -93,7 +93,7 @@ class CommandInterpreter {
 				return executeReplace(command);
 			case SERVER:
 				executeServer(command);
-				return "Server ended"; // any case this will get printed? Only on failure, right?
+				return "Server ended"; // any case this will get printed? Only on failure, right? TODO
 			default:
 				return handleUnknownCommand(cmdName);
 		}
@@ -275,7 +275,8 @@ class CommandInterpreter {
 	private void executeServer(final LinkedList<String> arguments){
 		final String repoLoc = arguments.getFirst();
 		final String propertiesFile = arguments.getLast();
-		// call server start.
+		
+		//TODO Start server
 	}
 
 	/**

@@ -2,6 +2,8 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
 
 import java.nio.file.Path;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
+
 /**
  * Configuration of {@link DatasetPort}.
  * <br />
@@ -18,16 +20,12 @@ public class DatasetPortConfiguration {
 	
 	private int scanInterval; //in seconds
 	
-	public DatasetPortConfiguration(Path incoming, Path htmlOverview, Path logFile, int scanInterval){
+	public DatasetPortConfiguration(Path incoming, Path htmlOverview, Path logFile, int scanInterval, Class<? extends CompletenessDetection> strategy){
 		this.incoming = incoming;
 		this.htmlOverview = htmlOverview;
 		this.logFile = logFile;
 		this.scanInterval = scanInterval;
-	}
-	
-	public DatasetPortConfiguration(Path incoming, Path htmlOverview, Path logFile, int scanInterval, Class<?> completenessDetectionClass){
-		this(incoming, htmlOverview, logFile, scanInterval);
-		this.completenessDetection = completenessDetectionClass;
+		this.completenessDetection = strategy;
 	}
 	
 	public Path getIncoming() {
@@ -46,10 +44,9 @@ public class DatasetPortConfiguration {
 		return scanInterval;
 	}
 
-	public Class<?> getCompletenessDetection() {
+	public Class<? extends CompletenessDetection> getCompletenessDetection() {
 		return completenessDetection;
 	}
 
-	// TODO replace ? with interface name
-	private Class<?> completenessDetection = null;
+	private Class<? extends CompletenessDetection> completenessDetection = null;
 }

@@ -67,11 +67,21 @@ public class DatasetPort {
 		app = Factory.create(repo.toFile());
 		service = FileSystems.getDefault().newWatchService();
 		key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+		//TODO Parse Properties, If invalid shut down Log ERROR on Standard output
+		//TODO Verify existence of directory to be watched
 	}
 
 	public void start() {
 		// startup
+		//TODO Recreate HTML File at Properties.html-overview. If null, don't do anything
+		//TODO Log SUCCESS Message on Standard output
+		
+		//TODO Redirect Standard output to Logfile
 		for(;;){
+			//TODO Check every x seconds for new files in Properties.incoming-dir
+			//TODO Use Completeness Detection
+			//TODO Execute add with --move
+			//TODO Update HTML File
 			//the loop
 		}
 		//finishing up
