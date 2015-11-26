@@ -133,6 +133,12 @@ class PropertiesParser {
 		}
 	}
 	
+	/**
+	 * Sets the {@link ClassLoader} with which the parses tries to load the CompletenessDetection class.
+	 * <br /><b>Note: Use this method only if you <i>know</i> what you are doing</b>.
+	 * <br />The default class loader is used if none is specified with this method.
+	 * @param l The classloader.
+	 */
 	public static void setClassLoader(ClassLoader l){
 		loader = l;
 	}
