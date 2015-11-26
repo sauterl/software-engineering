@@ -1,5 +1,6 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.api;
 
+import java.nio.file.Path;
 import java.util.Properties;
 
 /**
@@ -18,5 +19,5 @@ public interface CompletenessDetection {
 	 * @return
 	 * True if complete, false if not complete
 	 */
-	boolean verifyCompletness();
+	boolean verifyCompletness(Path file);
 }
