@@ -285,7 +285,6 @@ class CommandInterpreter {
 		DatasetPortConfiguration config  = PropertiesParser.parse(propertiesFile);
 		DatasetPort server = DatasetPort.getDatasetPort(new File(repoLoc).toPath(), config, repo);
 		server.start();
-		//TODO Start server
 	}
 
 	/**
