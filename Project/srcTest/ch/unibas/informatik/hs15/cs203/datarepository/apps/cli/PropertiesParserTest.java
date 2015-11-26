@@ -1,6 +1,7 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,5 +46,29 @@ public class PropertiesParserTest {
 		DatasetPortConfiguration config = PropertiesParser.parse(createRegularProps());
 		assertEquals(createRegularConfig().toString(), config.toString());
 	}
-
+	
+	@Test
+	public void testNotAllKeys(){
+		try{
+			Properties props = createRegularProps();
+			props.remove(PropertiesParser.INCOMING_DIR_KEY );
+			PropertiesParser.parse(props );
+			fail("Exception expected");
+		}catch(Exception e){
+			
+		}
+	}
+	
+	@Test
+	public void testInexistentClass(){
+		try{
+			Properties props = createRegularProps();
+			props.setProperty(PropertiesParser.CMPLTNSS_CLASS_KEY, "mypackage.Checker");
+			PropertiesParser.parse(props);
+			fail("Exception expected");
+		}catch(Exception e){
+			
+		}
+	}
+	
 }
