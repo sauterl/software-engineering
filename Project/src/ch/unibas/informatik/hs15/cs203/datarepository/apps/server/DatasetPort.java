@@ -106,13 +106,10 @@ public class DatasetPort {
 			// TODO Check every x seconds for new files in
 			// Properties.incoming-dir
 			// TODO Use Completeness Detection
-			// TODO Execute add with --move
 			File file = new File("theFile.txt");//TODO Replace with real file!
 			MetaData md = app.add(file, null, true, new DummyProgressListener() );
 			logger.info("Successfully added dataset with id: "+md.getId());
-			// TODO Update HTML File
 			writer.update(app.getMetaData(Criteria.all()));
-			// the loop
 		}
 	}
 
