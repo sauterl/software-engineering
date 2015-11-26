@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
@@ -61,6 +63,8 @@ class PropertiesParser {
 		return parse(props);
 	}
 	
+	private static ClassLoader loader = null;
+	
 	public static DatasetPortConfiguration parse(final Properties props) throws ParseException{
 		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
 		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
@@ -72,23 +76,29 @@ class PropertiesParser {
 				strategy);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Class<? extends CompletenessDetection> parseDetection(
 			final Properties props) throws ParseException {
 
 		try {
 			final Class<?> c = Class
-					.forName(props.getProperty(CMPLTNSS_CLASS_KEY));
-			if (CompletenessDetection.class.isInstance(c)) {
+					.forName(props.getProperty(CMPLTNSS_CLASS_KEY), false, loader);
+			/*
+			 * Seems correctly but does not work:
+			 * CompletenessDetection.class.isInstance(c)
+			 */
+			Class[] interfaces = c.getInterfaces();
+			List<Class> iList = Arrays.asList(interfaces);
+			if (iList.contains(CompletenessDetection.class)) {
 				return (Class<? extends CompletenessDetection>) c;
 			} else {
-				throw new ParseException(
+				throw new IllegalArgumentException(
 						"The specified CompletenessDetection class is not a CompletenessDetection: "
 								+ c.getName());
 			}
 
 		} catch (final ClassNotFoundException e) {
-			throw new ParseException(
+			throw new IllegalArgumentException(
 					"CompletenessDetection class was not found. Is the plugin loaded properly?",
 					e);
 		}
@@ -121,6 +131,10 @@ class PropertiesParser {
 		} catch (final InvalidPathException ex) {
 			throw new ParseException(key, ex);
 		}
+	}
+	
+	public static void setClassLoader(ClassLoader l){
+		loader = l;
 	}
 
 }
