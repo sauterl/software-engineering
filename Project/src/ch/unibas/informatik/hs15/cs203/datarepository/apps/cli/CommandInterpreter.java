@@ -10,6 +10,8 @@ import java.util.Map;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.PropertiesParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
@@ -276,6 +278,8 @@ class CommandInterpreter {
 		final String repoLoc = arguments.getFirst();
 		final String propertiesFile = arguments.getLast();
 		
+		final DataRepository repo = factory.create(new File(repoLoc));
+		DatasetPortConfiguration config  = PropertiesParser.parse(propertiesFile);
 		//TODO Start server
 	}
 

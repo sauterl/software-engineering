@@ -43,34 +43,32 @@ public class DatasetPort {
 
 	private DataRepository app = null;
 	
-	private WatchService service = null;
-
-	private WatchKey key = null;
+//	private WatchService service = null;
+//
+//	private WatchKey key = null;
 	
 	private DatasetPort(Path repo, DatasetPortConfiguration config){
 		incoming = config.getIncoming();
 		this.repo = repo;
-	}
-	
-	private DatasetPort(Path repo, Path incoming) {
-		this.repo = repo;
-		this.incoming = incoming;
 		try{
 			setup();
 		}catch(IOException ex){
-			throw new RuntimeException("Could not start server for reason: ", ex);
+			throw new RuntimeException("Could not start server ", ex);
 		}
-		
 	}
 
 	private void setup() throws IOException {
-		app = Factory.create(repo.toFile());
-		service = FileSystems.getDefault().newWatchService();
-		key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+		app = Factory.create(repo.toFile());	//TODO
+		//service = FileSystems.getDefault().newWatchService();
+		//key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
 		//TODO Parse Properties, If invalid shut down Log ERROR on Standard output
 		//TODO Verify existence of directory to be watched
 	}
 
+	/**
+	 * Public entry point to start a DatasetPort
+	 * Setup() has been called at this point
+	 */
 	public void start() {
 		// startup
 		//TODO Recreate HTML File at Properties.html-overview. If null, don't do anything

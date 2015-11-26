@@ -10,6 +10,11 @@ import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 
+/**
+ * Has no constructor. Use PropertiesParser.parse();
+ * @author Silvan
+ *
+ */
 public class PropertiesParser {
 
 	public static final String INCOMING_DIR_KEY = "incoming-directory";
@@ -37,13 +42,7 @@ public class PropertiesParser {
 		}
 	}
 
-	private final Properties props;
-
-	public PropertiesParser(final String path) throws IOException {
-		props = loadProperties(path);
-	}
-
-	public DatasetPortConfiguration parse() {
+	public static DatasetPortConfiguration parse(String filepath) {
 		Path inDir = parsePath(INCOMING_DIR_KEY);
 		Path htmlPath = parsePath(HTML_OVERVIEW_KEY);
 		Path logPath = parsePath(LOG_FILE_KEY);
@@ -52,56 +51,37 @@ public class PropertiesParser {
 		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval, strategy.getClass());
 	}
 
-	private CompletenessDetection parseDetection() {
+	private static CompletenessDetection parseDetection() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	private Path parsePath(String key) throws ParseException {
-		try {
-			String path = props.getProperty(key);
-			if (path != null) {
-				return Paths.get(path);
-			} else {
-				throw new ParseException(key);
-			}
-		} catch (InvalidPathException ex) {
-			throw new ParseException(key, ex);
-		}
+	private static Path parsePath(String key) throws ParseException {
+//		try {
+//			String path = props.getProperty(key);
+//			if (path != null) {
+//				return Paths.get(path);
+//			} else {
+//				throw new ParseException(key);
+//			}
+//		} catch (InvalidPathException ex) {
+//			throw new ParseException(key, ex);
+//		}
+		return null;
 	}
 	
-	private int parseInteger(String key) throws ParseException{
-		try{
-			String it = props.getProperty(key);
-			if(it != null){
-				return Integer.parseInt(it);
-			}else{
-				throw new ParseException(key);
-			}
-		}catch(NumberFormatException ex){
-			throw new ParseException(key, ex);
-		}
-	}
-
-	/**
-	 * Loads a property file f
-	 * 
-	 * @throws IOException
-	 *             is thrown if either the firom a given filepath
-	 * @param filepath
-	 *            has to be the path to a well formatted propertyfile
-	 * @returnlepath is incorrect or the data is formatted incorrectly
-	 */
-	private Properties loadProperties(final String filepath)
-			throws IOException {
-		final Properties output = new Properties();
-		final FileInputStream in = new FileInputStream(filepath);
-		if (filepath.endsWith(".xml")) {
-			output.loadFromXML(in);
-		} else {
-			output.load(in);
-		}
-		return output;
+	private static int parseInteger(String key) throws ParseException{
+//		try{
+//			String it = props.getProperty(key);
+//			if(it != null){
+//				return Integer.parseInt(it);
+//			}else{
+//				throw new ParseException(key);
+//			}
+//		}catch(NumberFormatException ex){
+//			throw new ParseException(key, ex);
+//		}
+		return 0;
 	}
 
 }
