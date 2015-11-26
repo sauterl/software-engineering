@@ -8,8 +8,18 @@ import java.util.List;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
+/**
+ * TODO "which contains a complete static HTML page with an HTML table" See page 8 from the specifiations.
+ * This means an HTML page which is renderable in a browser needs to be generated, not just a table.
+ *
+ */
 public class HTMLWriter {
 	final String _classpath;
+	
+	/**
+	 * TODO Remove tableName. the constructor receives a full path to the table-file
+	 * If that file doesn't exists, no HTML Output will be generated
+	 */
 	final String tableName = "myLittleTable.html";
 	/**
 	 * Initializes the writer with a classpath
@@ -21,6 +31,7 @@ public class HTMLWriter {
 		_classpath = folder;
 	}
 	/**
+	 * 
 	 * Updates the current HTML Table
 	 * @param containedData
 	 * List of the data contained in the repository. 
@@ -29,7 +40,9 @@ public class HTMLWriter {
 	 */
 	public void update(List<MetaData> containedData) throws IOException{
 		
-		//TODO Verify MetaData
+		if(containedData.contains(null) || containedData.isEmpty()){
+			throw new IOException();
+		}
 		
 		File directory = new File(_classpath);
 		//Check whether the file exists
@@ -37,7 +50,9 @@ public class HTMLWriter {
 		if(!directory.exists()){
 			directory.mkdirs();
 		}
-		//TODO What to do if table is a directory???
+		if(table.isDirectory()){
+			throw new IOException();
+		}
 		if(table.exists() && !table.isDirectory()){
 			table.delete();
 		}
@@ -55,11 +70,11 @@ public class HTMLWriter {
 		StringBuffer output = new StringBuffer (String.format(template,"ID","Name","Timestamp","Number of Files","Size","Description"));
 		
 		if(containedData !=null &&!containedData.isEmpty()){
+			template = template.replaceAll("<th>","<td>").replaceAll("</th>", "</td>");
 			for(MetaData files:containedData){
+		
 				String formatedString = String.format(template,files.getId(),files.getName(),files.getTimestamp().toString(),files.getNumberOfFiles(),files.getSize(),files.getDescription());
-				// Why several times replace all instead of once?
-				// TODO If you have a file named thread, it will become tdread here.
-				output.append(formatedString.replaceAll("th","td"));
+				output.append(formatedString);
 			}
 		}
 		output.insert(0,"<table>\n");

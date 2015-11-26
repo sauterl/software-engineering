@@ -2,6 +2,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.Map;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.PropertiesParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
@@ -93,7 +97,7 @@ class CommandInterpreter {
 				return executeReplace(command);
 			case SERVER:
 				executeServer(command);
-				return "Server ended"; // any case this will get printed? Only on failure, right?
+				return "Server ended"; // any case this will get printed? Only on failure, right? TODO
 			default:
 				return handleUnknownCommand(cmdName);
 		}
@@ -275,7 +279,12 @@ class CommandInterpreter {
 	private void executeServer(final LinkedList<String> arguments){
 		final String repoLoc = arguments.getFirst();
 		final String propertiesFile = arguments.getLast();
-		// call server start.
+		
+		final DataRepository repo = factory.create(new File(repoLoc));
+		DatasetPortConfiguration config  = PropertiesParser.parse(propertiesFile);
+		DatasetPort server = DatasetPort.getDatasetPort(new File(repoLoc).toPath(), config, repo);
+		server.start();
+		//TODO Start server
 	}
 
 	/**

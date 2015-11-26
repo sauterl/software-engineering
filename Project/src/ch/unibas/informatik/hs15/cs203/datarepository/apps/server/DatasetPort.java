@@ -8,6 +8,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 /**
@@ -24,54 +25,67 @@ public class DatasetPort {
 	 * The repository path
 	 */
 	private final Path repo;
+	
 	/**
-	 * The path to the incoming folder (as described in the specifications)
+	 * Configuration
 	 */
-	private final Path incoming;
+	private DatasetPortConfiguration config;
 
 	/**
 	 * Singleton
 	 */
 	private static DatasetPort instance = null;
 	
-	public static DatasetPort getDatasetPort(Path repo, DatasetPortConfiguration config){
+	public static DatasetPort getDatasetPort(Path repo, DatasetPortConfiguration config, DataRepository app){
 		if(instance == null){
-			instance = new DatasetPort(repo, config);
+			instance = new DatasetPort(repo, config, app);
 		}
 		return instance;
 	}
 
 	private DataRepository app = null;
 	
-	private WatchService service = null;
-
-	private WatchKey key = null;
+//	private WatchService service = null;
+//
+//	private WatchKey key = null;
 	
-	private DatasetPort(Path repo, DatasetPortConfiguration config){
-		incoming = config.getIncoming();
+	private DatasetPort(Path repo, DatasetPortConfiguration config, DataRepository app){
+		this.config = config;
 		this.repo = repo;
-	}
-	
-	private DatasetPort(Path repo, Path incoming) {
-		this.repo = repo;
-		this.incoming = incoming;
+		this.app = app;
 		try{
 			setup();
 		}catch(IOException ex){
-			throw new RuntimeException("Could not start server for reason: ", ex);
+			throw new RuntimeException("Could not start server ", ex);
 		}
-		
 	}
 
 	private void setup() throws IOException {
-		app = Factory.create(repo.toFile());
-		service = FileSystems.getDefault().newWatchService();
-		key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+		
+		//service = FileSystems.getDefault().newWatchService();
+		//key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+		//TODO Parse Properties, If invalid shut down Log ERROR on Standard output
+		//TODO Verify existence of directory to be watched
 	}
 
+	/**
+	 * Public entry point to start a DatasetPort
+	 * Setup() has been called at this point
+	 */
 	public void start() {
 		// startup
+		//TODO Recreate HTML File at Properties.html-overview. If null, don't do anything
+		HTMLWriter writer = new HTMLWriter(config.getHtmlOverview().toString());
+		
+		//TODO Redirect Standard output to Logfile
+		//TODO Log version + properties
+		
+		//TODO Log SUCCESS Message on Standard output
 		for(;;){
+			//TODO Check every x seconds for new files in Properties.incoming-dir
+			//TODO Use Completeness Detection
+			//TODO Execute add with --move
+			//TODO Update HTML File
 			//the loop
 		}
 		//finishing up
