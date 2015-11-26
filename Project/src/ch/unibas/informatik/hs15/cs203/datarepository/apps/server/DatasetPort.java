@@ -73,17 +73,21 @@ public class DatasetPort {
 			run();
 		} catch (final Throwable t) {
 			logger.error("Server crashed due to:", t);
-			System.err.println("Server crashed for reason "
+			String out = "Server crashed for reason "
 					+ (t != null && t.getMessage() != null ? t.getMessage()
-							: "unknown"));
+							: "unknown");
+			throw new RuntimeException(out, t);
+
 		}
 	}
 
 	/**
 	 * Public entry point to start a DatasetPort Setup() has been called at this
 	 * point
+	 * 
+	 * @throws IOException
 	 */
-	public void run() {
+	private void run() throws IOException {
 
 		logProperties();
 
@@ -96,20 +100,23 @@ public class DatasetPort {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
-						if(!config.getCompletenessDetection().newInstance()
-								.verifyCompletness(file.toPath())){
+						if (!config.getCompletenessDetection().newInstance()
+								.verifyCompletness(file.toPath())) {
 							continue;
 						}
-						MetaData md = app.add(file, null, true, new DummyProgressListener());
+						MetaData md = app.add(file, null, true,
+								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
 								+ md.getId());
 						writer.update(app.getMetaData(Criteria.all()));
 
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new RuntimeException(
-								"Could not create an Instance of Completeness Detection.", e);
+								"Could not create an Instance of Completeness Detection.",
+								e);
 					} catch (IOException e) {
-						throw new RuntimeException("Updating of HTML File failed. ", e);
+						throw new RuntimeException(
+								"Updating of HTML File failed. ", e);
 					}
 				}
 			}
