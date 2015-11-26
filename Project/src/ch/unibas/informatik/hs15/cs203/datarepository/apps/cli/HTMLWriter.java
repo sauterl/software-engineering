@@ -8,8 +8,18 @@ import java.util.List;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
+/**
+ * TODO "which contains a complete static HTML page with an HTML table" See page 8 from the specifiations.
+ * This means an HTML page which is renderable in a browser needs to be generated, not just a table.
+ *
+ */
 public class HTMLWriter {
 	final String _classpath;
+	
+	/**
+	 * TODO Remove tableName. the constructor receives a full path to the table-file
+	 * If that file doesn't exists, no HTML Output will be generated
+	 */
 	final String tableName = "myLittleTable.html";
 	/**
 	 * Initializes the writer with a classpath
@@ -21,6 +31,7 @@ public class HTMLWriter {
 		_classpath = folder;
 	}
 	/**
+	 * 
 	 * Updates the current HTML Table
 	 * @param containedData
 	 * List of the data contained in the repository. 

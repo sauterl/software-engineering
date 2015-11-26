@@ -31,7 +31,11 @@ public class DatasetPortConfiguration {
 	public Path getIncoming() {
 		return incoming;
 	}
-
+	/**
+	 * Absolute or relative path to the file which contains a complete static HTML page
+	 * with an HTML table with the same content produced by the optionless list command. If not
+	 * specifed no overview will be created.
+	 */
 	public Path getHtmlOverview() {
 		return htmlOverview;
 	}

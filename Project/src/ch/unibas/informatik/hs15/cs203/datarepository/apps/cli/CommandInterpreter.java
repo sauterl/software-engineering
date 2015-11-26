@@ -2,6 +2,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.PropertiesParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
@@ -280,6 +282,8 @@ class CommandInterpreter {
 		
 		final DataRepository repo = factory.create(new File(repoLoc));
 		DatasetPortConfiguration config  = PropertiesParser.parse(propertiesFile);
+		DatasetPort server = DatasetPort.getDatasetPort(new File(repoLoc).toPath(), config, repo);
+		server.start();
 		//TODO Start server
 	}
 

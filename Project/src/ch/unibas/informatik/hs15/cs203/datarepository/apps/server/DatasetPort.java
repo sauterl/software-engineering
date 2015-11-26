@@ -8,6 +8,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 
 /**
@@ -24,19 +25,20 @@ public class DatasetPort {
 	 * The repository path
 	 */
 	private final Path repo;
+	
 	/**
-	 * The path to the incoming folder (as described in the specifications)
+	 * Configuration
 	 */
-	private final Path incoming;
+	private DatasetPortConfiguration config;
 
 	/**
 	 * Singleton
 	 */
 	private static DatasetPort instance = null;
 	
-	public static DatasetPort getDatasetPort(Path repo, DatasetPortConfiguration config){
+	public static DatasetPort getDatasetPort(Path repo, DatasetPortConfiguration config, DataRepository app){
 		if(instance == null){
-			instance = new DatasetPort(repo, config);
+			instance = new DatasetPort(repo, config, app);
 		}
 		return instance;
 	}
@@ -47,9 +49,10 @@ public class DatasetPort {
 //
 //	private WatchKey key = null;
 	
-	private DatasetPort(Path repo, DatasetPortConfiguration config){
-		incoming = config.getIncoming();
+	private DatasetPort(Path repo, DatasetPortConfiguration config, DataRepository app){
+		this.config = config;
 		this.repo = repo;
+		this.app = app;
 		try{
 			setup();
 		}catch(IOException ex){
@@ -58,7 +61,7 @@ public class DatasetPort {
 	}
 
 	private void setup() throws IOException {
-		app = Factory.create(repo.toFile());	//TODO
+		
 		//service = FileSystems.getDefault().newWatchService();
 		//key = incoming.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
 		//TODO Parse Properties, If invalid shut down Log ERROR on Standard output
@@ -72,9 +75,12 @@ public class DatasetPort {
 	public void start() {
 		// startup
 		//TODO Recreate HTML File at Properties.html-overview. If null, don't do anything
-		//TODO Log SUCCESS Message on Standard output
+		HTMLWriter writer = new HTMLWriter(config.getHtmlOverview().toString());
 		
 		//TODO Redirect Standard output to Logfile
+		//TODO Log version + properties
+		
+		//TODO Log SUCCESS Message on Standard output
 		for(;;){
 			//TODO Check every x seconds for new files in Properties.incoming-dir
 			//TODO Use Completeness Detection
