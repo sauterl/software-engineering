@@ -2,18 +2,17 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 
 import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 
 /**
  * The {@link DatasetPort} class represents the 'server mode' of the data
@@ -35,13 +34,10 @@ public class DatasetPort {
 	 */
 	private DatasetPortConfiguration config;
 
-	/**
-	 * Singleton
-	 */
 	private static DatasetPort instance = null;
 
-	public static DatasetPort getDatasetPort(Path repo,
-			DatasetPortConfiguration config, DataRepository app) {
+	public static DatasetPort getDatasetPort(final Path repo,
+			final DatasetPortConfiguration config, final DataRepository app) {
 		if (instance == null) {
 			instance = new DatasetPort(repo, config, app);
 		}
@@ -50,19 +46,93 @@ public class DatasetPort {
 
 	private DataRepository app = null;
 
-	// private WatchService service = null;
-	//
-	// private WatchKey key = null;
+	private DatasetPortLogger logger = null;
 
-	private DatasetPort(Path repo, DatasetPortConfiguration config,
-			DataRepository app) {
+	private HTMLWriter writer;
+
+	private DatasetPort(final Path repo, final DatasetPortConfiguration config,
+			final DataRepository app) {
 		this.config = config;
 		this.repo = repo;
 		this.app = app;
-		setup();
+		init();
 	}
 
-	private void setup() throws IllegalArgumentException {
+	private void init() {
+		logger = new DatasetPortLogger(repo, config.getLogFile());
+	}
+
+	public void start() {
+		try {
+			setup();
+		} catch (final Throwable t) {
+			logger.error("Startup failed due to reason: ", t);
+		}
+		try {
+			run();
+		} catch (final Throwable t) {
+			logger.error("Server crashed due to:", t);
+			System.err.println("Server crashed for reason "
+					+ (t != null && t.getMessage() != null ? t.getMessage()
+							: "unknown"));
+		}
+	}
+
+	/**
+	 * Public entry point to start a DatasetPort Setup() has been called at this
+	 * point
+	 */
+	public void run() {
+
+		logProperties();
+
+		System.out.println("Successfully started server mode...");
+
+		// TODO Print everything to Logfile
+
+		File directory = config.getIncoming().toFile();
+		for (;;) {
+			if (directory.listFiles().length != 0) {
+				for (File file : directory.listFiles()) {
+					try {
+						config.getCompletenessDetection().newInstance()
+								.verifyCompletness(file.toPath());
+
+						// TODO Execute add with --move
+						// TODO Update HTML File
+
+						File temp = new File("theFile.txt");// TODO Replace with
+															// real file!
+						MetaData md = app.add(temp, null, true,
+								new DummyProgressListener());
+						logger.info("Successfully added dataset with id: "
+								+ md.getId());
+
+					} catch (InstantiationException | IllegalAccessException e) {
+						throw new RuntimeException(
+								"Could not create an Instance of Completeness Detection.");
+					}
+				}
+			}
+
+			try {
+				Thread.sleep(config.getScanInterval());
+			} catch (InterruptedException e) {
+				throw new IllegalArgumentException(
+						"Server execution interrupted");
+			}
+		}
+		// finishing up
+	}
+
+	private void logProperties() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(Version.VERSION);
+		builder.append(", " + config.toString());
+		logger.info(builder.toString());
+	}
+
+	private void setup() {
 		if (!config.getIncoming().toFile().exists()) {
 			throw new IllegalArgumentException(
 					"Error while starting Server. Incoming Directory does not exist");
@@ -76,56 +146,19 @@ public class DatasetPort {
 					"Error while starting Server. No completeness detection has been specified");
 		}
 		if (config.getScanInterval() <= 0) {
-			throw new IllegalArgumentException("Error while starting Server. Invalid Scan Interval");
+			throw new IllegalArgumentException(
+					"Error while starting Server. Invalid Scan Interval");
 		}
-	}
 
-	/**
-	 * Public entry point to start a DatasetPort Setup() has been called at this
-	 * point
-	 */
-	public void start() {
-		if(config.getHtmlOverview()!=null){
-			HTMLWriter writer = new HTMLWriter(config.getHtmlOverview().toString());
+		if (config.getHtmlOverview() != null) {
+			writer = new HTMLWriter(config.getHtmlOverview().toString());
 			try {
-				writer.update(app.getMetaData(CriteriaWrapper.all().getWrappedObject()));
+				writer.update(app.getMetaData(CriteriaWrapper.all()
+						.getWrappedObject()));
 			} catch (IOException e) {
-				throw new IllegalArgumentException("Error while starting Server. HTML file could not be created.");
+				throw new IllegalArgumentException(
+						"Error while starting Server. HTML file could not be created.");
 			}
 		}
-		Logger logger = Logger.getLogger(this.getClass());
-		
-		StringBuilder builder = new StringBuilder();
-		builder.append(Version.VERSION);
-		builder.append(", "+config.toString());
-		logger.info(builder.toString());
-
-		// TODO Print everything to Logfile
-
-		logger.info("Server start successful");
-		// TODO Log SUCCESS Message on Standard output
-		File directory = config.getIncoming().toFile();
-		for (;;) {
-			if(directory.listFiles().length!=0){
-				for(File file : directory.listFiles()){
-					try {
-						config.getCompletenessDetection().newInstance().verifyCompletness(file.toPath());
-					} catch (InstantiationException | IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			// TODO Execute add with --move
-			// TODO Update HTML File
-			// the loop
-			try {
-				Thread.sleep(config.getScanInterval());
-			} catch (InterruptedException e) {
-				throw new IllegalArgumentException("Server execution interrupted");
-			}
-		}
-		// finishing up
 	}
-
 }

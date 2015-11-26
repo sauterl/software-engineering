@@ -17,6 +17,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
 
 public class ClientTest
 {

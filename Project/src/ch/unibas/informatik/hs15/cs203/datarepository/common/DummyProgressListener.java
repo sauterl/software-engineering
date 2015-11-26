@@ -1,4 +1,4 @@
-package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
+package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
@@ -8,7 +8,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
  * @author Loris
  * 
  */
-class DummyProgressListener implements ProgressListener {
+public class DummyProgressListener implements ProgressListener {
 
 	/**
 	 * Creates a new default {@link DummyProgressListener}.
