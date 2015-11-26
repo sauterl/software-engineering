@@ -27,6 +27,21 @@
 			"name":"ch.unibas.informatik.hs15.cs203.datarepository.processing.DataRepositoryImpl",
 			"handler":"console",
 			"level":"INFO"
+		},
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort",
+			"handler":"console",
+			"level":"INFO"
+		},
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.CommandInterpreter",
+			"handler":"console",
+			"level":"INFO"
+		},
+		{
+			"name":"ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.PropertiesParser",
+			"handler":"console",
+			"level":"DEBUG"
 		}
 	]
 }

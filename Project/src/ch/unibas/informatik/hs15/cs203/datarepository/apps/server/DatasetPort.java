@@ -26,6 +26,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
  */
 public class DatasetPort {
 
+	private static final Logger LOG = Logger.getLogger(DatasetPort.class);
+	
 	/**
 	 * The repository path
 	 */
@@ -58,6 +60,7 @@ public class DatasetPort {
 		this.repo = repo;
 		this.app = app;
 		init();
+		LOG.info(String.format("Initialized with configuration: %s", config.toString() ));
 	}
 
 	private void init() {
@@ -73,6 +76,7 @@ public class DatasetPort {
 		try {
 			run();
 		} catch (final Throwable t) {
+			LOG.error("Server crash", t);
 			logger.error("Server crashed due to:", t);
 			String out = "Server crashed for reason "
 					+ (t != null && t.getMessage() != null ? t.getMessage()

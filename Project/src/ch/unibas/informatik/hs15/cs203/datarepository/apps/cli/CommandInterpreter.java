@@ -17,6 +17,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
+import util.logging.Logger;
 
 /**
  * The {@link CommandInterpreter} receives a command with its options and
@@ -31,6 +32,8 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListen
  *
  */
 class CommandInterpreter {
+	
+	private static final Logger LOG = Logger.getLogger(CommandInterpreter.class);
 
 	private ArgumentsAnalyzer analyzer;
 
@@ -281,6 +284,7 @@ class CommandInterpreter {
 		final String propertiesFile = arguments.getLast();
 		
 		final DataRepository repo = factory.create(new File(repoLoc));
+		
 		DatasetPortConfiguration config  = PropertiesParser.parse(propertiesFile);
 		DatasetPort server = DatasetPort.getDatasetPort(new File(repoLoc).toPath(), config, repo);
 		server.start();

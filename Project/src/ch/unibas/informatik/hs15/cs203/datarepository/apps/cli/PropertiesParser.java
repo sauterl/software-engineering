@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
+import util.logging.Logger;
 
 /**
  * Has no constructor. Use PropertiesParser.parse();
@@ -19,8 +20,10 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfigur
  *
  */
 class PropertiesParser {
-
+	private static final Logger LOG = Logger.getLogger(ParseException.class);
 	public static class ParseException extends RuntimeException {
+		
+		
 		/**
 		 * Eclipse generated
 		 */
@@ -66,6 +69,7 @@ class PropertiesParser {
 	private static ClassLoader loader = null;
 	
 	public static DatasetPortConfiguration parse(final Properties props) throws ParseException{
+		LOG.info("The properties object: \n"+props.toString());
 		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
 		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
 		final Path logPath = parsePath(props, LOG_FILE_KEY);
