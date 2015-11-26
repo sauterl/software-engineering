@@ -1,4 +1,4 @@
-package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
+package ch.unibas.informatik.hs15.cs203.datarepository.apps.cli;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
 
 /**
  * Has no constructor. Use PropertiesParser.parse();
@@ -15,7 +16,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
  * @author Silvan
  *
  */
-public class PropertiesParser {
+class PropertiesParser {
 
 	public static class ParseException extends RuntimeException {
 		/**

@@ -13,7 +13,6 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortConfiguration;
-import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.PropertiesParser;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
