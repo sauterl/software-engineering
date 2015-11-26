@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -95,8 +96,7 @@ class DatasetPortLogger {
 	private void writeLog(String log) {
 		BufferedWriter bw = null;
 		try {
-			bw = Files.newBufferedWriter(path, StandardOpenOption.WRITE,
-					StandardOpenOption.APPEND);
+			bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 			bw.append(log);
 			bw.newLine();
 			bw.flush();
