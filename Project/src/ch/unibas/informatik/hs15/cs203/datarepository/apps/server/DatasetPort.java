@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import util.logging.Logger;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
@@ -95,22 +96,20 @@ public class DatasetPort {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
-						config.getCompletenessDetection().newInstance()
-								.verifyCompletness(file.toPath());
-
-						// TODO Execute add with --move
-						// TODO Update HTML File
-
-						File temp = new File("theFile.txt");// TODO Replace with
-															// real file!
-						MetaData md = app.add(temp, null, true,
-								new DummyProgressListener());
+						if(!config.getCompletenessDetection().newInstance()
+								.verifyCompletness(file.toPath())){
+							continue;
+						}
+						MetaData md = app.add(file, null, true, new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
 								+ md.getId());
+						writer.update(app.getMetaData(Criteria.all()));
 
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new RuntimeException(
-								"Could not create an Instance of Completeness Detection.");
+								"Could not create an Instance of Completeness Detection.", e);
+					} catch (IOException e) {
+						throw new RuntimeException("Updating of HTML File failed. ", e);
 					}
 				}
 			}
@@ -122,7 +121,6 @@ public class DatasetPort {
 						"Server execution interrupted");
 			}
 		}
-		// finishing up
 	}
 
 	private void logProperties() {
