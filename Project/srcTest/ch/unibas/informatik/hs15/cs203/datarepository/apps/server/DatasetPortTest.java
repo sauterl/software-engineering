@@ -50,7 +50,6 @@ public class DatasetPortTest extends APITestCase {
 		HTMLOverview = Paths.get(repository.toString(), "table.html");
 
 		logFile = Paths.get(repository.toString(), "server.log");
-		// TODO Remove this line later
 		logFile.toFile().createNewFile();
 
 		config = new DatasetPortConfiguration(incomingDir, HTMLOverview,
