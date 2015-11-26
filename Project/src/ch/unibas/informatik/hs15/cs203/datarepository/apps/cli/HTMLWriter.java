@@ -40,7 +40,7 @@ public class HTMLWriter {
 	 */
 	public void update(List<MetaData> containedData) throws IOException{
 		
-		if(containedData.contains(null) || containedData.isEmpty()){
+		if(containedData.contains(null)){
 			throw new IOException();
 		}
 		
