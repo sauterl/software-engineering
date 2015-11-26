@@ -74,9 +74,11 @@ public class DatasetPort {
 			run();
 		} catch (final Throwable t) {
 			logger.error("Server crashed due to:", t);
-			System.err.println("Server crashed for reason "
+			String out = "Server crashed for reason "
 					+ (t != null && t.getMessage() != null ? t.getMessage()
-							: "unknown"));
+							: "unknown");
+			throw new RuntimeException(out, t);
+			
 		}
 	}
 
