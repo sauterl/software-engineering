@@ -13,8 +13,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.tools.StandardLocation;
-
 class DatasetPortLogger {
 
 	private Path path;
@@ -34,35 +32,49 @@ class DatasetPortLogger {
 	public static final String DEFAULT_FILE_NAME = "server.log";
 
 	public DatasetPortLogger(Path repo, Path path) {
-		path = confirmPath(repo, path);
+		this.path = confirmPath(repo, path);
+		
 	}
 
 	private Path confirmPath(Path repo, Path path) {
-		boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
-		boolean notExists = Files.notExists(path, LinkOption.NOFOLLOW_LINKS);
-		if (notExists) {
-			return createDefaultLogFile(repo);
-		} else if (exists) {
-			boolean isDir = Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS);
-			boolean isFile = Files.isRegularFile(path,
+		if(path != null) {
+			boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+			boolean notExists = Files.notExists(path,
 					LinkOption.NOFOLLOW_LINKS);
-			if (isFile) {
-				return path;
-			} else if (isDir) {
-				return createDefaultLogFile(path);
+			if (notExists) {
+				return createDefaultLogFile(repo);
+			} else if (exists) {
+				boolean isDir = Files.isDirectory(path,
+						LinkOption.NOFOLLOW_LINKS);
+				boolean isFile = Files.isRegularFile(path,
+						LinkOption.NOFOLLOW_LINKS);
+				if (isFile) {
+					return path;
+				} else if (isDir) {
+					return createDefaultLogFile(path);
+				} else {
+					throw new IllegalArgumentException(
+							"Path is neither a file nor a directory: "
+									+ path.toString());
+				}
 			} else {
 				throw new IllegalArgumentException(
-						"Path is neither a file nor a directory: "
-								+ path.toString());
+						"Cannot acces given path: " + path.toString());
 			}
-		} else {
-			throw new IllegalArgumentException(
-					"Cannot acces given path: " + path.toString());
+		} else{
+			return createDefaultLogFile(repo);
 		}
 	}
 
 	private Path createDefaultLogFile(Path parent) {
-		return parent.resolve(DEFAULT_FILE_NAME);
+		Path out = parent.resolve(DEFAULT_FILE_NAME);
+		try{
+			Files.createFile(out);
+		}catch(IOException ex){
+			// silently ignored
+			// TODO verify strategy
+		}
+		return out;
 	}
 
 	public void info(String msg) {
@@ -72,9 +84,9 @@ class DatasetPortLogger {
 	public void error(String msg) {
 		log(ERROR_LVL, msg);
 	}
-	
-	public void error(String msg, Throwable t){
-		StringBuilder sb = new StringBuilder(msg+"\n");
+
+	public void error(String msg, Throwable t) {
+		StringBuilder sb = new StringBuilder(msg + "\n");
 		if (t != null) {
 			// record has throwable
 			final StringWriter strWtr = new StringWriter();
@@ -96,7 +108,8 @@ class DatasetPortLogger {
 	private void writeLog(String log) {
 		BufferedWriter bw = null;
 		try {
-			bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+			bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+					StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 			bw.append(log);
 			bw.newLine();
 			bw.flush();
@@ -107,6 +120,8 @@ class DatasetPortLogger {
 				bw.close();
 			} catch (IOException e) {
 				throw new RuntimeException("No! Serious problem: ", e);
+			} catch(NullPointerException ex){
+				// do nothing, bw is null and thus must not be closed
 			}
 		}
 

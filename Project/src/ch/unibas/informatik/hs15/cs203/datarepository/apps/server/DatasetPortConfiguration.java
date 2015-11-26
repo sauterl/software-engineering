@@ -52,21 +52,14 @@ public class DatasetPortConfiguration {
 		return completenessDetection;
 	}
 	
-	@Override
-	public String toString(){
-		StringBuilder builder = new StringBuilder();
-		builder.append(PropertiesParser.INCOMING_DIR_KEY+": "+this.getIncoming());
-		if(this.getHtmlOverview()!=null){
-			builder.append(", "+PropertiesParser.HTML_OVERVIEW_KEY+": "+this.getHtmlOverview());	
-		}
-		if(this.getLogFile()!=null){
-			builder.append(", "+PropertiesParser.LOG_FILE_KEY+": "+this.getLogFile());
-		}
-		builder.append(", "+PropertiesParser.CHECKING_INTERVAL_KEY+": "+this.getScanInterval());
-		builder.append(", "+PropertiesParser.CMPLTNSS_CLASS_KEY+": "+this.getCompletenessDetection().getCanonicalName());
-		
-		return builder.toString();
-	}
 
 	private Class<? extends CompletenessDetection> completenessDetection = null;
+
+	@Override
+	public String toString() {
+		return "DatasetPortConfiguration [incoming=" + (incoming!=null?incoming:"null")
+				+ ", htmlOverview=" + (htmlOverview!=null?htmlOverview:"null") + ", logFile=" + (logFile!=null?logFile:"null")
+				+ ", scanInterval=" + scanInterval + ", completenessDetection="
+				+ (completenessDetection!=null?completenessDetection:"null") + "]";
+	}
 }
