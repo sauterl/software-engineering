@@ -135,10 +135,7 @@ public class DatasetPort {
 	}
 
 	private void logProperties() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(Version.VERSION);
-		builder.append(", " + config.toString());
-		logger.info(builder.toString());
+		logger.logHeader(config);
 	}
 
 	private void setup() {

@@ -13,6 +13,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
+
 class DatasetPortLogger {
 
 	private Path path;
@@ -75,6 +78,33 @@ class DatasetPortLogger {
 			// TODO verify strategy
 		}
 		return out;
+	}
+	public static final String INCOMING_DIR_KEY = "incoming-directory";
+	public static final String HTML_OVERVIEW_KEY = "html-overview";
+	public static final String LOG_FILE_KEY = "log-file";
+	public static final String CHECKING_INTERVAL_KEY = "checking-interval-in-seconds";
+
+	public static final String CMPLTNSS_CLASS_KEY = "completeness-detection"
+			+ "." + "class-name";
+	
+	public void logHeader(DatasetPortConfiguration config){
+		info("data-repository version: "+Version.VERSION);
+		info("Configuraiton:");
+		info(createPathEntry("incoming-directory", config.getIncoming()));
+		info(createPathEntry("html-overview", config.getHtmlOverview()));
+		info(createPathEntry("log-file", config.getLogFile() ));
+		info("checking-interval-in-seconds: "+config.getScanInterval());
+		info(createClassEntry("completeness-detection", config.getCompletenessDetection() ));
+	}
+	
+	private String createClassEntry(String key, Class<?> clazz){
+		String c = clazz != null ? clazz.getName() : "null";
+		return key +": "+c;
+	}
+	
+	private String createPathEntry(String key, Path path){
+		String p = path!= null ? path.toString() : "null";
+		return key+": "+p;
 	}
 
 	public void info(String msg) {
