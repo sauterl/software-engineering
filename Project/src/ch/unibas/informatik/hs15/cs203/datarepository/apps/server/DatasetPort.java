@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
@@ -98,8 +99,9 @@ public class DatasetPort {
 	/**
 	 * Public entry point to start a DatasetPort Setup() has been called at this
 	 * point
+	 * @throws IOException 
 	 */
-	private void run() {
+	private void run() throws IOException {
 		for (;;) {
 			// TODO Check every x seconds for new files in
 			// Properties.incoming-dir
@@ -109,6 +111,7 @@ public class DatasetPort {
 			MetaData md = app.add(file, null, true, new DummyProgressListener() );
 			logger.info("Successfully added dataset with id: "+md.getId());
 			// TODO Update HTML File
+			writer.update(app.getMetaData(Criteria.all()));
 			// the loop
 		}
 	}
