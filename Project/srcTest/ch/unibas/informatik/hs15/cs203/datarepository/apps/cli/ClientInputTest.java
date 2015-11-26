@@ -26,6 +26,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
 @RunWith(Parameterized.class)
 public class ClientInputTest {
 	private static final String FORMAT = "yyyy-MM-dd HH:mm:ss";

@@ -17,6 +17,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.PropertiesPars
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.ManPageGenerator;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.support.Utilities;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
 
 /**
  * The {@link CommandInterpreter} receives a command with its options and

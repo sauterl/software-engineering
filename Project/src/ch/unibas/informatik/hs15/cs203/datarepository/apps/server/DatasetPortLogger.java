@@ -2,6 +2,8 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -68,6 +70,21 @@ class DatasetPortLogger {
 
 	public void error(String msg) {
 		log(ERROR_LVL, msg);
+	}
+	
+	public void error(String msg, Throwable t){
+		StringBuilder sb = new StringBuilder(msg+"\n");
+		if (t != null) {
+			// record has throwable
+			final StringWriter strWtr = new StringWriter();
+			final PrintWriter pWtr = new PrintWriter(strWtr);
+			pWtr.println();
+			t.printStackTrace(pWtr);
+			pWtr.flush();
+			pWtr.close();
+			sb.append(strWtr.toString());
+		}
+		error(sb.toString());
 	}
 
 	private void log(String lvl, String msg) {
