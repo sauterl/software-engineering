@@ -33,10 +33,10 @@ class DatasetPortLogger {
 	public static final String DEFAULT_FILE_NAME = "server.log";
 
 	public DatasetPortLogger(Path repo, Path path) {
-		path = confimPath(repo, path);
+		path = confirmPath(repo, path);
 	}
 
-	private Path confimPath(Path repo, Path path) {
+	private Path confirmPath(Path repo, Path path) {
 		boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 		boolean notExists = Files.notExists(path, LinkOption.NOFOLLOW_LINKS);
 		if (notExists) {
