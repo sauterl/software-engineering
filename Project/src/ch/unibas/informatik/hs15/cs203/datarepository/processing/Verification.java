@@ -65,7 +65,7 @@ class Verification {
 		}
 		if (!file.exists()) {
 			throw new IllegalArgumentException(
-					"The given folder does not exist");
+					"The given folder("+file.getPath()+") does not exist");
 		}
 	}
 
