@@ -20,10 +20,8 @@ import util.logging.Logger;
  *
  */
 class PropertiesParser {
-	private static final Logger LOG = Logger.getLogger(ParseException.class);
 	public static class ParseException extends RuntimeException {
-		
-		
+
 		/**
 		 * Eclipse generated
 		 */
@@ -46,6 +44,8 @@ class PropertiesParser {
 		}
 	}
 
+	private static final Logger LOG = Logger.getLogger(ParseException.class);
+
 	public static final String INCOMING_DIR_KEY = "incoming-directory";
 	public static final String HTML_OVERVIEW_KEY = "html-overview";
 	public static final String LOG_FILE_KEY = "log-file";
@@ -53,6 +53,21 @@ class PropertiesParser {
 
 	public static final String CMPLTNSS_CLASS_KEY = "completeness-detection"
 			+ "." + "class-name";
+
+	private static ClassLoader loader = PropertiesParser.class.getClassLoader();
+
+	public static DatasetPortConfiguration parse(final Properties props)
+			throws ParseException {
+		LOG.info("The properties object: \n" + props.toString());
+		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
+		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
+		final Path logPath = parsePath(props, LOG_FILE_KEY);
+		final int interval = parseInteger(props, CHECKING_INTERVAL_KEY);
+		final Class<? extends CompletenessDetection> strategy = parseDetection(
+				props);
+		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval,
+				strategy);
+	}
 
 	public static DatasetPortConfiguration parse(final String filepath)
 			throws ParseException {
@@ -65,34 +80,36 @@ class PropertiesParser {
 		}
 		return parse(props);
 	}
-	
-	private static ClassLoader loader = null;
-	
-	public static DatasetPortConfiguration parse(final Properties props) throws ParseException{
-		LOG.info("The properties object: \n"+props.toString());
-		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
-		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
-		final Path logPath = parsePath(props, LOG_FILE_KEY);
-		final int interval = parseInteger(props, CHECKING_INTERVAL_KEY);
-		final Class<? extends CompletenessDetection> strategy = parseDetection(
-				props);
-		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval,
-				strategy);
+
+	/**
+	 * Sets the {@link ClassLoader} with which the parses tries to load the
+	 * CompletenessDetection class. <br />
+	 * <b>Note: Use this method only if you <i>know</i> what you are doing</b>.
+	 * <br />
+	 * The default class loader is used if none is specified with this method.
+	 *
+	 * @param l
+	 *            The classloader.
+	 */
+	public static void setClassLoader(final ClassLoader l) {
+		loader = l;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Class<? extends CompletenessDetection> parseDetection(
 			final Properties props) throws ParseException {
-
+		final String cName = props.getProperty(CMPLTNSS_CLASS_KEY);
+		if (cName == null) {
+			throw new ParseException(CMPLTNSS_CLASS_KEY);
+		}
 		try {
-			final Class<?> c = Class
-					.forName(props.getProperty(CMPLTNSS_CLASS_KEY), false, loader);
+			final Class<?> c = Class.forName(cName, false, loader);
 			/*
 			 * Seems correctly but does not work:
 			 * CompletenessDetection.class.isInstance(c)
 			 */
-			Class[] interfaces = c.getInterfaces();
-			List<Class> iList = Arrays.asList(interfaces);
+			final Class[] interfaces = c.getInterfaces();
+			final List<Class> iList = Arrays.asList(interfaces);
 			if (iList.contains(CompletenessDetection.class)) {
 				return (Class<? extends CompletenessDetection>) c;
 			} else {
@@ -103,7 +120,8 @@ class PropertiesParser {
 
 		} catch (final ClassNotFoundException e) {
 			throw new IllegalArgumentException(
-					"CompletenessDetection class was not found. Is the plugin loaded properly?",
+					"CompletenessDetection class (" + cName
+							+ ")was not found. Is the plugin loaded properly?",
 					e);
 		}
 
@@ -135,16 +153,6 @@ class PropertiesParser {
 		} catch (final InvalidPathException ex) {
 			throw new ParseException(key, ex);
 		}
-	}
-	
-	/**
-	 * Sets the {@link ClassLoader} with which the parses tries to load the CompletenessDetection class.
-	 * <br /><b>Note: Use this method only if you <i>know</i> what you are doing</b>.
-	 * <br />The default class loader is used if none is specified with this method.
-	 * @param l The classloader.
-	 */
-	public static void setClassLoader(ClassLoader l){
-		loader = l;
 	}
 
 }

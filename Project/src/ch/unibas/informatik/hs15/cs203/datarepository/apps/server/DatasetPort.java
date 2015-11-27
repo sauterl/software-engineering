@@ -105,13 +105,15 @@ public class DatasetPort {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
-						logger.info("Verifying new file! Filename: "+file.toString());	//TODO Debug level
+						//Replaced DatasetPortLogger (logger) with Logger (LOG) of utils.logging
+						LOG.debug("Verifying new file! Filename: "+file.toString());	//TODO Debug level
 						if (!config.getCompletenessDetection().newInstance()
 								.verifyCompletness(file.toPath())) {
-							logger.info("File incomplete.");
+							LOG.warn("File incomplete ("+file.toString()+")");
 							continue;
 						}
-						logger.info("Adding file: "+file.toString());
+						//Replaced DatasetPortLogger (logger) with Logger (LOG) of utils.logging
+						LOG.debug("Adding file: "+file.toString());
 						MetaData md = app.add(file, null, true,
 								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
