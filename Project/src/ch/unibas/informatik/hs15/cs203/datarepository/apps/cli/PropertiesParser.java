@@ -60,7 +60,10 @@ class PropertiesParser {
 			throws ParseException {
 		LOG.info("The properties object: \n" + props.toString());
 		final Path inDir = parsePath(props, INCOMING_DIR_KEY);
-		final Path htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
+		Path htmlPath = null;
+		if(props.containsKey(HTML_OVERVIEW_KEY)){
+			htmlPath = parsePath(props, HTML_OVERVIEW_KEY);
+		}
 		final Path logPath = parsePath(props, LOG_FILE_KEY);
 		final int interval = parseInteger(props, CHECKING_INTERVAL_KEY);
 		final Class<? extends CompletenessDetection> strategy = parseDetection(
@@ -154,5 +157,5 @@ class PropertiesParser {
 			throw new ParseException(key, ex);
 		}
 	}
-
+	
 }

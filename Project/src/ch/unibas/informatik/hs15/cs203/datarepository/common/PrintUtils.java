@@ -1,5 +1,8 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 /**
  * Some utils for printing.
  * 
@@ -7,6 +10,19 @@ package ch.unibas.informatik.hs15.cs203.datarepository.common;
  * 
  */
 public class PrintUtils {
+
+	/**
+	 * The application's date-time-format.
+	 * <br />
+	 * It's format string is as followed: <tt>yyyy-MM-dd HH:mm:ss</tt>.
+	 */
+	public static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	/**
+	 * The application's date-format.
+	 * <br />
+	 * It's format string is as followed: <tt>yyyy-MM-dd</tt>.
+	 */
+	public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	private PrintUtils() {
 		// only static methods

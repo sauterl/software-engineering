@@ -10,26 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
+import ch.unibas.informatik.hs15.cs203.datarepository.common.PrintUtils;
+
 /**
  * Class which contains utility methods for parsing.
  * @author Loris
  *
  */
 class ParseUtils {
-	
-	/**
-	 * The application's date-time-format.
-	 * <br />
-	 * It's format string is as followed: <tt>yyyy-MM-dd HH:mm:ss</tt>.
-	 */
-	public static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
-	/**
-	 * The application's date-format.
-	 * <br />
-	 * It's format string is as followed: <tt>yyyy-MM-dd</tt>.
-	 */
-	public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 	
 	private ParseUtils(){/* no instances*/}
 	
@@ -49,9 +37,9 @@ class ParseUtils {
 	public static Date parseDate(final String str) {
 		try {
 			if (str.length() > 10) {
-				return DATE_TIME_FORMAT.parse(str);
+				return PrintUtils.DATE_TIME_FORMAT.parse(str);
 			} else {
-				return DATE_FORMAT.parse(str);
+				return PrintUtils.DATE_FORMAT.parse(str);
 			}
 		} catch (final ParseException | NullPointerException e) {
 			return null;
@@ -59,7 +47,7 @@ class ParseUtils {
 	}
 	
 	/**
-	 * Formats a given Date to the application's {@link #DATE_TIME_FORMAT}.
+	 * Formats a given Date to the application's {@link PrintUtils#DATE_TIME_FORMAT}.
 	 * @param date The date to parse.
 	 * @return A string containing the parsed date.
 	 * @see DateFormat#format(Date)

@@ -53,7 +53,9 @@ public class DatasetPort {
 	private DatasetPortLogger logger = null;
 
 	private HTMLWriter writer;
-
+	
+	private OverviewWriter htmlGen;
+	
 	private DatasetPort(final Path repo, final DatasetPortConfiguration config,
 			final DataRepository app) {
 		this.config = config;
@@ -95,11 +97,8 @@ public class DatasetPort {
 	private void run() throws IOException {
 
 		logProperties();
-
+		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
 		System.out.println("Successfully started server mode...");
-
-		// TODO Print everything to Logfile
-
 		File directory = config.getIncoming().toFile();
 		for (;;) {
 			if (directory.listFiles().length != 0) {
@@ -118,7 +117,8 @@ public class DatasetPort {
 								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
 								+ md.getId());
-						writer.update(app.getMetaData(Criteria.all()));
+//						writer.update(app.getMetaData(Criteria.all()));
+						htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
 
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new RuntimeException(
@@ -162,6 +162,9 @@ public class DatasetPort {
 					"Error while starting Server. Invalid Scan Interval");
 		}
 
+		htmlGen = new OverviewWriter(config.getHtmlOverview());
+		/*
+		 * The OverviewWriter treats _null_ param as if it is disabled -> as of specificationsV2
 		if (config.getHtmlOverview() != null) {
 			writer = new HTMLWriter(config.getHtmlOverview().toString());
 			try {
@@ -171,6 +174,6 @@ public class DatasetPort {
 				throw new IllegalArgumentException(
 						"Error while starting Server. HTML file could not be created.");
 			}
-		}
+		}*/
 	}
 }

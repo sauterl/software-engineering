@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.PrintUtils;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 
 class DatasetPortLogger {
@@ -21,13 +22,6 @@ class DatasetPortLogger {
 	private Path path;
 
 	public static final String TEMPLATE = "%1$s %2$s %3$s";
-
-	/**
-	 * The application's date-time-format. <br />
-	 * It's format string is as followed: <tt>yyyy-MM-dd HH:mm:ss</tt>.
-	 */
-	public static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
 
 	public static final String INFO_LVL = "[INFO]";
 	public static final String ERROR_LVL = "[ERROR]";
@@ -158,7 +152,7 @@ class DatasetPortLogger {
 	}
 
 	private String createLog(String lvl, String msg) {
-		return String.format(TEMPLATE, DATE_TIME_FORMAT.format(new Date()), lvl,
+		return String.format(TEMPLATE, PrintUtils.DATE_TIME_FORMAT.format(new Date()), lvl,
 				msg);
 	}
 }
