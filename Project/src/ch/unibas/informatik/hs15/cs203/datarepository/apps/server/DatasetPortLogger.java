@@ -56,7 +56,7 @@ class DatasetPortLogger {
 				}
 			} else {
 				throw new IllegalArgumentException(
-						"Cannot acces given path: " + path.toString());
+						"Cannot access given path: " + path.toString());
 			}
 		} else{
 			return createDefaultLogFile(repo);
@@ -68,7 +68,7 @@ class DatasetPortLogger {
 		try{
 			Files.createFile(out);
 		}catch(IOException ex){
-			// silently ignored
+			throw new RuntimeException("Could not create Logfile", ex);
 			// TODO verify strategy
 		}
 		return out;
@@ -138,12 +138,12 @@ class DatasetPortLogger {
 			bw.newLine();
 			bw.flush();
 		} catch (IOException ex) {
-			throw new RuntimeException("Oh! Problem: ", ex);
+			throw new RuntimeException("An Error happened while writing the log", ex);
 		} finally {
 			try {
 				bw.close();
 			} catch (IOException e) {
-				throw new RuntimeException("No! Serious problem: ", e);
+				throw new RuntimeException("An error happened while closing the logfile ", e);
 			} catch(NullPointerException ex){
 				// do nothing, bw is null and thus must not be closed
 			}

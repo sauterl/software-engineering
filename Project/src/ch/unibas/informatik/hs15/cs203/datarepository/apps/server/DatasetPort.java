@@ -8,13 +8,8 @@ import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
-import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.HTMLWriter;
-import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
-import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
-import ch.unibas.informatik.hs15.cs203.datarepository.processing.Factory;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
-import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 
 /**
  * The {@link DatasetPort} class represents the 'server mode' of the data
@@ -51,10 +46,10 @@ public class DatasetPort {
 	private DataRepository app = null;
 
 	private DatasetPortLogger logger = null;
-
-	private HTMLWriter writer;
 	
 	private OverviewWriter htmlGen;
+	
+	private boolean running;
 	
 	private DatasetPort(final Path repo, final DatasetPortConfiguration config,
 			final DataRepository app) {
@@ -67,6 +62,7 @@ public class DatasetPort {
 
 	private void init() {
 		logger = new DatasetPortLogger(repo, config.getLogFile());
+		running = true;
 	}
 
 	public void start() {
@@ -98,26 +94,26 @@ public class DatasetPort {
 
 		logProperties();
 		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
+		
 		System.out.println("Successfully started server mode...");
 		File directory = config.getIncoming().toFile();
-		for (;;) {
+		while(running) {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
-						//Replaced DatasetPortLogger (logger) with Logger (LOG) of utils.logging
-						LOG.debug("Verifying new file! Filename: "+file.toString());	//TODO Debug level
+						
+						LOG.debug("Verifying new file! Filename: "+file.toString());
 						if (!config.getCompletenessDetection().newInstance()
 								.verifyCompletness(file.toPath())) {
 							LOG.warn("File incomplete ("+file.toString()+")");
 							continue;
 						}
-						//Replaced DatasetPortLogger (logger) with Logger (LOG) of utils.logging
+
 						LOG.debug("Adding file: "+file.toString());
 						MetaData md = app.add(file, null, true,
 								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
 								+ md.getId());
-//						writer.update(app.getMetaData(Criteria.all()));
 						htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
 
 					} catch (InstantiationException | IllegalAccessException e) {
@@ -175,5 +171,16 @@ public class DatasetPort {
 						"Error while starting Server. HTML file could not be created.");
 			}
 		}*/
+	}
+
+	public void shutdown() {
+		running = false;
+	}
+
+	/**
+	 * Resets the current instance to null. Used for unittesting
+	 */
+	public static void resetInstance() {
+		instance = null;
 	}
 }

@@ -41,7 +41,7 @@ public class Utils
         }
     }
     
-    static String createExampleContent(int numberOfCharacters)
+    public static String createExampleContent(int numberOfCharacters)
     {
         StringBuilder builder = new StringBuilder();
         builder.setLength(numberOfCharacters);

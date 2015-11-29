@@ -7,6 +7,12 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 
 public class MockDummyCompletenessDetection  implements CompletenessDetection{
 
+	private boolean result;
+	
+	public MockDummyCompletenessDetection(){
+		result = true;
+	}
+	
 	@Override
 	public void initializeDetection(Properties properties) {
 		
@@ -14,7 +20,11 @@ public class MockDummyCompletenessDetection  implements CompletenessDetection{
 
 	@Override
 	public boolean verifyCompletness(Path file) {
-		return false;
+		return result;
+	}
+	
+	public void setResult(boolean result){
+		this.result = result;
 	}
 	
 
