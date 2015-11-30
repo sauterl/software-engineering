@@ -16,8 +16,6 @@ import util.logging.Logger;
 /**
  * Has no constructor. Use PropertiesParser.parse();
  *
- * @author Silvan
- *
  */
 class PropertiesParser {
 	public static class ParseException extends RuntimeException {
@@ -69,7 +67,7 @@ class PropertiesParser {
 		final Class<? extends CompletenessDetection> strategy = parseDetection(
 				props);
 		return new DatasetPortConfiguration(inDir, htmlPath, logPath, interval,
-				strategy);
+				strategy, props);
 	}
 
 	public static DatasetPortConfiguration parse(final String filepath)

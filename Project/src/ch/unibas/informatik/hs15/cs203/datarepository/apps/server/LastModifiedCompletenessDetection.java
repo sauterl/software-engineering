@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 
-public class LastModifiedCompletnessDetection implements CompletenessDetection {
+public class LastModifiedCompletenessDetection implements CompletenessDetection {
 	private int quietPeriod;
 
 	@Override
@@ -44,7 +44,7 @@ public class LastModifiedCompletnessDetection implements CompletenessDetection {
 		if (file.isFile()) {
 			return file.lastModified();
 		} else {
-			long mostRecent = 0l;
+			long mostRecent = file.lastModified();
 			for (File f : file.listFiles()) {
 				long lastModified = findLastModifiedDate(f);
 				if (mostRecent < lastModified) {

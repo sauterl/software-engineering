@@ -6,11 +6,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Test;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.APITestCase;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.MockDummyCompletenessDetection;
@@ -20,7 +22,6 @@ public class DatasetPortTest extends APITestCase {
 
 	DatasetPort port;
 	Path HTMLOverview;
-	MockDummyCompletenessDetection strategy = new MockDummyCompletenessDetection();
 	DatasetPortConfiguration config;
 	Path logFile;
 	Path incomingDir;
@@ -35,7 +36,8 @@ public class DatasetPortTest extends APITestCase {
 
 	@Test
 	public void testAddSingleFile() throws IOException, InterruptedException {
-		init(1);
+		CompletenessDetection strategy = new MockDummyCompletenessDetection();
+		init(1, strategy, null);
 		current = new Thread(new PortRunnable(port));
 		current.start();
 		Thread.sleep(500); 		//Give the server time to start
@@ -48,7 +50,8 @@ public class DatasetPortTest extends APITestCase {
 	
 	@Test
 	public void testAddMultipleFiles() throws IOException, InterruptedException{
-		init(1);
+		CompletenessDetection strategy = new MockDummyCompletenessDetection();
+		init(1, strategy, null);
 		current = new Thread(new PortRunnable(port));
 		current.start();
 		File file = new File(incomingDir.toFile(), "example.txt");
@@ -61,25 +64,29 @@ public class DatasetPortTest extends APITestCase {
 	    assertEquals("example2.txt", dataRepository.getMetaData(Criteria.all()).get(1).getName());
 	}
 	
-	//TODO @Test with real completenessdetection
+	@Test
 	public void testAddFolderWithContents() throws InterruptedException, IOException{
-		init(1);
+		CompletenessDetection strategy = new LastModifiedCompletenessDetection();
+		Properties properties = new Properties();
+		properties.setProperty("completeness-detection.quiet-period-in-seconds", "2");
+		init(1, strategy, properties);
 		current = new Thread(new PortRunnable(port));
 		current.start();
-
+		
 		File folder = new File(incomingDir.toFile(), "my-data");
 	    Utils.createExampleData(folder,
 	            "/greetings.txt:hello world!",
 	            "/data/1.dat:" + Utils.createExampleContent(1234567),
 	            "/data/2.dat:" + Utils.createExampleContent(7654321));
-	    Thread.sleep(1500);
+	    Thread.sleep(3500);	//sleep quiet-period + serverchecktime
 	    assertEquals("my-data", dataRepository.getMetaData(Criteria.all()).get(0).getName());
 	    assertEquals(5, dataRepository.getMetaData(Criteria.all()).get(0).getNumberOfFiles());
 	}
 	
 	@Test
 	public void testAddEmptyFolder() throws IOException, InterruptedException{
-		init(1);
+		CompletenessDetection strategy = new MockDummyCompletenessDetection();
+		init(1, strategy, null);
 		current = new Thread(new PortRunnable(port));
 		current.start();
 
@@ -90,7 +97,7 @@ public class DatasetPortTest extends APITestCase {
 	    assertEquals(1, dataRepository.getMetaData(Criteria.all()).get(0).getNumberOfFiles());		
 	}
 
-	private void init(int scanInterval) throws IOException {
+	private void init(int scanInterval, CompletenessDetection strategy, Properties properties) throws IOException {
 
 		incomingDir = new File("test-incoming-dir").toPath();
 		Utils.delete(incomingDir.toFile());
@@ -103,7 +110,7 @@ public class DatasetPortTest extends APITestCase {
 		//logFile.toFile().createNewFile();
 
 		config = new DatasetPortConfiguration(incomingDir, HTMLOverview,
-				null, scanInterval, strategy.getClass());
+				null, scanInterval, strategy.getClass(), properties);
 
 		port = DatasetPort.getDatasetPort(repository.toPath(), config,
 				dataRepository);

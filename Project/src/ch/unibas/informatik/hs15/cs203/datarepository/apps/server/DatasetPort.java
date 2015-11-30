@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import util.logging.Logger;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
@@ -22,7 +23,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListen
 public class DatasetPort {
 
 	private static final Logger LOG = Logger.getLogger(DatasetPort.class);
-	
+
 	/**
 	 * The repository path
 	 */
@@ -46,18 +47,19 @@ public class DatasetPort {
 	private DataRepository app = null;
 
 	private DatasetPortLogger logger = null;
-	
+
 	private OverviewWriter htmlGen;
-	
+
 	private boolean running;
-	
+
 	private DatasetPort(final Path repo, final DatasetPortConfiguration config,
 			final DataRepository app) {
 		this.config = config;
 		this.repo = repo;
 		this.app = app;
 		init();
-		LOG.info(String.format("Initialized with configuration: %s", config.toString() ));
+		LOG.info(String.format("Initialized with configuration: %s",
+				config.toString()));
 	}
 
 	private void init() {
@@ -94,32 +96,34 @@ public class DatasetPort {
 
 		logProperties();
 		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
-		
+		CompletenessDetection strategy = null;
+		try {
+			strategy = config.getCompletenessDetection().newInstance();
+			strategy.initializeDetection(config.getProperties());
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(
+					"Could not create an Instance of Completeness Detection.",
+					e);
+		}
 		System.out.println("Successfully started server mode...");
 		File directory = config.getIncoming().toFile();
-		while(running) {
+		while (running) {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
 					try {
-						
-						LOG.debug("Verifying new file! Filename: "+file.toString());
-						if (!config.getCompletenessDetection().newInstance()
-								.verifyCompletness(file.toPath())) {
-							LOG.warn("File incomplete ("+file.toString()+")");
+						LOG.debug("Verifying new file! Filename: "
+								+ file.toString());
+						if (!strategy.verifyCompletness(file.toPath())) {
+							LOG.warn("File incomplete (" + file.toString()
+									+ ")");
 							continue;
 						}
-
-						LOG.debug("Adding file: "+file.toString());
+						LOG.debug("Adding file: " + file.toString());
 						MetaData md = app.add(file, null, true,
 								new DummyProgressListener());
 						logger.info("Successfully added dataset with id: "
 								+ md.getId());
 						htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
-
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new RuntimeException(
-								"Could not create an Instance of Completeness Detection.",
-								e);
 					} catch (IOException e) {
 						throw new RuntimeException(
 								"Updating of HTML File failed. ", e);
@@ -130,8 +134,7 @@ public class DatasetPort {
 			try {
 				Thread.sleep(config.getScanInterval());
 			} catch (InterruptedException e) {
-				throw new IllegalArgumentException(
-						"Server execution interrupted");
+				throw new RuntimeException("Server execution interrupted", e);
 			}
 		}
 	}
@@ -160,17 +163,14 @@ public class DatasetPort {
 
 		htmlGen = new OverviewWriter(config.getHtmlOverview());
 		/*
-		 * The OverviewWriter treats _null_ param as if it is disabled -> as of specificationsV2
-		if (config.getHtmlOverview() != null) {
-			writer = new HTMLWriter(config.getHtmlOverview().toString());
-			try {
-				writer.update(app.getMetaData(CriteriaWrapper.all()
-						.getWrappedObject()));
-			} catch (IOException e) {
-				throw new IllegalArgumentException(
-						"Error while starting Server. HTML file could not be created.");
-			}
-		}*/
+		 * The OverviewWriter treats _null_ param as if it is disabled -> as of
+		 * specificationsV2 if (config.getHtmlOverview() != null) { writer = new
+		 * HTMLWriter(config.getHtmlOverview().toString()); try {
+		 * writer.update(app.getMetaData(CriteriaWrapper.all()
+		 * .getWrappedObject())); } catch (IOException e) { throw new
+		 * IllegalArgumentException(
+		 * "Error while starting Server. HTML file could not be created."); } }
+		 */
 	}
 
 	public void shutdown() {

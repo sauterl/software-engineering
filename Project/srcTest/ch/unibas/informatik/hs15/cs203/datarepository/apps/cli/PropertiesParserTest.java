@@ -33,7 +33,7 @@ public class PropertiesParserTest {
 		Path logFile = Paths.get("test-working-dir/mylog.txt");
 		int scanInterval = 10;
 		Class<? extends CompletenessDetection> strategy = MockDummyCompletenessDetection.class;
-		return new DatasetPortConfiguration(incoming, htmlOverview, logFile, scanInterval, strategy);
+		return new DatasetPortConfiguration(incoming, htmlOverview, logFile, scanInterval, strategy, null);
 	}
 	
 	@Before

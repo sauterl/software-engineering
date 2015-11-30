@@ -1,6 +1,7 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.common;
 
 import java.nio.file.Path;
+import java.util.Properties;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPort;
@@ -21,12 +22,23 @@ public class DatasetPortConfiguration {
 	
 	private int scanInterval; //in seconds
 	
-	public DatasetPortConfiguration(Path incoming, Path htmlOverview, Path logFile, int scanInterval, Class<? extends CompletenessDetection> strategy){
+	private Properties properties;
+	
+	/**
+	 * @param props If the user adds a custom property for their completeness-Detection, completenessDetection.initialize(properties) must be able to access that property.
+	 * Since the completenessDetection is initalized in the DatasetPort, the DatasetPort must be able to access the original properties file
+	 */
+	public DatasetPortConfiguration(Path incoming, Path htmlOverview, Path logFile, int scanInterval, Class<? extends CompletenessDetection> strategy, Properties props){
 		this.incoming = incoming;
 		this.htmlOverview = htmlOverview;
 		this.logFile = logFile;
 		this.scanInterval = scanInterval;
 		this.completenessDetection = strategy;
+		this.properties = props;
+	}
+	
+	public Properties getProperties(){
+		return properties;
 	}
 	
 	public Path getIncoming() {
