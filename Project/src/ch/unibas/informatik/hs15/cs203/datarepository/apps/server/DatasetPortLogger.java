@@ -30,11 +30,20 @@ class DatasetPortLogger {
 
 	public DatasetPortLogger(Path repo, Path path) {
 		this.path = confirmPath(repo, path);
-		
+		if (Files.notExists(this.path)) {
+			try {
+				Files.createDirectories(this.path);
+			} catch (IOException ex) {
+				throw new RuntimeException(
+						"Could not create missing directories for logfile.",
+						ex);
+			}
+		}
+
 	}
 
 	private Path confirmPath(Path repo, Path path) {
-		if(path != null) {
+		if (path != null) {
 			boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 			boolean notExists = Files.notExists(path,
 					LinkOption.NOFOLLOW_LINKS);
@@ -58,21 +67,24 @@ class DatasetPortLogger {
 				throw new IllegalArgumentException(
 						"Cannot access given path: " + path.toString());
 			}
-		} else{
+		} else {
 			return createDefaultLogFile(repo);
 		}
 	}
 
 	private Path createDefaultLogFile(Path parent) {
 		Path out = parent.resolve(DEFAULT_FILE_NAME);
-		try{
-			Files.createFile(out);
-		}catch(IOException ex){
-			throw new RuntimeException("Could not create Logfile", ex);
-			// TODO verify strategy
+		if (Files.notExists(out, LinkOption.NOFOLLOW_LINKS)) {
+			try {
+				Files.createFile(out);
+			} catch (IOException ex) {
+				throw new RuntimeException("Could not create Logfile", ex);
+			}
 		}
+
 		return out;
 	}
+
 	public static final String INCOMING_DIR_KEY = "incoming-directory";
 	public static final String HTML_OVERVIEW_KEY = "html-overview";
 	public static final String LOG_FILE_KEY = "log-file";
@@ -80,25 +92,26 @@ class DatasetPortLogger {
 
 	public static final String CMPLTNSS_CLASS_KEY = "completeness-detection"
 			+ "." + "class-name";
-	
-	public void logHeader(DatasetPortConfiguration config){
-		info("data-repository version: "+Version.VERSION);
+
+	public void logHeader(DatasetPortConfiguration config) {
+		info("data-repository version: " + Version.VERSION);
 		info("Configuraiton:");
 		info(createPathEntry("incoming-directory", config.getIncoming()));
 		info(createPathEntry("html-overview", config.getHtmlOverview()));
-		info(createPathEntry("log-file", config.getLogFile() ));
-		info("checking-interval-in-seconds: "+config.getScanInterval());
-		info(createClassEntry("completeness-detection", config.getCompletenessDetection() ));
+		info(createPathEntry("log-file", config.getLogFile()));
+		info("checking-interval-in-seconds: " + config.getScanInterval());
+		info(createClassEntry("completeness-detection",
+				config.getCompletenessDetection()));
 	}
-	
-	private String createClassEntry(String key, Class<?> clazz){
+
+	private String createClassEntry(String key, Class<?> clazz) {
 		String c = clazz != null ? clazz.getName() : "null";
-		return key +": "+c;
+		return key + ": " + c;
 	}
-	
-	private String createPathEntry(String key, Path path){
-		String p = path!= null ? path.toString() : "null";
-		return key+": "+p;
+
+	private String createPathEntry(String key, Path path) {
+		String p = path != null ? path.toString() : "null";
+		return key + ": " + p;
 	}
 
 	public void info(String msg) {
@@ -138,13 +151,15 @@ class DatasetPortLogger {
 			bw.newLine();
 			bw.flush();
 		} catch (IOException ex) {
-			throw new RuntimeException("An Error happened while writing the log", ex);
+			throw new RuntimeException(
+					"An Error happened while writing the log", ex);
 		} finally {
 			try {
 				bw.close();
 			} catch (IOException e) {
-				throw new RuntimeException("An error happened while closing the logfile ", e);
-			} catch(NullPointerException ex){
+				throw new RuntimeException(
+						"An error happened while closing the logfile ", e);
+			} catch (NullPointerException ex) {
 				// do nothing, bw is null and thus must not be closed
 			}
 		}
@@ -152,7 +167,7 @@ class DatasetPortLogger {
 	}
 
 	private String createLog(String lvl, String msg) {
-		return String.format(TEMPLATE, PrintUtils.DATE_TIME_FORMAT.format(new Date()), lvl,
-				msg);
+		return String.format(TEMPLATE,
+				PrintUtils.DATE_TIME_FORMAT.format(new Date()), lvl, msg);
 	}
 }
