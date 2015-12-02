@@ -97,8 +97,6 @@ public class DatasetPort {
 
 		logProperties();
 		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
-		logger.info("Created starting HTML File at Path "+config.getHtmlOverview());
-		logger.info("Check whether HTLM File is enabled ?"+ htmlGen.isEnabled());
 		CompletenessDetection strategy = null;
 		try {
 			strategy = config.getCompletenessDetection().newInstance();
@@ -164,7 +162,6 @@ public class DatasetPort {
 					"Error while starting Server. Invalid Scan Interval");
 		}
 		htmlGen = new OverviewWriter(config.getHtmlOverview());
-		logger.info("Creating new OverviewWriter with Path "+config.getHtmlOverview());
 	}
 
 	public void shutdown() {
