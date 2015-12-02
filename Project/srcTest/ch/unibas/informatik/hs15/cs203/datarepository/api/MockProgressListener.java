@@ -24,7 +24,7 @@ class MockProgressListener implements ProgressListener
   {
     State start(List<String> recorder)
     {
-      recorder.add("ERROR: ProgressListener.start() has already been invoked");
+      recorder.add("ERROR: ProgressListener.start() has already been invoked.");
       return this;
     }
 
@@ -48,6 +48,18 @@ class MockProgressListener implements ProgressListener
       }
       return this;
     }
+    
+    State hasCancelBeenRequested(List<String> recorder, boolean cancelBeenRequested)
+    {
+      return cancelBeenRequested ? new CancelBeenRequestedState() : this;
+    }
+
+    State canceled(List<String> recorder)
+    {
+      recorder.add("ERROR: ProgressListener.hasCancelBeeRrequested() hasn't been invoked before "  
+              + "ProgressListener.canceled().");
+      return this;
+    }
 
     abstract State finish(List<String> recorder);
 
@@ -65,15 +77,31 @@ class MockProgressListener implements ProgressListener
     State progress(long numberOfBytes, long totalNumberOfBytes, List<String> recorder)
     {
       recorder.add("ERROR: ProgressListener.start() hasn't been invoked before "
-              + "ProgressListener.progress(" + numberOfBytes + ", " + totalNumberOfBytes + ")");
+              + "ProgressListener.progress(" + numberOfBytes + ", " + totalNumberOfBytes + ").");
       return this;
     }
 
     @Override
+    State hasCancelBeenRequested(List<String> recorder, boolean cancelBeenRequested)
+    {
+      recorder.add("ERROR: ProgressListener.start() hasn't been invoked before "
+              + "ProgressListener.hasCancelBeenRequested().");
+      return this;
+    }
+
+    @Override
+    State canceled(List<String> recorder)
+    {
+      recorder.add("ERROR: ProgressListener.start() hasn't been invoked before "
+              + "ProgressListener.canceled().");
+      return this;
+    }
+    
+    @Override
     State finish(List<String> recorder)
     {
       recorder.add("ERROR: ProgressListener.start() hasn't been invoked before "
-              + "ProgressListener.finish()");
+              + "ProgressListener.finish().");
       return this;
     }
   }
@@ -145,30 +173,114 @@ class MockProgressListener implements ProgressListener
       return new FinishedState();
     }
   }
-
-  private static final class FinishedState extends State
+  
+  private static abstract class NotAllowedState extends State
   {
-
+    private final String notAllowed;
+    NotAllowedState(String method)
+    {
+      notAllowed = "not allowed because ProgressListener." + method + " has already been invoked.";
+    }
     @Override
     State progress(long numberOfBytes, long totalNumberOfBytes, List<String> recorder)
     {
       recorder.add("ERROR: ProgressListener.progress(" + numberOfBytes + ", "
-              + totalNumberOfBytes + ") not allowed because ProgressListener.finish() "
-              + "has already been invoked.");
+              + totalNumberOfBytes + ") " + notAllowed);
+      return this;
+    }
+
+    @Override
+    State hasCancelBeenRequested(List<String> recorder, boolean cancelBeenRequested)
+    {
+      recorder.add("ERROR: ProgressListener.hasCancelBeenRequested() " + notAllowed);
+      return this;
+    }
+
+    @Override
+    State canceled(List<String> recorder)
+    {
+      recorder.add("ERROR: ProgressListener.canceled() " + notAllowed);
       return this;
     }
 
     @Override
     State finish(List<String> recorder)
     {
-      recorder.add("ERROR: ProgressListener.finish() not allowed because "
-              + "it has already been invoked.");
+      recorder.add("ERROR: ProgressListener.finish() " + notAllowed);
       return this;
     }
   }
 
+  private static final class CancelBeenRequestedState extends NotAllowedState
+  {
+    CancelBeenRequestedState()
+    {
+      super("hasCancelBeenRequested()");
+    }
+
+    @Override
+    State canceled(List<String> recorder)
+    {
+      return new CanceledState();
+    }
+  }
+  
+  private static final class CanceledState extends NotAllowedState
+  {
+
+    CanceledState()
+    {
+      super("canceled()");
+    }
+  }
+  
+  private static final class FinishedState extends NotAllowedState
+  {
+    FinishedState()
+    {
+      super("finish()");
+    }
+  }
+  
+  private final CancelRequestCriteria _cancelRequestCriteria;
+  private int _numberOfCancelRequestChecks;
+  private long _numberOfBytes;
+  private long _totalNumberOfBytes;
   private State _state = new InitialState();
   private List<String> _recorder = new ArrayList<String>();
+  
+  MockProgressListener()
+  {
+    this(new CancelRequestCriteria()
+      {
+        @Override
+        public boolean cancelRequested(int numberOfCancelRequestChecks, long numberOfBytes,
+                long totalNumberOfBytes)
+        {
+          return false;
+        }
+      });
+  }
+  
+  MockProgressListener(final int numberOfTimesNoCancelHasBeenRequested)
+  {
+    this(new CancelRequestCriteria()
+    {
+      @Override
+      public boolean cancelRequested(int numberOfCancelRequestChecks, long numberOfBytes,
+              long totalNumberOfBytes)
+      {
+        return numberOfCancelRequestChecks > numberOfTimesNoCancelHasBeenRequested;
+      }
+    });
+  }
+  
+  
+  
+  MockProgressListener(CancelRequestCriteria cancelRequestCriteria)
+  {
+    _cancelRequestCriteria = cancelRequestCriteria;
+  }
 
   @Override
   public void start()
@@ -180,8 +292,28 @@ class MockProgressListener implements ProgressListener
   @Override
   public void progress(long numberOfBytes, long totalNumberOfBytes)
   {
+    _numberOfBytes = numberOfBytes;
+    _totalNumberOfBytes = totalNumberOfBytes;
     _recorder.add("progress(" + numberOfBytes + ", " + totalNumberOfBytes + ")");
     _state = _state.progress(numberOfBytes, totalNumberOfBytes, _recorder);
+  }
+
+  @Override
+  public boolean hasCancelBeenRequested()
+  {
+    _recorder.add("hasCancelBeenRequested()");
+    boolean cancelBeenRequested 
+        = _cancelRequestCriteria.cancelRequested(++_numberOfCancelRequestChecks, 
+                _numberOfBytes, _totalNumberOfBytes);
+    _state = _state.hasCancelBeenRequested(_recorder, cancelBeenRequested);
+    return cancelBeenRequested;
+  }
+
+  @Override
+  public void canceled()
+  {
+    _recorder.add("canceled()");
+    _state = _state.canceled(_recorder);
   }
 
   @Override
@@ -200,6 +332,15 @@ class MockProgressListener implements ProgressListener
     }
   }
 
+  void assertCanceledState()
+  {
+    Class<? extends State> stateClass = _state.getClass();
+    if (stateClass.equals(CanceledState.class) == false)
+    {
+      throw new AssertionError("Not canceled: " + _state);
+    }
+  }
+  
   void assertFinishedState()
   {
     Class<? extends State> stateClass = _state.getClass();

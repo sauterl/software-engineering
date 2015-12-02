@@ -35,6 +35,34 @@ public class MockProgressListenerTest
   }
 
   @Test
+  public void testCancelBeforeFirstProgress()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    
+    progressListener.start();
+    progressListener.hasCancelBeenRequested();
+    progressListener.hasCancelBeenRequested();
+    progressListener.canceled();
+    
+    progressListener.assertNoErrors();
+  }
+  
+  @Test
+  public void testCancel()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    
+    progressListener.start();
+    progressListener.progress(0, 10);
+    progressListener.progress(10, 10);
+    progressListener.hasCancelBeenRequested();
+    progressListener.hasCancelBeenRequested();
+    progressListener.canceled();
+    
+    progressListener.assertNoErrors();
+  }
+  
+  @Test
   public void testProgressBeforeStart()
   {
     MockProgressListener progressListener = new MockProgressListener();
@@ -42,7 +70,7 @@ public class MockProgressListenerTest
     progressListener.progress(0, 10);
 
     assertEquals("progress(0, 10)\nERROR: ProgressListener.start() hasn't been invoked "
-            + "before ProgressListener.progress(0, 10)", progressListener.getRecording().trim());
+            + "before ProgressListener.progress(0, 10).", progressListener.getRecording().trim());
   }
 
   @Test
@@ -53,7 +81,7 @@ public class MockProgressListenerTest
     progressListener.finish();
 
     assertEquals("finish()\nERROR: ProgressListener.start() hasn't been invoked before "
-            + "ProgressListener.finish()", progressListener.getRecording().trim());
+            + "ProgressListener.finish().", progressListener.getRecording().trim());
   }
 
   @Test
@@ -64,7 +92,7 @@ public class MockProgressListenerTest
 
     progressListener.start();
 
-    assertEquals("start()\nstart()\nERROR: ProgressListener.start() has already been invoked",
+    assertEquals("start()\nstart()\nERROR: ProgressListener.start() has already been invoked.",
             progressListener.getRecording().trim());
   }
 
@@ -206,12 +234,130 @@ public class MockProgressListenerTest
     progressListener.start();
     progressListener.progress(0, 0);
     progressListener.finish();
-
+    
     progressListener.finish();
-
+    
     assertEquals("start()\nprogress(0, 0)\nfinish()\nfinish()\n"
-            + "ERROR: ProgressListener.finish() not allowed because it has "
+            + "ERROR: ProgressListener.finish() not allowed because ProgressListener.finish() has "
             + "already been invoked.", progressListener.getRecording().trim());
   }
 
+  @Test
+  public void testCanceledAfterFinish()
+  {
+    MockProgressListener progressListener = new MockProgressListener();
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.finish();
+    
+    progressListener.canceled();
+    
+    assertEquals("start()\nprogress(0, 0)\nfinish()\ncanceled()\n"
+            + "ERROR: ProgressListener.canceled() not allowed because ProgressListener.finish() has "
+            + "already been invoked.", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testHasCancelBeenRequestedAfterFinish()
+  {
+    MockProgressListener progressListener = new MockProgressListener();
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.finish();
+    
+    progressListener.hasCancelBeenRequested();
+    
+    assertEquals("start()\nprogress(0, 0)\nfinish()\nhasCancelBeenRequested()\n"
+            + "ERROR: ProgressListener.hasCancelBeenRequested() not allowed because ProgressListener.finish() has "
+            + "already been invoked.", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testHasProgressAfterFinish()
+  {
+    MockProgressListener progressListener = new MockProgressListener();
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.finish();
+    
+    progressListener.progress(0, 0);
+    
+    assertEquals("start()\nprogress(0, 0)\nfinish()\nprogress(0, 0)\n"
+            + "ERROR: ProgressListener.progress(0, 0) not allowed because ProgressListener.finish() has "
+            + "already been invoked.", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testCanceledWithoutCancelBeenRequestedTwice()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.hasCancelBeenRequested();
+
+    progressListener.canceled();
+    
+    assertEquals("start()\nprogress(0, 0)\nhasCancelBeenRequested()\ncanceled()\n"
+            + "ERROR: ProgressListener.hasCancelBeeRrequested() hasn't been invoked "
+            + "before ProgressListener.canceled().", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testCanceledTwice()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.hasCancelBeenRequested();
+    progressListener.hasCancelBeenRequested();
+    progressListener.canceled();
+    
+    progressListener.canceled();
+    
+    assertEquals("start()\nprogress(0, 0)\nhasCancelBeenRequested()\nhasCancelBeenRequested()\ncanceled()\ncanceled()\n"
+            + "ERROR: ProgressListener.canceled() not allowed because ProgressListener.canceled() has "
+            + "already been invoked.", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testHasCancelBeenRequestedAfterCanceled()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    progressListener.start();
+    progressListener.progress(0, 0);
+    progressListener.hasCancelBeenRequested();
+    progressListener.hasCancelBeenRequested();
+    progressListener.canceled();
+    
+    progressListener.hasCancelBeenRequested();
+    
+    assertEquals("start()\nprogress(0, 0)\nhasCancelBeenRequested()\nhasCancelBeenRequested()\ncanceled()\nhasCancelBeenRequested()\n"
+            + "ERROR: ProgressListener.hasCancelBeenRequested() not allowed because ProgressListener.canceled() has "
+            + "already been invoked.", progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testHasCancelBeenRequestedBeforeStart()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+
+    progressListener.hasCancelBeenRequested();
+    
+    assertEquals("hasCancelBeenRequested()\n"
+            + "ERROR: ProgressListener.start() hasn't been invoked before ProgressListener.hasCancelBeenRequested().", 
+            progressListener.getRecording().trim());
+  }
+  
+  @Test
+  public void testCanceledBeforeStart()
+  {
+    MockProgressListener progressListener = new MockProgressListener(1);
+    
+    progressListener.canceled();
+    
+    assertEquals("canceled()\n"
+            + "ERROR: ProgressListener.start() hasn't been invoked before ProgressListener.canceled().", 
+            progressListener.getRecording().trim());
+  }
 }
+

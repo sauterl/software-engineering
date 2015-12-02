@@ -29,6 +29,17 @@ class DummyProgressListener implements ProgressListener
   }
 
   @Override
+  public boolean hasCancelBeenRequested()
+  {
+    return false;
+  }
+
+  @Override
+  public void canceled()
+  {
+  }
+  
+  @Override
   public void finish()
   {
   }

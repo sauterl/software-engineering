@@ -43,7 +43,22 @@ public interface ProgressListener
   public void progress(long numberOfBytes, long totalNumberOfBytes);
 
   /**
+   * Returns <code>true</code> if the canceling of the operation has been requested.
+   */
+  public boolean hasCancelBeenRequested();
+
+  /**
+   * Notifies that the operation has been canceled. This method is called immediately after an invocation of 
+   * {@link #hasCancelBeenRequested()} returned <code>true</code>.
+   * <p>
+   * After invocation of this method no invocation of any method of the progress listener is expected.
+   */
+  public void canceled();
+  
+  /**
    * Finishes operation. Should be invoked immediately before the operation is finished.
+   * <p>
+   * After invocation of this method no invocation of any method of the progress listener is expected.
    */
   public void finish();
 }

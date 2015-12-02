@@ -22,4 +22,16 @@ class SimpleProgressListener implements ProgressListener{
 	
 	}
 
+	@Override
+	public boolean hasCancelBeenRequested() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void canceled() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

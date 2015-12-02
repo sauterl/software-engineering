@@ -57,7 +57,8 @@ public interface DataRepository
    *          {@link ProgressListener#progress(long, long)} is called twice. First,
    *          with <code>numberOfBytes == 0</code> and second
    *          with <code>numberOfBytes == totalNumberOfBytes</code>.
-   * @return meta data with unique identifier, number of files and total size.
+   * @return meta data with unique identifier, number of files and total size. 
+   *          Return <code>null</code> if the operation has been canceled.
    * @throws IllegalArgumentException
    *           in the following cases:
    *           <ul>
@@ -103,8 +104,9 @@ public interface DataRepository
    *          Destination folder for the data sets to be exported.
    * @param progressListener
    *          Progress callback object.
-   * @return meta data of exported data sets sorted by time stamps. Empty list if
-   *         nothing exported.
+   * @return meta data of successfully exported data sets sorted by time stamps. Empty list if
+   *         nothing exported. The return value does not contain data sets fulfilling <code>exportCriteria</code>
+   *         but not exported because the operation has been canceled.
    * @throws IllegalArgumentException
    *           in the following cases:
    *           <ul>
@@ -148,6 +150,7 @@ public interface DataRepository
    *          with <code>numberOfBytes == 0</code> and second
    *          with <code>numberOfBytes == totalNumberOfBytes</code>.
    * @return meta data of replaced data set with new number of files and total size.
+   *          Return <code>null</code> if the operation has been canceled.
    * @throws IllegalArgumentException
    *           in the following cases:
    *           <ul>
