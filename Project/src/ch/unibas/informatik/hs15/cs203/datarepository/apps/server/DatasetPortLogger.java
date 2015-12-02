@@ -17,11 +17,16 @@ import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfigur
 import ch.unibas.informatik.hs15.cs203.datarepository.common.PrintUtils;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 
+/**
+ * Logs messages to a specified file.
+ * @author Loris
+ *
+ */
 class DatasetPortLogger {
 
 	private Path path;
 
-	public static final String TEMPLATE = "%1$s %2$s %3$s";
+	private static final String TEMPLATE = "%1$s %2$s %3$s";
 
 	public static final String INFO_LVL = "[INFO]";
 	public static final String ERROR_LVL = "[ERROR]";
@@ -43,6 +48,25 @@ class DatasetPortLogger {
 	}
 
 	private Path confirmPath(Path repo, Path path) {
+		// TODO Revisit this code and adapt the specifications:
+		/*
+		 * Description of log-file property:
+		 * =====================================================================
+		 * Absolute or relative path to the log- le. If not speci ed it will be
+		 * server.log inside the repository folder. If the log le doesn't exist
+		 * it will be created. If it already exists new log entries are append.
+		 * 
+		 * Description of logging in general:
+		 * =====================================================================
+		 * All output is redirected to a log file after successful start up of the
+		 * server. It contains log messages in the format: <time stamp> <log
+		 * level> <log message>. Where <time stamp> is the actual date and time
+		 * in the same format as for the list command. The <log level> is either
+		 * [INFO] or [ERROR]. The log entries are on one line except error logs
+		 * with stack traces. The first log entry shows the version of the Data
+		 * Repository followed by entries for each value of the configuration
+		 * parameters.
+		 */
 		if (path != null) {
 			boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
 			boolean notExists = Files.notExists(path,
@@ -94,6 +118,8 @@ class DatasetPortLogger {
 			+ "." + "class-name";
 
 	public void logHeader(DatasetPortConfiguration config) {
+		info("=========================");
+		info("Server started...");
 		info("data-repository version: " + Version.VERSION);
 		info("Configuraiton:");
 		info(createPathEntry("incoming-directory", config.getIncoming()));
