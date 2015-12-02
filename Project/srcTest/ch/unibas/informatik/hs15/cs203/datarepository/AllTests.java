@@ -12,9 +12,10 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MockProgressListenerTe
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ReplaceTest;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.ClientInputTest;
 import ch.unibas.informatik.hs15.cs203.datarepository.apps.cli.ClientTest;
+import ch.unibas.informatik.hs15.cs203.datarepository.apps.server.DatasetPortTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({AddTest.class, ExportTest.class, ListTest.class ,MockProgressListenerTest.class, DeleteTest.class, ReplaceTest.class, ClientTest.class, ClientInputTest.class})
+@SuiteClasses({AddTest.class, ExportTest.class, ListTest.class ,MockProgressListenerTest.class, DeleteTest.class, ReplaceTest.class, ClientTest.class, ClientInputTest.class, DatasetPortTest.class})
 public class AllTests {
 
 }

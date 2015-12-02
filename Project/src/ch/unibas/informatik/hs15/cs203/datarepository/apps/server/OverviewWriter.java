@@ -103,10 +103,16 @@ class OverviewWriter {
 		}
 		this.overview = overview;
 		try {
-			Files.createDirectories(overview.getParent());
+			if(overview.getParent()!=null){
+				Files.createDirectories(overview.getParent());
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("Could not create unexistent directories within overview path. ("+overview.toString()+")", e);
 		}
+	}
+	
+	public boolean isEnabled(){
+		return enabled;
 	}
 	
 	public void createHtmlFile(List<MetaData> metas) throws IOException{
@@ -141,17 +147,19 @@ class OverviewWriter {
 	private void writeFile(String contents){
 		BufferedWriter bw = null;
 		try{
+			overview.toFile().delete();
+			overview.toFile().createNewFile();
 			bw = Files.newBufferedWriter(overview, StandardCharsets.UTF_8);
 			bw.write(contents);
 			bw.flush();
-		}catch(IOException ex){
+		}catch(Exception ex){
 			throw new RuntimeException("Cannot write to html-overview. This is a serious problem!",ex);
 		}finally{
 			if(bw != null){
 				try{
 					bw.close();
 				}catch(IOException e){
-					// Silently ignoring that case =D
+					throw new RuntimeException("Could not close the html-overview file. ", e);
 				}
 			}
 		}

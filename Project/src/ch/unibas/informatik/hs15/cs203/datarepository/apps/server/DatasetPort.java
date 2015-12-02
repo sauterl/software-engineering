@@ -3,6 +3,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.server;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
@@ -96,6 +97,8 @@ public class DatasetPort {
 
 		logProperties();
 		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
+		logger.info("Created starting HTML File at Path "+config.getHtmlOverview());
+		logger.info("Check whether HTLM File is enabled ?"+ htmlGen.isEnabled());
 		CompletenessDetection strategy = null;
 		try {
 			strategy = config.getCompletenessDetection().newInstance();
@@ -160,17 +163,8 @@ public class DatasetPort {
 			throw new IllegalArgumentException(
 					"Error while starting Server. Invalid Scan Interval");
 		}
-
 		htmlGen = new OverviewWriter(config.getHtmlOverview());
-		/*
-		 * The OverviewWriter treats _null_ param as if it is disabled -> as of
-		 * specificationsV2 if (config.getHtmlOverview() != null) { writer = new
-		 * HTMLWriter(config.getHtmlOverview().toString()); try {
-		 * writer.update(app.getMetaData(CriteriaWrapper.all()
-		 * .getWrappedObject())); } catch (IOException e) { throw new
-		 * IllegalArgumentException(
-		 * "Error while starting Server. HTML file could not be created."); } }
-		 */
+		logger.info("Creating new OverviewWriter with Path "+config.getHtmlOverview());
 	}
 
 	public void shutdown() {

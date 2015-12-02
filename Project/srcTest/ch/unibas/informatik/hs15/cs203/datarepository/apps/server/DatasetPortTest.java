@@ -41,7 +41,8 @@ public class DatasetPortTest extends APITestCase {
 		current = new Thread(new PortRunnable(port));
 		current.start();
 		Thread.sleep(500); 		//Give the server time to start
-		assertTrue(HTMLOverview.toFile().exists());
+		Path HTMLFile = Paths.get(repository.toString(),"table.html");
+		assertTrue(HTMLFile.toFile().exists());
 		File file = new File(incomingDir.toFile(), "example.txt");
 	    Utils.createExampleData(file, ":hello world!");
 	    Thread.sleep(1100);
@@ -104,7 +105,7 @@ public class DatasetPortTest extends APITestCase {
 		assertEquals(false, incomingDir.toFile().exists());
 		incomingDir.toFile().mkdirs();
 
-		HTMLOverview = Paths.get(repository.toString(), "table.html");
+		HTMLOverview= Paths.get(repository.toString(),"table.html");
 
 		logFile = Paths.get(repository.toString(), "server.log");
 		//logFile.toFile().createNewFile();
