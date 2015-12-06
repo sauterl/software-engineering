@@ -1,21 +1,11 @@
-Server command
-
 ============== Adding a new completeness detection ======================
 
 Add a new completeness detection class by implementing the interface
 at ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection
 
-Add your new implementation by putting them in data-repository-plugin.jar
+Add your new implementation by putting it in data-repository-plugin.jar
 
-and adding the following to your ant script:
-
-<manifest>
-<attribute name="Main-Class" value="..."/>
-<attribute name="Class-Path"
-value="data-repository.jar data-repository-plugin.jar"/>
-</manifest>
-
-
+You will also need to specify your class name in the properties
 ============== Examples =============================
 
 You find example implementations in the following files:
