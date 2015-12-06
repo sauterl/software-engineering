@@ -38,7 +38,7 @@ public class PropertiesParserTest {
 	
 	@Before
 	public void setUp(){
-		PropertiesParser.setClassLoader(getClass().getClassLoader());
+		
 	}
 	
 	@Test

@@ -52,8 +52,6 @@ class PropertiesParser {
 	public static final String CMPLTNSS_CLASS_KEY = "completeness-detection"
 			+ "." + "class-name";
 
-	private static ClassLoader loader = PropertiesParser.class.getClassLoader();
-
 	public static DatasetPortConfiguration parse(final Properties props)
 			throws ParseException {
 		LOG.info("The properties object: \n" + props.toString());
@@ -82,20 +80,6 @@ class PropertiesParser {
 		return parse(props);
 	}
 
-	/**
-	 * Sets the {@link ClassLoader} with which the parses tries to load the
-	 * CompletenessDetection class. <br />
-	 * <b>Note: Use this method only if you <i>know</i> what you are doing</b>.
-	 * <br />
-	 * The default class loader is used if none is specified with this method.
-	 *
-	 * @param l
-	 *            The classloader.
-	 */
-	public static void setClassLoader(final ClassLoader l) {
-		loader = l;
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Class<? extends CompletenessDetection> parseDetection(
 			final Properties props) throws ParseException {
@@ -104,7 +88,7 @@ class PropertiesParser {
 			throw new ParseException(CMPLTNSS_CLASS_KEY);
 		}
 		try {
-			final Class<?> c = Class.forName(cName, false, loader);
+			final Class<?> c = Class.forName(cName, false, PropertiesParser.class.getClassLoader());
 			/*
 			 * Seems correctly but does not work:
 			 * CompletenessDetection.class.isInstance(c)
