@@ -25,11 +25,14 @@ public class MarkerFileCompletenessDetection implements CompletenessDetection{
 			throw new RuntimeException("The given file to verify does not have a parent folder");
 		}
 		for(File child : parent.toFile().listFiles()){
-			if(child.getName().startsWith(marker) && child.getName() == file.getFileName().toString()){
-				if(!child.delete()){
-					throw new RuntimeException("Error while deleting marker file.");
+			if(child.getName().startsWith(marker)){
+				String fileNameWithoutPrefix = child.getName().substring(child.getName().indexOf(marker));
+				if(fileNameWithoutPrefix.equals(file.getFileName().toString())){
+					if(!child.delete()){
+						throw new RuntimeException("Error while deleting marker file.");
+					}
+					return true;
 				}
-				return true;
 			}
 		}
 		//TODO Convert DatasetPortLogger to singleton, log Error
