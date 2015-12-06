@@ -39,8 +39,10 @@ public class ManPageGenerator {
 	public ManPageGenerator(final String command) {
 		this.command = command;
 		LOG.config("Set up for command: " + command);
-		if (command != null && !command.equalsIgnoreCase("help")) {
-			init();
+		if (command != null) {
+			if(!command.equalsIgnoreCase("help")){
+				init();
+			}
 		}
 	}
 
