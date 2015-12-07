@@ -156,8 +156,8 @@ class MetaDataManager implements Closeable {
 
 	private MetaDataManager(final String repoPath) throws IOException {
 		this.repoPath = repoPath;
-		LOG.config(String.format("Intialicing with repository path %s",
-				repoPath));
+		LOG.config(
+				String.format("Intialicing with repository path %s", repoPath));
 		if (!tryLockMetaDataFile(0)) {
 			throw new RuntimeException(
 					"Could not apply a lock to the metadata. Assuming another data repository accesses it.");
@@ -167,9 +167,8 @@ class MetaDataManager implements Closeable {
 		} catch (final FileNotFoundException ex) {
 			metaDataFile = createNewMetaDataFile();
 		}
-		final MetaDataWrapper[] entries = convertCollectionToMeta(Arrays
-				.asList(metaDataFile.getJsonObject(repositoryKey).getSet(
-						datasetsKey)));
+		final MetaDataWrapper[] entries = convertCollectionToMeta(Arrays.asList(
+				metaDataFile.getJsonObject(repositoryKey).getSet(datasetsKey)));
 		initStorage(entries);
 	}
 
@@ -286,7 +285,8 @@ class MetaDataManager implements Closeable {
 	 * @return
 	 * @see MetaDataStorage#get(CriteriaWrapper)
 	 */
-	public List<MetaDataWrapper> getMatchingMeta(final CriteriaWrapper criteria) {
+	public List<MetaDataWrapper> getMatchingMeta(
+			final CriteriaWrapper criteria) {
 		return storage.get(criteria);
 	}
 
@@ -327,13 +327,20 @@ class MetaDataManager implements Closeable {
 	}
 
 	public void writeTempMetaFile() throws IOException {
-		final FileWriter fw = new FileWriter(Paths.get(repoPath,
-				tmpLabel + metaDataFileName).toFile());
+		final FileWriter fw = new FileWriter(
+				Paths.get(repoPath, tmpLabel + metaDataFileName).toFile());
 		putStorageToJson();
-		fw.write(metaDataFile.toJson());
-		fw.flush();
-		fw.close();
-		releaseLock();
+		try {
+			fw.write(metaDataFile.toJson());
+			fw.flush();
+		} catch (IOException ex) {
+			LOG.error("An i/o error occured: ", ex);
+			throw ex;
+		} finally {
+			fw.close();
+			releaseLock();
+		}
+
 		// System.gc();//is this necessary?
 	}
 
@@ -354,7 +361,7 @@ class MetaDataManager implements Closeable {
 			final Collection<Json> collection) {
 		if (collection == null || collection.isEmpty()) {
 			return new MetaDataWrapper[0];
-		}// assert collection is neither null nor empty
+		} // assert collection is neither null nor empty
 		final MetaDataWrapper[] out = new MetaDataWrapper[collection.size()];
 		int i = 0;
 		for (final Json json : collection) {
@@ -414,8 +421,8 @@ class MetaDataManager implements Closeable {
 
 	private Json parseMetaDataFile(final String file) throws IOException {
 		final JsonParser parser = new JsonParser();
-		return parser.parseFile(Paths.get(repoPath, metaDataFileName).toFile()
-				.getPath());
+		return parser.parseFile(
+				Paths.get(repoPath, metaDataFileName).toFile().getPath());
 	}
 
 	private boolean releaseLock() throws IOException {
@@ -436,8 +443,8 @@ class MetaDataManager implements Closeable {
 			entries[i] = createJsonMetaEntry(datas[i]);
 		}
 		metaDataFile.getJsonObject(repositoryKey).removeEntry(datasetsKey);
-		metaDataFile.getJsonObject(repositoryKey)
-				.addEntry(datasetsKey, entries);
+		metaDataFile.getJsonObject(repositoryKey).addEntry(datasetsKey,
+				entries);
 	}
 
 	private boolean tryLockMetaDataFile(int attempt) {
