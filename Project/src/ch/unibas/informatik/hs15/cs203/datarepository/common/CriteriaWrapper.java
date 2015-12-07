@@ -90,32 +90,24 @@ public class CriteriaWrapper {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		/*
-		 * Exception driven check if members are equal
-		 * Note: check* means exception when false, otherwise nothing
-		 * is* means returns boolean
-		 */
+		boolean out = false;
 		if (isThis(obj)) {
-			return true;
+			out = true;
 		} else if (isNull(obj)) {
-			return false;
+			out = false;
 		} else {
 			if (isInstanceOf(obj)) {
 				final CriteriaWrapper o = (CriteriaWrapper) obj;
-				try {
-					checkAfter(o);
-					checkBefore(o);
-					checkName(o);
-					checkText(o);
-					checkID(o);
-					return true;
-				} catch (final RuntimeException e) {
-
-				}
+				boolean after = isEqual(this.getAfter(), o.getAfter() );
+				boolean before = isEqual(this.getBefore(), o.getBefore() );
+				boolean id = isEqual(this.getId(), o.getId() );
+				boolean name = isEqual(this.getName(), o.getName() );
+				boolean text = isEqual(this.getText(), o.getText() );
+				out = after && before && id && name && text;
 			}
-			return false;
+			
 		}
-
+		return out;
 	}
 
 	/**
@@ -238,66 +230,17 @@ public class CriteriaWrapper {
 		return builder.toString();
 	}
 
-	private void checkAfter(final CriteriaWrapper other) {
-		if (getAfter() == null) {
-			if (other.getAfter() != null) {
-				throwRExc();
-			}
-		} else {
-			if (!getAfter().equals(other.getAfter())) {
-				throwRExc();
-			}
+	private boolean isEqual(Object o1, Object o2){
+		boolean out = false;
+		if(o1 == null){
+			out = o2 == null;
+		}else{
+			out = o1.equals(o2);
 		}
+		return out;
 	}
-
-	private void checkBefore(final CriteriaWrapper other) {
-		if (getBefore() == null) {
-			if (other.getBefore() != null) {
-				throwRExc();
-			}
-		} else {
-			if (!getBefore().equals(other.getBefore())) {
-				throwRExc();
-			}
-		}
-	}
-
-	private void checkID(final CriteriaWrapper other) {
-		if (getId() == null) {
-			if (other.getId() != null) {
-				throwRExc();
-			}
-		} else {
-			if (!getId().equals(other.getId())) {
-				throwRExc();
-			}
-		}
-	}
-
-	private void checkName(final CriteriaWrapper other) {
-		if (getName() == null) {
-			if (other.getName() != null) {
-				throwRExc();
-			}
-		} else {
-			if (!getName().equals(other.getName())) {
-				throwRExc();
-			}
-		}
-	}
-
-	private void checkText(final CriteriaWrapper other) {
-		if (getText() == null) {
-			if (other.getText() != null) {
-				throwRExc();
-			}
-		} else {
-			if (!getText().equals(other.getText())) {
-				throwRExc();
-			}
-		}
-	}
-
+	
+	
 	private boolean isInstanceOf(final Object obj) {
 		return obj instanceof CriteriaWrapper;
 	}
@@ -308,9 +251,5 @@ public class CriteriaWrapper {
 
 	private boolean isThis(final Object obj) {
 		return this == obj;
-	}
-
-	private void throwRExc() {
-		throw new RuntimeException();
 	}
 }
