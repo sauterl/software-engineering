@@ -90,11 +90,10 @@ public class CriteriaWrapper {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		boolean out = false;
 		if (isThis(obj)) {
-			out = true;
+			return true;
 		} else if (isNull(obj)) {
-			out = false;
+			return false;
 		} else {
 			if (isInstanceOf(obj)) {
 				final CriteriaWrapper o = (CriteriaWrapper) obj;
@@ -103,11 +102,10 @@ public class CriteriaWrapper {
 				boolean id = isEqual(this.getId(), o.getId() );
 				boolean name = isEqual(this.getName(), o.getName() );
 				boolean text = isEqual(this.getText(), o.getText() );
-				out = after && before && id && name && text;
+				return after && before && id && name && text;
 			}
-			
+			return false;
 		}
-		return out;
 	}
 
 	/**

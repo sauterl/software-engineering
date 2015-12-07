@@ -6,23 +6,57 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 
 /**
  * Wrapper for {@link MetaData}
- * 
+ *
  * @author Loris
- * 
+ *
  */
 public class MetaDataWrapper {
 
-	private MetaData wrapped;
+	private final MetaData wrapped;
 
-	public MetaDataWrapper(MetaData meta) {
+	public MetaDataWrapper(final MetaData meta) {
 		wrapped = meta;
 	}
 
-	public MetaDataWrapper(String id, String name, String description,
-			int numberOfFiles, long size, Date timestamp) {
-		this(
-				new MetaData(id, name, description, numberOfFiles, size,
-						timestamp));
+	public MetaDataWrapper(final String id, final String name,
+			final String description, final int numberOfFiles, final long size,
+			final Date timestamp) {
+		this(new MetaData(id, name, description, numberOfFiles, size,
+				timestamp));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+		if (isThis(obj)) {
+			return true;
+		}
+		if (isNull(obj)) {
+			return false;
+		}
+		if (isInstanceOf(obj)) {
+			final MetaDataWrapper o = (MetaDataWrapper) obj;
+			final boolean id = isEqual(getId(), o.getId());
+			final boolean name = isEqual(getName(), o.getName());
+			final boolean desc = isEqual(getDescription(), o.getDescription());
+			final boolean no = getNumberOfFiles() == o.getNumberOfFiles();
+			final boolean size = getSize() == o.getSize();
+			final boolean time = isEqual(getTimestamp(), o.getTimestamp());
+			return id && name && desc && no && size && time;
+		}
+		return false;
+	}
+
+	/**
+	 * @return
+	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData#getDescription()
+	 */
+	public String getDescription() {
+		return wrapped.getDescription();
 	}
 
 	/**
@@ -39,14 +73,6 @@ public class MetaDataWrapper {
 	 */
 	public String getName() {
 		return wrapped.getName();
-	}
-
-	/**
-	 * @return
-	 * @see ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData#getDescription()
-	 */
-	public String getDescription() {
-		return wrapped.getDescription();
 	}
 
 	/**
@@ -73,9 +99,13 @@ public class MetaDataWrapper {
 		return wrapped.getTimestamp();
 	}
 
+	public MetaData getWrappedObject() {
+		return wrapped;
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -85,9 +115,8 @@ public class MetaDataWrapper {
 		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
 		result = prime * result
 				+ ((getName() == null) ? 0 : getName().hashCode());
-		result = prime
-				* result
-				+ ((getDescription() == null) ? 0 : getDescription().hashCode());
+		result = prime * result + ((getDescription() == null) ? 0
+				: getDescription().hashCode());
 		result = prime * result
 				+ ((getNumberOfFiles() == 0) ? 0 : getNumberOfFiles());
 		result = prime * result + ((getSize() == 0) ? 0 : (int) getSize());
@@ -96,67 +125,26 @@ public class MetaDataWrapper {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof MetaDataWrapper))
-			return false;
-		MetaDataWrapper other = (MetaDataWrapper) obj;
-		if (getId() == null) {
-			if (other.getId() != null) {
-				return false;
-			}
-		} else if (!getId().equals(other.getId())) {
-			return false;
+	private boolean isEqual(final Object o1, final Object o2) {
+		boolean out = false;
+		if (o1 == null) {
+			out = o2 == null;
+		} else {
+			out = o1.equals(o2);
 		}
-		if (getName() == null) {
-			if (other.getName() != null) {
-				return false;
-			}
-		} else if (!getName().equals(other.getName())) {
-			return false;
-		}
-		if (getDescription() == null) {
-			if (other.getDescription() != null) {
-				return false;
-			}
-		} else if (!getDescription().equals(other.getDescription())) {
-			return false;
-		}
-		if (getNumberOfFiles() == 0) {
-			if (other.getNumberOfFiles() != 0) {
-				return false;
-			}
-		} else if (getNumberOfFiles() != other.getNumberOfFiles()) {
-			return false;
-		}
-		if (getSize() == 0) {
-			if (other.getSize() != 0) {
-				return false;
-			}
-		} else if (getSize() != other.getSize()) {
-			return false;
-		}
-		if (getTimestamp() == null) {
-			if (other.getTimestamp() != null) {
-				return false;
-			}
-		} else if (!getTimestamp().equals(other.getTimestamp())) {
-			return false;
-		}
-		return true;
+		return out;
 	}
 
-	public MetaData getWrappedObject() {
-		return wrapped;
+	private boolean isInstanceOf(final Object o) {
+		return o instanceof MetaDataWrapper;
+	}
+
+	private boolean isNull(final Object o) {
+		return o == null;
+	}
+
+	private boolean isThis(final Object o) {
+		return this == o;
 	}
 
 }
