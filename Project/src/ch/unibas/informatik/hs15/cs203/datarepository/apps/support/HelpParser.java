@@ -1,7 +1,10 @@
 package ch.unibas.informatik.hs15.cs203.datarepository.apps.support;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -39,6 +42,10 @@ class HelpParser {
 				.getResource(FOLDER + file.getString(DESC_KEY)).getPath());
 		return f;
 	}
+	
+	public String getDescriptionFilePath(){
+		return FOLDER + file.getString(DESC_KEY);
+	}
 
 	public String getName() {
 		return file.getString(NAME_KEY);
@@ -62,7 +69,7 @@ class HelpParser {
 				} else {
 					final String key = keys.iterator().next();
 					final String value = j.getString(key);
-					out.add("\t"+key + ": " + value);
+					out.add("\t" + key + ": " + value);
 				}
 
 			} else {
@@ -90,11 +97,31 @@ class HelpParser {
 
 	public void readFile() throws IOException {
 		final JsonParser parser = new JsonParser();
-		file = parser.parseFile(getClass().getClassLoader()
-				.getResource(FOLDER + PREFIX + command + SUFFIX).getPath());
+		file = parser.parseJson(readFileToString() );
 		if (!validateJson()) {
 			throw new IllegalArgumentException("Invalid json");
 		}
+	}
+
+	private String readFileToString() throws IOException {
+		InputStream in = getClass().getClassLoader()
+				.getResourceAsStream(FOLDER + PREFIX + command + SUFFIX);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		String line = null;
+		StringBuilder stringBuilder = new StringBuilder();
+		String ls = System.getProperty("line.separator");
+		try {
+			while ((line = reader.readLine()) != null) {
+				stringBuilder.append(line);
+				stringBuilder.append(ls);
+			}
+		} catch (IOException ex) {
+			throw ex;
+		} finally {
+			reader.close();
+		}
+
+		return stringBuilder.toString();
 	}
 
 	private boolean validateJson() {

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Reader for <tt>.desc</tt> files. <br />
@@ -139,6 +140,14 @@ final class DescriptionParser {
 	 */
 	public DescriptionParser(final String contents) {
 		input = contents;
+		ready = true;
+	}
+	
+	public DescriptionParser(final Reader reader){
+		if(reader == null){
+			throw new NullPointerException("Reader must not be null");
+		}
+		this.reader = new BufferedReader(reader);
 		ready = true;
 	}
 

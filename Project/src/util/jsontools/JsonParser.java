@@ -2,8 +2,11 @@ package util.jsontools;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class JsonParser {
@@ -12,8 +15,15 @@ public class JsonParser {
 	}
 
 	public Json parseFile(String filepath) throws IOException {
-
-		BufferedReader reader = new BufferedReader(new FileReader(new File(filepath)));
+		return parseJson(readFileToString(new File(filepath)));
+	}
+	
+	public Json parseFile(URL url) throws IOException {
+		return parseJson(readFileToString(new File(url.getPath())));
+	}
+	
+	private String readFileToString(File file)throws IOException{
+		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;
 		StringBuilder stringBuilder = new StringBuilder();
 		String ls = System.getProperty("line.separator");
@@ -23,11 +33,9 @@ public class JsonParser {
 			stringBuilder.append(ls);
 		}
 		reader.close();
-		String jsonString = stringBuilder.toString();
-
-		return parseJson(jsonString);
+		return stringBuilder.toString();
 	}
-
+	
 	public Json parseJson(String input) {
 		JsonReader read = new JsonReader(input);
 		Json parsedJson = new Json();

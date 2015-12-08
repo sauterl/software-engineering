@@ -2,6 +2,7 @@ package ch.unibas.informatik.hs15.cs203.datarepository.apps.support;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
 import util.logging.Logger;
@@ -230,12 +231,8 @@ public class ManPageGenerator {
 		if (!checkHelpParserReady()) {
 			throw new IllegalStateException("HelpParser not ready");
 		}
-		try {
-			descParser = new DescriptionParser(helpParser.getDescriptionFile());
-			LOG.info("Read desc file");
-		} catch (final FileNotFoundException e) {
-			LOG.error("Error while reading descfile", e);
-		}
+		descParser = new DescriptionParser(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(helpParser.getDescriptionFilePath())));
+		LOG.info("Read desc file");
 	}
 
 	private void readHelpFile() {
