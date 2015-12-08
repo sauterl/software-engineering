@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -16,13 +17,17 @@ import java.util.Date;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.PrintUtils;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.Version;
+import util.logging.Logger;
 
 /**
  * Logs messages to a specified file.
+ * 
  * @author Loris
  *
  */
 class DatasetPortLogger {
+
+	private static final Logger LOG = Logger.getLogger(DatasetPortLogger.class);
 
 	private Path path;
 
@@ -35,15 +40,14 @@ class DatasetPortLogger {
 
 	public DatasetPortLogger(Path repo, Path path) {
 		this.path = confirmPath(repo, path);
-		if (Files.notExists(this.path)) {
-			try {
-				Files.createDirectories(this.path);
-			} catch (IOException ex) {
-				throw new RuntimeException(
-						"Could not create missing directories for logfile.",
-						ex);
-			}
-		}
+		// if (Files.notExists(this.path)) {
+//		try {
+//			Files.createDirectories(this.path);
+//		} catch (IOException ex) {
+//			throw new RuntimeException(
+//					"Could not create missing directories for logfile.", ex);
+//		}
+		// }
 
 	}
 
@@ -58,8 +62,8 @@ class DatasetPortLogger {
 		 * 
 		 * Description of logging in general:
 		 * =====================================================================
-		 * All output is redirected to a log file after successful start up of the
-		 * server. It contains log messages in the format: <time stamp> <log
+		 * All output is redirected to a log file after successful start up of
+		 * the server. It contains log messages in the format: <time stamp> <log
 		 * level> <log message>. Where <time stamp> is the actual date and time
 		 * in the same format as for the list command. The <log level> is either
 		 * [INFO] or [ERROR]. The log entries are on one line except error logs
@@ -68,29 +72,55 @@ class DatasetPortLogger {
 		 * parameters.
 		 */
 		if (path != null) {
-			boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
-			boolean notExists = Files.notExists(path,
+			LOG.info("Path is: " + path);
+			boolean isDir = Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS);
+			boolean isFile = Files.isRegularFile(path,
 					LinkOption.NOFOLLOW_LINKS);
-			if (notExists) {
-				return createDefaultLogFile(repo);
-			} else if (exists) {
-				boolean isDir = Files.isDirectory(path,
-						LinkOption.NOFOLLOW_LINKS);
-				boolean isFile = Files.isRegularFile(path,
-						LinkOption.NOFOLLOW_LINKS);
-				if (isFile) {
-					return path;
-				} else if (isDir) {
-					return createDefaultLogFile(path);
-				} else {
-					throw new IllegalArgumentException(
-							"Path is neither a file nor a directory: "
-									+ path.toString());
-				}
-			} else {
-				throw new IllegalArgumentException(
-						"Cannot access given path: " + path.toString());
-			}
+			boolean isNonExistent = Files.notExists(path,
+					LinkOption.NOFOLLOW_LINKS);
+			LOG.info("Props: dir=" + isDir + ", reg=" + isFile + ", nonex="
+					+ isNonExistent);
+			LOG.info("Sysprop: "+System.getProperty("user.dir"));
+			// if(isDir ){
+			// return createDefaultLogFile(path);
+			// }else{
+			// if(!Files.exists(path, LinkOption.NOFOLLOW_LINKS)){
+			// try {
+			// Files.createFile(path);
+			// } catch (IOException e) {
+			// throw new RuntimeException("Could not create log file.", e);
+			// }
+			// }
+			return path;
+			// }
+			// }else if(isFile ){
+			// }else{
+			// throw new IllegalArgumentException("Path ("+path+") is neither a
+			// directory nor a regular file.");
+			// }
+			// boolean exists = Files.exists(path, LinkOption.NOFOLLOW_LINKS);
+			// boolean notExists = Files.notExists(path,
+			// LinkOption.NOFOLLOW_LINKS);
+			// if (notExists) {
+			// return createDefaultLogFile(repo);
+			// } else if (exists) {
+			// boolean isDir = Files.isDirectory(path,
+			// LinkOption.NOFOLLOW_LINKS);
+			// boolean isFile = Files.isRegularFile(path,
+			// LinkOption.NOFOLLOW_LINKS);
+			// if (isFile) {
+			// return path;
+			// } else if (isDir) {
+			// return createDefaultLogFile(path);
+			// } else {
+			// throw new IllegalArgumentException(
+			// "Path is neither a file nor a directory: "
+			// + path.toString());
+			// }
+			// } else {
+			// throw new IllegalArgumentException(
+			// "Cannot access given path: " + path.toString());
+			// }
 		} else {
 			return createDefaultLogFile(repo);
 		}
@@ -172,7 +202,7 @@ class DatasetPortLogger {
 		BufferedWriter bw = null;
 		try {
 			bw = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
-					StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+					StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 			bw.append(log);
 			bw.newLine();
 			bw.flush();
