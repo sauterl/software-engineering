@@ -34,21 +34,24 @@ public class MetaDataWrapper {
 	public boolean equals(final Object obj) {
 		if (isThis(obj)) {
 			return true;
-		}
-		if (isNull(obj)) {
+		} else if (isNull(obj)) {
 			return false;
+		} else {
+			if (isInstanceOf(obj)) {
+				final MetaDataWrapper o = (MetaDataWrapper) obj;
+				final boolean id = isEqual(getId(), o.getId());
+				final boolean name = isEqual(getName(), o.getName());
+				final boolean desc = isEqual(getDescription(),
+						o.getDescription());
+				final boolean no = getNumberOfFiles() == o.getNumberOfFiles();
+				final boolean size = getSize() == o.getSize();
+				final boolean time = isEqual(getTimestamp(), o.getTimestamp());
+				return id && name && desc && no && size && time;
+
+			}
+			return false;
+
 		}
-		if (isInstanceOf(obj)) {
-			final MetaDataWrapper o = (MetaDataWrapper) obj;
-			final boolean id = isEqual(getId(), o.getId());
-			final boolean name = isEqual(getName(), o.getName());
-			final boolean desc = isEqual(getDescription(), o.getDescription());
-			final boolean no = getNumberOfFiles() == o.getNumberOfFiles();
-			final boolean size = getSize() == o.getSize();
-			final boolean time = isEqual(getTimestamp(), o.getTimestamp());
-			return id && name && desc && no && size && time;
-		}
-		return false;
 	}
 
 	/**
