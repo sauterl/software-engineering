@@ -191,6 +191,39 @@ public class CriteriaWrapper {
 				&& getName() == null && getText() == null);
 	}
 	
+	public boolean matches(MetaDataWrapper meta){
+		if(meta == null){
+			return false;
+		}
+		boolean out = true;
+		if(getAfter() != null){
+			out = out && isAfter(meta);
+		}
+		if(getBefore() != null){
+			out = out && isBefore(meta);
+		}
+		if(getName() != null){
+			out = out && matchesName(meta);
+		}
+		if(getText() != null){
+			out = out && containsSnippet(meta);
+		}
+		return out;
+	}
+	
+	private boolean isAfter(MetaDataWrapper meta){
+		return getAfter().compareTo(meta.getTimestamp()) > 0;
+	}
+	private boolean isBefore(MetaDataWrapper meta){
+		return getAfter().compareTo(meta.getTimestamp()) < 0;
+	}
+	private boolean containsSnippet(MetaDataWrapper meta){
+		return meta.getName().contains(getText()) || meta.getDescription().contains(getText());
+	}
+	private boolean matchesName(MetaDataWrapper meta){
+		return getName().equals(meta.getName());
+	}
+	
 	/**
 	 * (non-Javadoc)
 	 *
