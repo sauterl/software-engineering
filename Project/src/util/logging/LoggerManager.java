@@ -1,6 +1,7 @@
 package util.logging;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -198,8 +199,13 @@ public class LoggerManager {
 				for (final String name : configFileNames) {
 					LOGGER.debug("Currently trying to load config file: "
 							+ name + suffix);
-					out = getClass().getClassLoader()
-							.getResource(name + suffix);
+//					out = getClass().getClassLoader()
+//							.getResource(name + suffix);
+					try {
+						out = new URL("file://"+name+suffix);
+					} catch (MalformedURLException e) {
+						LOGGER.error("A URL error occured: ", e);
+					}
 					if (out == null) {
 						continue;
 					} else {
@@ -216,7 +222,12 @@ public class LoggerManager {
 			LOGGER.debug("Config file path read from system property is: "
 					+ pathPerProperty);
 			try {
-				out = getClass().getClassLoader().getResource(pathPerProperty);
+//				out = getClass().getClassLoader().getResource(pathPerProperty);
+				try {
+					out = new URL("file://"+pathPerProperty);
+				} catch (MalformedURLException e) {
+					LOGGER.error("A URL error occured: ",e);
+				}
 			} catch (final SecurityException ex) {
 				LOGGER.warn("SecurityManager denied access to classloader.");
 			}
