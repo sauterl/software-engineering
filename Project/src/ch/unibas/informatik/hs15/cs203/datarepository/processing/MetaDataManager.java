@@ -343,7 +343,7 @@ class MetaDataManager implements Closeable {
 
 		// System.gc();//is this necessary?
 	}
-
+	
 	/**
 	 * Converts a given collection of json objects into their metadata objects
 	 * and returns them as a metadata array. <b>NOTE: This method permits null
@@ -417,6 +417,13 @@ class MetaDataManager implements Closeable {
 		}
 		storage = new MetaDataStorage(entries);
 		LOG.debug("Initialized storage");
+		LOG.warn("Performing cleanup on storage");
+		try {
+			runCleanUp(new SimpleExistsCleanupStrategy() );
+		} catch (IOException e) {
+			LOG.error("Error while writing tmp metadata file: ", e);
+			throw new RuntimeException("Error while writing tmp metadata file: ", e);
+		}
 	}
 
 	private Json parseMetaDataFile(final String file) throws IOException {
