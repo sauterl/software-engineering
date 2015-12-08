@@ -108,26 +108,10 @@ class MetaDataStorage {
 			return out;
 		}
 		// COMBINATION OF CONDITIONS
-		final Vector<List<String>> matching = new Vector<List<String>>();
-		if (criteria.getAfter() != null) {
-			matching.add(findAfter(criteria.getAfter()));
-		}
-		if (criteria.getBefore() != null) {
-			matching.add(findBefore(criteria.getBefore()));
-		}
-		if (criteria.getName() != null) {
-			matching.add(findForName(criteria.getName()));
-		}
-		if (criteria.getText() != null) {
-			matching.add(findTextContains(criteria.getText()));
-		}
 		final Vector<String> ids = new Vector<String>();
-		for (final List<String> l : matching) {
-			// if l is first element: addAll to ids, otherwise only intersection
-			if (ids.size() > 0) {
-				ids.retainAll(l);
-			} else {
-				ids.addAll(l);
+		for(MetaDataWrapper meta : idMap.values() ){
+			if(criteria.matches(meta)){
+				ids.add(meta.getId());
 			}
 		}
 		return getAll(ids);

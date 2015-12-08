@@ -212,10 +212,10 @@ public class CriteriaWrapper {
 	}
 	
 	private boolean isAfter(MetaDataWrapper meta){
-		return getAfter().compareTo(meta.getTimestamp()) > 0;
+		return getAfter().compareTo(meta.getTimestamp()) < 0;
 	}
 	private boolean isBefore(MetaDataWrapper meta){
-		return getAfter().compareTo(meta.getTimestamp()) < 0;
+		return getBefore().compareTo(meta.getTimestamp()) > 0;
 	}
 	private boolean containsSnippet(MetaDataWrapper meta){
 		return meta.getName().contains(getText()) || meta.getDescription().contains(getText());
