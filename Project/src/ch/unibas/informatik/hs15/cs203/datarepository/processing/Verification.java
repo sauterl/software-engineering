@@ -139,5 +139,17 @@ class Verification {
 			throw new IllegalArgumentException("The given file already exists");
 		}
 	}
+	
+	/**
+	 * Calls all needed Verifications for add
+	 */
+	static void verifyAdd(File file, String description,
+			ProgressListener progressListener, File repositoryFolder) {
+		Verification.verifyExistence(file);
+		Verification.verifyNotRepoPath(file, repositoryFolder);
+		Verification.verifyNotWithinRepo(file, repositoryFolder);
+		Verification.verifyDescription(description);
+		Verification.verifyProgressListener(progressListener);
+	}
 
 }

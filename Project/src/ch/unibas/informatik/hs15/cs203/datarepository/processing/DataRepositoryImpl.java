@@ -24,7 +24,7 @@ class DataRepositoryImpl implements DataRepository {
 	 * Path to the Repository Folder
 	 */
 	private File repositoryFolder;
-	
+
 	private final Logger LOG = Logger.getLogger(getClass());
 
 	protected DataRepositoryImpl(File repositoryFolder) throws IOException {
@@ -52,6 +52,7 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> delete(Criteria deletionCriteria) {
 		CriteriaWrapper deletionTests = new CriteriaWrapper(deletionCriteria);
+		LOG.info("Deleting Files with Criteria: "+deletionTests.toString());
 		if (deletionTests.equals(CriteriaWrapper.all())) {
 			throw new IllegalArgumentException("Invalid parameters");
 		}
@@ -75,9 +76,9 @@ class DataRepositoryImpl implements DataRepository {
 						.toPath());
 				mdm.remove(md);
 			}
-//			mdm.close();
+			// mdm.close();
 		} catch (Exception e) {
-//			mdm.close();
+			// mdm.close();
 			LOG.error("Something went wrong while deleting files", e);
 			throw new IllegalArgumentException(
 					"Something happenened while deleting the files. "
@@ -97,29 +98,38 @@ class DataRepositoryImpl implements DataRepository {
 		for (MetaDataWrapper md : wholeMetadata) {
 			totalNumberOfBytes += md.getSize();
 		}
-
+		
+		LOG.info("Starting export. target:"+target.toString());
 		long copiedBytes = 0;
 		progressListener.start();
-		progressListener.progress(copiedBytes, totalNumberOfBytes);
+		if (progressListener.hasCancelBeenRequested()) {
+			LOG.debug("Cancel: Nothing has been copied yet");
+			progressListener.canceled();
+			return null;
+		} else {
+			progressListener.progress(copiedBytes, totalNumberOfBytes);
+		}
 		for (MetaDataWrapper md : wholeMetadata) {
 			File source = new File(repositoryFolder.getAbsolutePath() + "/"
 					+ md.getId() + "/" + md.getName());
 			File fullTarget = new File(target.getAbsolutePath());
-
-			try {
-				RepoFileUtils.copyRecursively(
-						source.getAbsoluteFile().toPath(), fullTarget
-								.getAbsoluteFile().toPath(), progressListener,
-						copiedBytes, totalNumberOfBytes);
-			} catch (IOException e) {
-				progressListener.finish();
-				throw new IllegalArgumentException(
-						"Something happend while exporting a file");
+			LOG.debug("Copying file: "+source.toString());
+			if (!RepoFileUtils.copyRecursively(source.getAbsoluteFile()
+					.toPath(), fullTarget.getAbsoluteFile().toPath(),
+					progressListener, copiedBytes, totalNumberOfBytes)) {
+				LOG.info("Cancel while copying \nTarget: "+target.toString()+" | Source: "+source.toString());
+				progressListener.canceled();
+				return null;
 			}
 			copiedBytes += md.getSize();
 		}
-		progressListener.finish();
-
+		if (progressListener.hasCancelBeenRequested()) {
+			LOG.info("Cancel after everything is done \nTarget: "+target.toString());
+			progressListener.canceled();
+			return null;
+		} else {
+			progressListener.finish();
+		}
 		return unwrap(wholeMetadata);
 	}
 
@@ -171,6 +181,7 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public MetaData replace(String id, File file, String description,
 			boolean move, ProgressListener progressListener) {
+		LOG.info("Replacing "+id+" with "+file.toString());
 		// TODO Care about System crashes between delete and add
 		if (description == null || description == "") {
 			MetaDataManager mdm = MetaDataManager
@@ -189,44 +200,64 @@ class DataRepositoryImpl implements DataRepository {
 	 */
 	private MetaData add(File file, String id, String description,
 			boolean move, ProgressListener progressListener) {
+		Verification.verifyAdd(file, description, progressListener,
+				repositoryFolder);
+		LOG.info("Adding a new File: "+file.toString());
 
-		Verification.verifyExistence(file);
-		Verification.verifyNotRepoPath(file, repositoryFolder);
-		Verification.verifyNotWithinRepo(file, repositoryFolder);
-		Verification.verifyDescription(description);
-		Verification.verifyProgressListener(progressListener);
-		if (id == null || id == "") {
-			id = MetaDataManager.generateRandomUUID();
-		}
+		id = parseID(id);
 		Path joinedPath = createNewDatasetFolder(id);
 		MetaDataWrapper _ret = new MetaDataWrapper(id, file.getName(),
 				description, RepoFileUtils.getFileCount(file),
 				RepoFileUtils.getFileSize(file), Json.iso8601ToDate(Json
 						.dateToISO8601(new Date())));
-		MetaDataManager mdm = null;
-		try {
-			mdm = MetaDataManager.getMetaDataManager(repositoryFolder
-					.getAbsolutePath());
-			mdm.add(_ret);
-
-			progressListener.start();
-			progressListener.progress(0, _ret.getSize());
-			if (move) {
-				RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
-				progressListener.progress(_ret.getSize(), _ret.getSize());
+		MetaDataManager mdm = MetaDataManager
+				.getMetaDataManager(repositoryFolder.getAbsolutePath());
+		progressListener.start(); // This ordering is based on the Unittest.
+									// Yeah, it doesn't make sense to start
+									// the progressListener.
+		if (progressListener.hasCancelBeenRequested()) {
+			progressListener.canceled();
+			mdm.close();
+			return null;
+		}
+		progressListener.progress(0, _ret.getSize());
+		if (move) {
+			RepoFileUtils.move(file.getAbsoluteFile().toPath(), joinedPath);
+			if (progressListener.hasCancelBeenRequested()) {
+				progressListener.canceled();
+				mdm.close();
+				return null;
 			} else {
-				RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
-						joinedPath, progressListener, 0, _ret.getSize());
+				progressListener.progress(_ret.getSize(), _ret.getSize());
+				progressListener.finish();
 			}
-			progressListener.finish();
+		} else {
+			if (!RepoFileUtils.copyRecursively(file.getAbsoluteFile().toPath(),
+					joinedPath, progressListener, 0, _ret.getSize())) {
+				mdm.close();
+				return null;
+			} else {
+				progressListener.finish();
+			}
+		}
+		try {
+			mdm.add(_ret);
 		} catch (IOException e) {
-			throw new IllegalArgumentException("File could not be moved/copied");
-		} finally {
 			if (mdm != null) {
 				mdm.close();
 			}
+			throw new IllegalArgumentException(
+					"An error happened while writing metadata", e);
 		}
+		mdm.close();
 		return _ret.getWrappedObject();
+	}
+
+	private String parseID(String id) {
+		if (id == null || id == "") {
+			id = MetaDataManager.generateRandomUUID();
+		}
+		return id;
 	}
 
 	@Override
@@ -260,7 +291,7 @@ class DataRepositoryImpl implements DataRepository {
 			_res.addAll(mdm
 					.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
-//			mdm.close();
+			// mdm.close();
 			return unwrap(_res);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e.getMessage());

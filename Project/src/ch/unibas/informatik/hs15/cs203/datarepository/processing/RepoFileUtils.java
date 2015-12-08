@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 
 /**
@@ -18,11 +19,13 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
  * 
  */
 class RepoFileUtils {
+	
+	private static final Logger LOG = Logger.getLogger(RepoFileUtils.class);
 
 	/**
 	 * Utilizes renameTo for maximum efficiency
 	 */
-	static void move(Path source, Path target) throws IOException {
+	static void move(Path source, Path target) {
 		Path newTarget = Paths.get(target.toString(), source.getFileName()
 				.toString());
 		source.toFile().renameTo(newTarget.toFile());
@@ -35,37 +38,43 @@ class RepoFileUtils {
 	 * @param originalSize
 	 *            Size of the orginial File. Doesn't get changed while
 	 *            traversing the filetree
+	 * @return False if a cancel has been requested
 	 * 
 	 * @throws IOException
 	 *             If an error happens while moving the file
 	 */
-	static void copyRecursively(Path source, Path target, ProgressListener pl,
-			long alreadyProcessedBytes, long originalSize) throws IOException {
+	static boolean copyRecursively(Path source, Path target, ProgressListener pl,
+			long alreadyProcessedBytes, long originalSize) {
 		Path combinedPath = Paths.get(target.toString(), source.getFileName()
 				.toString());
 
 		if (source.toFile().isFile()) {
-			copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize);
-			return;
+			return copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize);
 		}
 
 		// copy a directory
-		copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize);
-		// alreadyProcessedBytes += source.toFile().length();
+		if(!copy(source, combinedPath, pl, alreadyProcessedBytes, originalSize)){
+			return false;
+		}
 
 		for (File subfile : source.toFile().listFiles()) {
 			Path subfilePath = Paths.get(combinedPath.toString(),
 					subfile.getName());
 			if (subfile.isFile()) {
-				copy(subfile.toPath(), subfilePath, pl, alreadyProcessedBytes,
-						originalSize);
+				if(!copy(subfile.toPath(), subfilePath, pl, alreadyProcessedBytes,
+						originalSize)){
+					return false;
+				}
 				alreadyProcessedBytes += subfile.length();
 				continue;
 			}
-			copyRecursively(subfile.toPath(), combinedPath, pl,
-					alreadyProcessedBytes, originalSize);
+			if(!copyRecursively(subfile.toPath(), combinedPath, pl,
+					alreadyProcessedBytes, originalSize)){
+				return false;
+			}
 			alreadyProcessedBytes += RepoFileUtils.getFileSize(subfile);
 		}
+		return true;
 	}
 
 	/**
@@ -74,8 +83,9 @@ class RepoFileUtils {
 	 * 
 	 * @param source
 	 * @param target
+	 * @return 
 	 */
-	static void copy(Path source, Path target,
+	static boolean copy(Path source, Path target,
 			ProgressListener progressListener, long alreadyProcessed,
 			long totalSize) {
 		if (target.toFile().exists()) {
@@ -84,9 +94,7 @@ class RepoFileUtils {
 		}
 		if (source.toFile().isDirectory()) {
 			target.toFile().mkdirs();
-			// alreadyProcessed += target.toFile().length();
-			// progressListener.progress(alreadyProcessed, totalSize);
-			return;
+			return true;
 		}
 		InputStream inputStream = null;
 		OutputStream outputStream = null;
@@ -97,13 +105,19 @@ class RepoFileUtils {
 			byte[] buffer = new byte[1000000];
 			int size = 0;
 			while ((size = inputStream.read(buffer)) != -1) {
+				if(progressListener.hasCancelBeenRequested()){
+					//Here you cannot debug hasCancelbeenrequested because once you know about it being requested you're not allowed to call the method anymore...
+					LOG.warn("Cancel while copying \n Source: "+source.toString()+" Target: "+target.toString());
+					progressListener.canceled();
+					outputStream.close();
+					inputStream.close();
+					return false;
+				}
 				outputStream.write(buffer, 0, size);
 				alreadyProcessed += size;
-				/* Please use LOGGING FRAMEWORK instead of such debug prints!
-				 * System.err.println(source.toString() + " | "
-						+ target.toString() + " | " + alreadyProcessed); */// TODO
 				progressListener.progress(alreadyProcessed, totalSize);
 			}
+			return true;
 		} catch (IOException ex) {
 			// ex.printStackTrace();
 			throw new IllegalArgumentException("Error while moving file");
