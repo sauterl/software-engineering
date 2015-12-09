@@ -200,19 +200,32 @@ class DataRepositoryImpl implements DataRepository {
 		}
 		String oldID = mdm.getMeta(id).getId();
 		String oldFileName = mdm.getMeta(id).getName();
-		LOG.info("Copying original contents to "+System.getProperty("java.io.tmpdir"));
+		LOG.info("Copying original contents to "
+				+ System.getProperty("java.io.tmpdir"));
 		Path tmpPath = Paths.get(System.getProperty("java.io.tmpdir"));
-		Path sourcePath = Paths.get(this.repositoryFolder.toString(), oldID, mdm.getMeta(id).getName());
-		RepoFileUtils.copyRecursively(sourcePath, tmpPath, new DummyProgressListener(), 0, mdm.getMeta(id).getSize());
+		if (Paths.get(tmpPath.toString(), oldFileName).toFile().exists()) {
+			RepoFileUtils.deleteRecursively(Paths.get(tmpPath.toString(),
+					oldFileName));
+		}
+
+		Path sourcePath = Paths.get(this.repositoryFolder.toString(), oldID,
+				mdm.getMeta(id).getName());
+		RepoFileUtils.copyRecursively(sourcePath, tmpPath,
+				new DummyProgressListener(), 0, mdm.getMeta(id).getSize());
 		LOG.info("Successfully copied contents to tmp-folder");
 		this.delete(Criteria.forId(id));
-		
+
 		MetaData md = this.add(file, id, description, move, progressListener);
-		if(md == null){
-			//Add has been canceled
+		if (md == null) {
+			// Add has been canceled
 			Path tmpFilePath = Paths.get(tmpPath.toString(), oldFileName);
-			this.add(tmpFilePath.toFile(), id, oldDescription, true, new DummyProgressListener());
-			//TODO Restore the original Dataset
+			this.add(tmpFilePath.toFile(), id, oldDescription, true,
+					new DummyProgressListener());
+			// TODO Restore the original Dataset
+		}
+		if (Paths.get(tmpPath.toString(), oldFileName).toFile().exists()) {
+			RepoFileUtils.deleteRecursively(Paths.get(tmpPath.toString(),
+					oldFileName));
 		}
 		mdm.close();
 		return md;
