@@ -15,6 +15,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.ProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.CriteriaWrapper;
+import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.MetaDataWrapper;
 import util.jsontools.Json;
 import util.logging.Logger;
@@ -191,15 +192,30 @@ class DataRepositoryImpl implements DataRepository {
 			boolean move, ProgressListener progressListener) {
 		LOG.info("Replacing " + id + " with " + file.toString());
 		// TODO Care about System crashes between delete and add
+		MetaDataManager mdm = MetaDataManager
+				.getMetaDataManager(repositoryFolder.getAbsolutePath());
+		String oldDescription = mdm.getMeta(id).getDescription();
 		if (description == null || description == "") {
-			MetaDataManager mdm = MetaDataManager
-					.getMetaDataManager(repositoryFolder.getAbsolutePath());
 			description = mdm.getMeta(id).getDescription();
-			mdm.close();
 		}
+		String oldID = mdm.getMeta(id).getId();
+		String oldFileName = mdm.getMeta(id).getName();
+		LOG.info("Copying original contents to "+System.getProperty("java.io.tmpdir"));
+		Path tmpPath = Paths.get(System.getProperty("java.io.tmpdir"));
+		Path sourcePath = Paths.get(this.repositoryFolder.toString(), oldID, mdm.getMeta(id).getName());
+		RepoFileUtils.copyRecursively(sourcePath, tmpPath, new DummyProgressListener(), 0, mdm.getMeta(id).getSize());
+		LOG.info("Successfully copied contents to tmp-folder");
 		this.delete(Criteria.forId(id));
-		// TODO If add is null, restore the deleted dataset...
-		return this.add(file, id, description, move, progressListener);
+		
+		MetaData md = this.add(file, id, description, move, progressListener);
+		if(md == null){
+			//Add has been canceled
+			Path tmpFilePath = Paths.get(tmpPath.toString(), oldFileName);
+			this.add(tmpFilePath.toFile(), id, oldDescription, true, new DummyProgressListener());
+			//TODO Restore the original Dataset
+		}
+		mdm.close();
+		return md;
 	}
 
 	/**

@@ -417,7 +417,7 @@ class MetaDataManager implements Closeable {
 		}
 		storage = new MetaDataStorage(entries);
 		LOG.debug("Initialized storage");
-		LOG.warn("Performing cleanup on storage");
+		LOG.debug("Performing cleanup on storage");
 		try {
 			runCleanUp(new SimpleExistsCleanupStrategy() );
 		} catch (IOException e) {
