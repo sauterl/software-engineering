@@ -52,7 +52,7 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public List<MetaData> delete(Criteria deletionCriteria) {
 		CriteriaWrapper deletionTests = new CriteriaWrapper(deletionCriteria);
-		LOG.info("Deleting Files with Criteria: "+deletionTests.toString());
+		LOG.info("Deleting Files with Criteria: " + deletionTests.toString());
 		if (deletionTests.equals(CriteriaWrapper.all())) {
 			throw new IllegalArgumentException("Invalid parameters");
 		}
@@ -99,8 +99,8 @@ class DataRepositoryImpl implements DataRepository {
 		for (MetaDataWrapper md : wholeMetadata) {
 			totalNumberOfBytes += md.getSize();
 		}
-		
-		LOG.info("Starting export. target:"+target.toString());
+
+		LOG.info("Starting export. target:" + target.toString());
 		long copiedBytes = 0;
 		progressListener.start();
 		if (progressListener.hasCancelBeenRequested()) {
@@ -111,27 +111,28 @@ class DataRepositoryImpl implements DataRepository {
 			progressListener.progress(copiedBytes, totalNumberOfBytes);
 		}
 		for (MetaDataWrapper md : wholeMetadata) {
-			
 			File source = new File(repositoryFolder.getAbsolutePath() + "/"
 					+ md.getId() + "/" + md.getName());
 			File fullTarget = new File(target.getAbsolutePath());
-			LOG.debug("Copying file: "+source.toString());
+			LOG.debug("Copying file: " + source.toString());
 			if (!RepoFileUtils.copyRecursively(source.getAbsoluteFile()
 					.toPath(), fullTarget.getAbsoluteFile().toPath(),
 					progressListener, copiedBytes, totalNumberOfBytes)) {
-				LOG.info("Cancel while copying \nTarget: "+target.toString()+" | Source: "+source.toString());
-				//progressListener.canceled();
+				LOG.info("Cancel while copying \nTarget: " + target.toString()
+						+ " | Source: " + source.toString());
 				Path joinedPath = Paths.get(target.toString(), md.getName());
-				LOG.info("Deleting partially copied files at "+joinedPath.toString());
+				LOG.info("Deleting partially copied files at "
+						+ joinedPath.toString());
 				RepoFileUtils.deleteRecursively(joinedPath);
 				return unwrap(returnMetadata);
 			}
 			copiedBytes += md.getSize();
-			returnMetadata.add(md);	//Add the exported Metadata to the list of metadata which definitely has been exported
-			LOG.info("File "+md.getName()+" has been exported");
+			returnMetadata.add(md);
+			LOG.info("File " + md.getName() + " has been exported");
 		}
 		if (progressListener.hasCancelBeenRequested()) {
-			LOG.info("Cancel after everything is done \nTarget: "+target.toString());
+			LOG.info("Cancel after everything is done \nTarget: "
+					+ target.toString());
 			progressListener.canceled();
 			return null;
 		} else {
@@ -188,7 +189,7 @@ class DataRepositoryImpl implements DataRepository {
 	@Override
 	public MetaData replace(String id, File file, String description,
 			boolean move, ProgressListener progressListener) {
-		LOG.info("Replacing "+id+" with "+file.toString());
+		LOG.info("Replacing " + id + " with " + file.toString());
 		// TODO Care about System crashes between delete and add
 		if (description == null || description == "") {
 			MetaDataManager mdm = MetaDataManager
@@ -197,7 +198,7 @@ class DataRepositoryImpl implements DataRepository {
 			mdm.close();
 		}
 		this.delete(Criteria.forId(id));
-		//TODO If add is null, restore the deleted dataset...
+		// TODO If add is null, restore the deleted dataset...
 		return this.add(file, id, description, move, progressListener);
 	}
 
@@ -210,7 +211,7 @@ class DataRepositoryImpl implements DataRepository {
 			boolean move, ProgressListener progressListener) {
 		Verification.verifyAdd(file, description, progressListener,
 				repositoryFolder);
-		LOG.info("Adding a new File: "+file.toString());
+		LOG.info("Adding a new File: " + file.toString());
 
 		id = parseID(id);
 		Path joinedPath = createNewDatasetFolder(id);
