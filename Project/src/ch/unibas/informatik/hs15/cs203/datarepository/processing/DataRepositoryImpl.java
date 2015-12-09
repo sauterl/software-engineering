@@ -94,6 +94,7 @@ class DataRepositoryImpl implements DataRepository {
 			ProgressListener progressListener) {
 		List<MetaDataWrapper> wholeMetadata = wrap(exportCheck(exportCriteria,
 				target, progressListener));
+		List<MetaDataWrapper> returnMetadata = new ArrayList<MetaDataWrapper>();
 		long totalNumberOfBytes = 0;
 		for (MetaDataWrapper md : wholeMetadata) {
 			totalNumberOfBytes += md.getSize();
@@ -105,14 +106,11 @@ class DataRepositoryImpl implements DataRepository {
 		if (progressListener.hasCancelBeenRequested()) {
 			LOG.debug("Cancel: Nothing has been copied yet");
 			progressListener.canceled();
-			return null;
+			return unwrap(returnMetadata);
 		} else {
 			progressListener.progress(copiedBytes, totalNumberOfBytes);
 		}
 		for (MetaDataWrapper md : wholeMetadata) {
-			
-			//TODO If the operation is canceled while exporting, return ONLY the metadata which has been exported. RESTORE the rest
-			//yeah.
 			
 			File source = new File(repositoryFolder.getAbsolutePath() + "/"
 					+ md.getId() + "/" + md.getName());
@@ -122,10 +120,15 @@ class DataRepositoryImpl implements DataRepository {
 					.toPath(), fullTarget.getAbsoluteFile().toPath(),
 					progressListener, copiedBytes, totalNumberOfBytes)) {
 				LOG.info("Cancel while copying \nTarget: "+target.toString()+" | Source: "+source.toString());
-				progressListener.canceled();
-				return null;
+				//progressListener.canceled();
+				Path joinedPath = Paths.get(target.toString(), md.getName());
+				LOG.info("Deleting partially copied files at "+joinedPath.toString());
+				RepoFileUtils.deleteRecursively(joinedPath);
+				return unwrap(returnMetadata);
 			}
 			copiedBytes += md.getSize();
+			returnMetadata.add(md);	//Add the exported Metadata to the list of metadata which definitely has been exported
+			LOG.info("File "+md.getName()+" has been exported");
 		}
 		if (progressListener.hasCancelBeenRequested()) {
 			LOG.info("Cancel after everything is done \nTarget: "+target.toString());
