@@ -110,6 +110,10 @@ class DataRepositoryImpl implements DataRepository {
 			progressListener.progress(copiedBytes, totalNumberOfBytes);
 		}
 		for (MetaDataWrapper md : wholeMetadata) {
+			
+			//TODO If the operation is canceled while exporting, return ONLY the metadata which has been exported. RESTORE the rest
+			//yeah.
+			
 			File source = new File(repositoryFolder.getAbsolutePath() + "/"
 					+ md.getId() + "/" + md.getName());
 			File fullTarget = new File(target.getAbsolutePath());
@@ -190,6 +194,7 @@ class DataRepositoryImpl implements DataRepository {
 			mdm.close();
 		}
 		this.delete(Criteria.forId(id));
+		//TODO If add is null, restore the deleted dataset...
 		return this.add(file, id, description, move, progressListener);
 	}
 

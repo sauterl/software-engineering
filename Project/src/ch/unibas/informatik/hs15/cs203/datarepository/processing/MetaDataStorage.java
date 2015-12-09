@@ -130,7 +130,9 @@ class MetaDataStorage {
 	 *             If the storage is empty.
 	 */
 	public MetaDataWrapper get(final String id) {
-		validateNotEmpty("get(String)");
+		if(isEmpty()){
+			return null;
+		}
 		return idMap.get(id);
 	}
 
