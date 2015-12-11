@@ -73,22 +73,12 @@ public class ClientInputTest {
 	public void runCommand() {
 	String[] lines = inp;
 	String commandfull = lines[0];
-	ArrayList<String> command = new ArrayList<String>();
-	int c = 0;
-	while (c < commandfull.length()) {
-		if (commandfull.indexOf('\t', c + 1) > 0) {
-		command.add(commandfull.substring(c,
-			commandfull.indexOf('\t', c + 1)));
-		c = commandfull.indexOf('\t', c + 1) + 1;
-		} else {
-		command.add(commandfull.substring(c));
-		c = commandfull.length();
-		}
-	}
+	//ArrayList<String> command = new ArrayList<String>();
+	ArrayList<String> command = splitCommand(commandfull);
+	
 	try {
 		String message = Client.execute(command.toArray(new String[0]),
 			factory);
-//		System.out.println(factory.toString());
 		assertTrue(
 			lines[0] + "\nThe command shoult have faild but it worked.",
 			lines[1].contains("SUCCESS"));
@@ -103,7 +93,7 @@ public class ClientInputTest {
 				lines[2].contains(message));
 		}
 		} else {
-		for (int count = 2; c < lines.length; count++) {
+		for (int count = 2; count < lines.length; count++) {
 			assertTrue(
 				lines[0] + "\nThe output of the command isnt correct. The output given was '"
 					+ message + "' the output wanted was '"
@@ -111,9 +101,7 @@ public class ClientInputTest {
 				message.contains(lines[count].substring(1)));
 		}
 		}
-
 	} catch (IllegalArgumentException e) {
-//		System.out.println(factory.toString());
 		assertTrue(
 			lines[0] + "\nThe command should have worked but it failed",
 			lines[1].contains("ERROR"));
@@ -124,9 +112,24 @@ public class ClientInputTest {
 				+ e.getMessage() + "'",
 			lines[2].contains(e.getMessage()));
 		}
-
+	}
 	}
 
+	private ArrayList<String> splitCommand(String commandfull/*,
+		ArrayList<String> command*/) {
+		ArrayList<String> command = new ArrayList<String>();
+	int c = 0;
+	while (c < commandfull.length()) {
+		if (commandfull.indexOf('\t', c + 1) > 0) {
+		command.add(commandfull.substring(c,
+			commandfull.indexOf('\t', c + 1)));
+		c = commandfull.indexOf('\t', c + 1) + 1;
+		} else {
+		command.add(commandfull.substring(c));
+		c = commandfull.length();
+		}
+	}
+	return command;
 	}
 	
 	private static BufferedReader setupReader(){
