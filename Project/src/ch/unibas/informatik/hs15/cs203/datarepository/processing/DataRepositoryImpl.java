@@ -77,9 +77,7 @@ class DataRepositoryImpl implements DataRepository {
 						.toPath());
 				mdm.remove(md);
 			}
-			// mdm.close();
 		} catch (Exception e) {
-			// mdm.close();
 			LOG.error("Something went wrong while deleting files", e);
 			throw new IllegalArgumentException(
 					"Something happenened while deleting the files. "
@@ -329,7 +327,6 @@ class DataRepositoryImpl implements DataRepository {
 			_res.addAll(mdm
 					.getMatchingMeta(new CriteriaWrapper(searchCriteria)));
 			Collections.sort(_res, new MetaDataComparator());
-			// mdm.close();
 			return unwrap(_res);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e.getMessage());
