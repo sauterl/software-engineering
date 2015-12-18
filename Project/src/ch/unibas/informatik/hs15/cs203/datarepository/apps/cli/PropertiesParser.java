@@ -71,11 +71,19 @@ class PropertiesParser {
 	public static DatasetPortConfiguration parse(final String filepath)
 			throws ParseException {
 		final Properties props = new Properties();
+		FileReader reader=null;
 		try {
-			props.load(new FileReader(filepath));
+			reader=new FileReader(filepath);
+			props.load(reader);
 		} catch (final IOException e) {
 			throw new RuntimeException(
 					"Error while loading properties file: " + e);
+		}finally{
+			try {
+				reader.close();
+		} catch (Exception e) {
+				//The FileReader wasn't initialized successfully and doesn't need to be closed.
+		}
 		}
 		return parse(props);
 	}
