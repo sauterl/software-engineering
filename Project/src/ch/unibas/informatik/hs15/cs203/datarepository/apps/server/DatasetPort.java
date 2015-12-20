@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import util.logging.Logger;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
@@ -58,6 +60,7 @@ public class DatasetPort {
 		this.config = config;
 		this.repo = repo;
 		this.app = app;
+		htmlGen = new OverviewWriter(new File(repo.toString()+"/table.html").toPath());
 		init();
 		LOG.info(String.format("Initialized with configuration: %s",
 				config.toString()));
@@ -94,7 +97,6 @@ public class DatasetPort {
 	 * @throws IOException
 	 */
 	private void run() throws IOException {
-
 		logProperties();
 		htmlGen.createHtmlFile(app.getMetaData(Criteria.all()));
 		CompletenessDetection strategy = null;
@@ -108,6 +110,9 @@ public class DatasetPort {
 		}
 		System.out.println("Successfully started server mode...");
 		File directory = config.getIncoming().toFile();
+		if(!directory.exists()){
+			directory.mkdir();
+		}
 		while (running) {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
