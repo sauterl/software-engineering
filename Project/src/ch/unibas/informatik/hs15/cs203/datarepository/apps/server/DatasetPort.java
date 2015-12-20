@@ -60,7 +60,6 @@ public class DatasetPort {
 		this.config = config;
 		this.repo = repo;
 		this.app = app;
-		htmlGen = new OverviewWriter(new File(repo.toString()+"/table.html").toPath());
 		init();
 		LOG.info(String.format("Initialized with configuration: %s",
 				config.toString()));
@@ -74,10 +73,6 @@ public class DatasetPort {
 	public void start() {
 		try {
 			setup();
-		} catch (final Throwable t) {
-			logger.error("Startup failed due to reason: ", t);
-		}
-		try {
 			run();
 		} catch (final Throwable t) {
 			LOG.error("Server crash", t);
@@ -110,9 +105,6 @@ public class DatasetPort {
 		}
 		System.out.println("Successfully started server mode...");
 		File directory = config.getIncoming().toFile();
-		if(!directory.exists()){
-			directory.mkdir();
-		}
 		while (running) {
 			if (directory.listFiles().length != 0) {
 				for (File file : directory.listFiles()) {
@@ -167,6 +159,7 @@ public class DatasetPort {
 					"Error while starting Server. Invalid Scan Interval");
 		}
 		htmlGen = new OverviewWriter(config.getHtmlOverview());
+	
 	}
 
 	public void shutdown() {
