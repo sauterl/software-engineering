@@ -1,5 +1,6 @@
 package util.logging;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -121,9 +122,10 @@ public class LoggerManager {
 //				configManager.loadConfigFile(url.getPath());
 				configManager.loadConfigFile();
 			} else {
-				LOGGER.warn("Did not find a configuration file, logging disabled.");
-				configManager.disableLogging();
+				disableLoggingNoConfig();
 			}
+		}catch(final FileNotFoundException fe){
+			disableLoggingNoConfig();
 		} catch (final IOException e) {
 			LOGGER.warn("Reading config failed: ", e);
 			LOGGER.error("Could not read config file");
@@ -131,6 +133,11 @@ public class LoggerManager {
 			LOGGER.warn("Config file not parseable: ",ex);
 			LOGGER.error("Could not parse config file");
 		}
+	}
+	
+	private void disableLoggingNoConfig(){
+		LOGGER.warn("The specified config file was not found. Logging disabled.");
+		configManager.disableLogging();
 	}
 
 	/**
