@@ -2,14 +2,17 @@
 
 Add a new completeness detection class by implementing the interface
 at ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection
+Which is kindly delivered to you under folder src/
 
 Add your new implementation by putting it in data-repository-plugin.jar
 
-You will also need to specify your class name in the properties
+You will also need to specify your class name in the properties file.
 ============== Examples =============================
 
-You find example implementations in the following files:
-/Project/src/ch/unibas/informatik/hs15/cs203/datarepository/apps/server/LastModifiedCompletnessDetection.java
-/Project/src/ch/unibas/informatik/hs15/cs203/datarepository/apps/server/MarkerFileCompletenessDetection.java
-/Project/src/ch/unibas/informatik/hs15/cs203/datarepository/apps/server/NoCompletenessDetection.java
+By browsing ch.unibas.infomatik.hs15.cs203.datarepository.apps.server in the executable jar file <data-repository.jar>
+you will find three implementations which may help you code a custom completeness detection.
+
+	* LastModifiedCompletnessDetection.java
+	* MarkerFileCompletenessDetection.java
+	* NoCompletenessDetection.java
 

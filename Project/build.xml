@@ -8,6 +8,7 @@
 	<!-- Added property to main package -->
 	<property name="main.package" value="ch.unibas.informatik.hs15.cs203.datarepository" />
 	<property name="main.class" value="${main.package}.apps.cli.Main" />
+	<property name="api.completeness.src" value="src/ch/unibas/informatik/hs15/cs203/datarepository/api/CompletenessDetection.java" />
 	<property name="dist.file" value="data-repository.zip" />
 	<path id="junitLib">
 		<pathelement location="lib/junit-4.12.jar" />
@@ -60,6 +61,7 @@
 		<zip destfile="${dist.file}">
 			<fileset dir=".">
 				<include name="${jar.file}" />
+				<include name="${api.completeness.src}"/>
 			</fileset>
 			<fileset dir="resources"/>
 			<zipfileset file="resources/data-repository" filemode="777"/>

@@ -1,5 +1,27 @@
 Data Repository
 
+============== Contents ==========================
+
+ . --
+	|
+	| - src/			 	* Contains the interface for the completeness detection. See Tutorial Completeness-Detection.txt
+	|
+	| - data-repository		* The unix-based wrapper script of the application.
+	|
+	| - data-repository.cmd	* The MS DOS based wrapper script of the application.
+	|
+	| - data-repository.jar	* The executable application itself.
+	|
+	| - readme.txt			* This readme file.
+	|
+	| - specifications.pdf	* The first version of the specifications.
+	|
+	| - specifications2.pdf	* The second version of the specifications, containing also a brief description of the server command.
+	|
+	| - Tutorial Completeness-Detection.txt	* A tutorial how to implement a custom completeness detection, based on the delivered API (located under src/ ).
+	
+
+
 ============== Installation ======================
 
 Create a new Data Repository by adding a new file.

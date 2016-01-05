@@ -151,7 +151,7 @@ class DatasetPortLogger {
 		info("=========================");
 		info("Server started...");
 		info("data-repository version: " + Version.VERSION);
-		info("Configuraiton:");
+		info("Configuration:");
 		info(createPathEntry("incoming-directory", config.getIncoming()));
 		info(createPathEntry("html-overview", config.getHtmlOverview()));
 		info(createPathEntry("log-file", config.getLogFile()));
