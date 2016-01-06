@@ -118,11 +118,10 @@ public class LoggerManager {
 		try {
 			final URL url = findConfigFile();
 			if (url != null) {
-				configManager.setConfigFilePath(url);
 //				configManager.loadConfigFile(url.getPath());
-				configManager.loadConfigFile();
+				configManager.loadConfigFile(url);
 			} else {
-				disableLoggingNoConfig();
+//				disableLoggingNoConfig();
 			}
 		}catch(final FileNotFoundException fe){
 			disableLoggingNoConfig();
@@ -226,7 +225,7 @@ public class LoggerManager {
 				}
 			}
 		} else {
-			LOGGER.debug("Config file path read from system property is: "
+			LOGGER.info("Config file path read from system property is: "
 					+ pathPerProperty);
 			try {
 //				out = getClass().getClassLoader().getResource(pathPerProperty);

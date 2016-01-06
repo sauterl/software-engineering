@@ -411,7 +411,10 @@ public class ConfigurationManager {
 	 * @throws IllegalArgumentException
 	 *             If the file is not well formed.
 	 */
-	void loadConfigFile() throws IOException, IllegalArgumentException {
+	void loadConfigFile(final URL path) throws IOException, IllegalArgumentException {
+		if(!setConfigFilePath(path)){
+			throw new IllegalArgumentException("Cannot load config twice!");
+		}
 		if (!configPathReceived) {
 			final String msg = "No config file path is set!";
 			// may change to only print error to LOGGER
@@ -419,8 +422,9 @@ public class ConfigurationManager {
 		}
 		if (configFilePath != null) {
 			LOGGER.config("Loading configuration file: "
-					+ configFilePath.getPath());
-			final Json jsonFile = readConfigFile(configFilePath.getPath());
+					+ configFilePath.toString() );
+//			logDebugInfoUrl(configFilePath);
+			final Json jsonFile = readConfigFile(configFilePath.getAuthority());
 			// log.debug("Parsed config: \n"+jsonFile.toJson() );
 			LOGGER.debug("Parsed json");
 			if (!validateStructure(jsonFile)) {
@@ -438,6 +442,34 @@ public class ConfigurationManager {
 			}
 		}
 	}
+	
+	private void logDebugInfoUrl(URL url){
+		StringBuffer sb = new StringBuffer();
+		if( url == null){
+			sb.append("URL is null");
+		}else{
+			sb.append("\t\t");
+			sb.append("String rep: ");
+			sb.append(url.toString()+"\n");
+			sb.append("\t\t");
+			sb.append("Path: ");
+			sb.append(url.getPath() + "\n");
+			sb.append("\t\t");
+			sb.append("File: ");
+			sb.append(url.getFile() + "\n");
+			sb.append("\t\t");
+			sb.append("Authority: ");
+			sb.append(url.getAuthority() + "\n");
+			sb.append("\t\t");
+			sb.append("Protocol: ");
+			sb.append(url.getProtocol() + "\n");
+			sb.append("\t\t");
+			sb.append("UserInfo: ");
+			sb.append(url.getUserInfo() + "\n");
+			
+		}
+		LOGGER.debug(sb.toString() );
+	}
 
 	/**
 	 * Sets the config file path if none was set previously. <br />
@@ -449,12 +481,14 @@ public class ConfigurationManager {
 	 * @return <tt>true</tt> if the config file path was set successfully.
 	 *         Otherwise <tt>false</tt>.
 	 */
-	boolean setConfigFilePath(final URL path) {
+	private boolean setConfigFilePath(final URL path) {
 		if (configPathReceived) {
+			LOGGER.warn("Cannot receive config path twice!");
 			return false;
 		} else {
 			configFilePath = path;
 			configPathReceived = true;
+			LOGGER.debug("Received config path: "+configFilePath.toString());
 			return true;
 		}
 	}
@@ -481,7 +515,7 @@ public class ConfigurationManager {
 
 	private String getDefaultConfigDesc() {
 		return String.format(
-				"Handler: %s, Handler's levle: %s, Logger's level: %s",
+				"Handler: %s, Handler's level: %s, Logger's level: %s",
 				defaultHandler.getClass().getSimpleName(), defaultHandler
 						.getLevel().getName(), defaultLevel.getName());
 	}
