@@ -130,7 +130,7 @@ public class DatasetPort {
 			}
 
 			try {
-				Thread.sleep(config.getScanInterval());
+				Thread.sleep(config.getScanInterval()*1000);//ms
 			} catch (InterruptedException e) {
 				throw new RuntimeException("Server execution interrupted", e);
 			}
