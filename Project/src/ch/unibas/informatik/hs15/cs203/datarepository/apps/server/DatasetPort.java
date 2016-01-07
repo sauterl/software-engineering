@@ -12,6 +12,7 @@ import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.Criteria;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.DataRepository;
 import ch.unibas.informatik.hs15.cs203.datarepository.api.MetaData;
+import ch.unibas.informatik.hs15.cs203.datarepository.api.CompletenessDetection.CompletenessException;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DatasetPortConfiguration;
 import ch.unibas.informatik.hs15.cs203.datarepository.common.DummyProgressListener;
 
@@ -125,6 +126,9 @@ public class DatasetPort {
 					} catch (IOException e) {
 						throw new RuntimeException(
 								"Updating of HTML File failed. ", e);
+					} catch (CompletenessException ex){
+						String s = ex.getLogMessage() == null ? "No message available" : ex.getLogMessage();
+						logger.error("CompletenessDetection error occured: "+s);
 					}
 				}
 			}
