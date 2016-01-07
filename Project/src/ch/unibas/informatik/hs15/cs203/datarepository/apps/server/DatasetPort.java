@@ -112,7 +112,7 @@ public class DatasetPort {
 						LOG.debug("Verifying new file! Filename: "
 								+ file.toString());
 						if (!strategy.verifyCompletness(file.toPath())) {
-							LOG.warn("File incomplete (" + file.toString()
+							LOG.debug("File incomplete (" + file.toString()
 									+ ")");
 							continue;
 						}

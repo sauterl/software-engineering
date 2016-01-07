@@ -50,9 +50,8 @@ class DatasetPortLogger {
 		// }
 
 	}
-
+	
 	private Path confirmPath(Path repo, Path path) {
-		// TODO Revisit this code and adapt the specifications:
 		/*
 		 * Description of log-file property:
 		 * =====================================================================
