@@ -126,15 +126,17 @@ public class DatasetPort {
 					} catch (IOException e) {
 						throw new RuntimeException(
 								"Updating of HTML File failed. ", e);
-					} catch (CompletenessException ex){
-						String s = ex.getLogMessage() == null ? "No message available" : ex.getLogMessage();
-						logger.error("CompletenessDetection error occured: "+s);
+					} catch (CompletenessException ex) {
+						String s = ex.getLogMessage() == null ? "No message available"
+								: ex.getLogMessage();
+						logger.error("CompletenessDetection error occured: "
+								+ s);
 					}
 				}
 			}
 
 			try {
-				Thread.sleep(config.getScanInterval()*1000);//ms
+				Thread.sleep(config.getScanInterval() * 1000);// ms
 			} catch (InterruptedException e) {
 				throw new RuntimeException("Server execution interrupted", e);
 			}
@@ -163,7 +165,7 @@ public class DatasetPort {
 					"Error while starting Server. Invalid Scan Interval");
 		}
 		htmlGen = new OverviewWriter(config.getHtmlOverview());
-	
+
 	}
 
 	public void shutdown() {
