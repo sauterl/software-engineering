@@ -26,7 +26,7 @@ public class MarkerFileCompletenessDetection implements CompletenessDetection{
 		}
 		for(File child : parent.toFile().listFiles()){
 			if(child.getName().startsWith(marker)){
-				String fileNameWithoutPrefix = child.getName().substring(child.getName().indexOf(marker));
+				String fileNameWithoutPrefix = child.getName().substring(marker.length());
 				if(fileNameWithoutPrefix.equals(file.getFileName().toString())){
 					if(!child.delete()){
 						throw new RuntimeException("Error while deleting marker file.");
