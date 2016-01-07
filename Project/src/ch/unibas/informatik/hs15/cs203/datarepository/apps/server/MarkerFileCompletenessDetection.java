@@ -35,6 +35,9 @@ public class MarkerFileCompletenessDetection implements CompletenessDetection{
 				}
 			}
 		}
+		if(file.toFile().getName().startsWith(marker)){
+			throw new CompletenessException("A marker file without corresponding file was found");
+		}
 		//TODO Convert DatasetPortLogger to singleton, log Error
 		return false;
 	}
