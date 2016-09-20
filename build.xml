@@ -30,7 +30,7 @@
 	</target>
 
 	<target name="test" depends="compile-test" description="Run all tests">
-		<junit haltonfailure="true">
+		<junit haltonfailure="true" fork="true">
 			<classpath refid="junitLib" />
 			<classpath path="${classes}" />
 			<classpath>
@@ -47,8 +47,8 @@
 	
 
 	<target name="jar" depends="compile" description="Generate JAR">
-		<jar jarfile="${jar.file}" basedir="${classes}" includes="**/*.class">
-			<fileset dir="/assets"/>
+		<jar destfile="resources/${jar.file}" basedir="${classes}" includes="**/*.class">
+			<fileset dir="assets"/>
 			<manifest>
 				<attribute name="Main-Class" value="${main.class}" />
 				<attribute name="Class-Path" value="data-repository.jar data-repository-plugin.jar"/>
