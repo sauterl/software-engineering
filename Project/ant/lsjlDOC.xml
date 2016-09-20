@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="javadoc">
-    <target name="javadoc">
-        <javadoc access="package" additionalparam=" -link http://docs.oracle.com/javase/7/docs/api/" author="true" classpath="C:\Users\Loris\Programs\eclipse\plugins\org.junit_4.11.0.v201303080030\junit.jar;C:\Users\Loris\Programs\eclipse\plugins\org.hamcrest.core_1.3.0.v201303031735.jar" destdir="../loggingDoc" doctitle="Lightweight and Simple Java Logging API (lsjl)" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.7" sourcefiles="../src/util/logging/LoggerManager.java,../src/util/logging/StandardConsoleHandler.java,../src/util/logging/StandardFormatter.java,../src/util/logging/package-info.java,../src/util/logging/LevelX.java,../src/util/logging/ConfigurationManager.java,../src/util/logging/Logger.java" sourcepath="../src;../srcTest;../junitTest;../sandbox;../manualTests" splitindex="true" use="true" version="true"/>
-    </target>
-</project>

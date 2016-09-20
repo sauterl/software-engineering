@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="javadoc">
-    <target name="javadoc">
-        <javadoc access="package" additionalparam=" -link http://docs.oracle.com/javase/7/docs/api/" author="true" classpath="." destdir="../doc" doctitle="Repository Data Processing API" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="api.options,api" source="1.7" sourcepath="../src;../test" splitindex="true" use="true" version="true">
-            <link href="file:/C:/Users/Loris/uni/05_hs15/software_engineering/project_git/software-engineering/Project/doc/"/>
-        </javadoc>
-    </target>
-</project>
