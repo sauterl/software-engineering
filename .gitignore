@@ -44,4 +44,4 @@ dist/
 /repository
 /test-incoming-dir/
 out/
-.settings
+/.settings
