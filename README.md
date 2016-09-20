@@ -26,4 +26,4 @@ Contributors
 Contents
 -----------
 
-The source code is located in the ``./Project/src/`folder, any other subfolder of `./Project/` contains other, code development related files.
+assets/support contains information on commands. UnitTests are in srcTest/, src/ contains the source-code, resources/ contains information we were given.
