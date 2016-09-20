@@ -1,19 +1,1 @@
-/bin/
 
-# Ignore Sandbox
-##################
-# since sandbox contains some experimental source code
-/sandbox/
-/test-working-dir/
-
-# Ignore ant classes
-###################
-/ant-classes/**
-
-# Ignore Eclipse classpath
-###################
-.classpath
-/-verbose/
-/huhuu.txt
-/repository
-/test-incoming-dir/

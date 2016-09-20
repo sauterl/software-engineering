@@ -19,18 +19,29 @@ Project/doc/
 **/*.7z
 **/*.tar
 **/*.gz
-**/*.jar
+/*.jar
 
 # Eclipse Settings
 ###################
-Project/.project
+/.project
 
 # Unit Tests
 ###################
-Project/test-working-dir/
+/test-working-dir/
 
 # Distribution / build
 ##################
-Project/ant-classes/
-Project/dist/
+ant-classes/
+dist/
 .idea/
+
+/bin/
+
+# Ignore Eclipse classpath
+###################
+.classpath
+/-verbose/
+/repository
+/test-incoming-dir/
+out/
+.settings
