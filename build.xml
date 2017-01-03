@@ -39,7 +39,7 @@
 			<formatter type="brief" usefile="false" />
 			<batchtest>
 				<fileset dir="srcTest">
-					<include name="**/*Test.java" />
+					<include name="**/api/*Test.java" />
 				</fileset>
 			</batchtest>
 		</junit>
