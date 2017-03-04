@@ -1,5 +1,6 @@
 README
 ==========
+[![Build Status](https://travis-ci.com/silvanheller/software-engineering.svg?token=zjMvSDLQzm6ngNnTHhhR&branch=master)](https://travis-ci.com/silvanheller/software-engineering)
 
 This repository is used to manage the development of a project at the university of Basel, fall 2015.
 
